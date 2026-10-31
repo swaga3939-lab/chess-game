@@ -21,15 +21,25 @@
             padding-top: 20px;
             margin: 0;
             height: 100vh;
+            user-select: none; /* Запрещаем выделять текст */
+            -webkit-user-select: none;
         }
         
         #board { 
             width: 95vw; 
             max-width: 400px; 
             margin: 0 auto; 
+            touch-action: none; /* Запрещаем скролл при касании доски */
         }
 
-        /* Делаем курсор в виде пальца, чтобы было понятно, что можно нажимать */
+        /* --- МАГИЯ, КОТОРАЯ ЗАПРЕЩАЕТ ТАСКАТЬ ФИГУРЫ --- */
+        /* Отключаем реакцию на клики и перетаскивания для самих картинок фигур */
+        .board-b72b1 .piece-417db {
+            pointer-events: none !important; 
+            -webkit-user-drag: none !important;
+            user-drag: none !important;
+        }
+
         .square-55d63 {
             position: relative;
             cursor: pointer !important;
@@ -110,17 +120,15 @@
         var board = null;
         var game = new Chess();
         var $status = document.getElementById('status-panel');
-        var selectedSquare = null; // Храним клетку, на которую нажали
+        var selectedSquare = null;
 
-        // Очистка всех подсветок
         function removeHighlights() {
             $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
         }
 
-        // Подсветка возможных ходов
         function highlightMoves(source) {
             removeHighlights();
-            $('#board .square-' + source).addClass('highlight-selected'); // Подсвечиваем саму выбранную фигуру
+            $('#board .square-' + source).addClass('highlight-selected');
             
             var moves = game.moves({ square: source, verbose: true });
             for (var i = 0; i < moves.length; i++) {
@@ -135,14 +143,12 @@
             }
         }
 
-        // Главная функция, которая срабатывает при клике на клетку
         function onSquareClick(square) {
             if (game.game_over()) return;
 
-            // Если мы еще ничего не выбрали
+            // Если ничего не выбрано - выбираем фигуру
             if (!selectedSquare) {
                 var piece = game.get(square);
-                // Выбираем только свои фигуры
                 if (piece && piece.color === game.turn()) {
                     selectedSquare = square;
                     highlightMoves(square);
@@ -150,14 +156,14 @@
             } 
             // Если фигура уже выбрана
             else {
-                // Если нажали на ту же клетку, где стоит фигура — отменяем выбор
+                // Отмена выбора при клике на ту же клетку
                 if (selectedSquare === square) {
                     selectedSquare = null;
                     removeHighlights();
                     return;
                 }
 
-                // Проверяем, можно ли туда пойти
+                // Пробуем сделать ход
                 var move = game.move({
                     from: selectedSquare,
                     to: square,
@@ -165,19 +171,17 @@
                 });
 
                 if (move) {
-                    // Ход сделан!
                     board.position(game.fen());
                     updateStatus();
                     selectedSquare = null;
                     removeHighlights();
                 } else {
-                    // Ход невозможен. Проверяем, не нажали ли мы на другую свою фигуру
+                    // Если ход невозможен, проверяем: может, нажали на другую свою фигуру?
                     var piece = game.get(square);
                     if (piece && piece.color === game.turn()) {
                         selectedSquare = square;
                         highlightMoves(square);
                     } else {
-                        // Нажали на пустую/чужую клетку — просто сбрасываем выбор
                         selectedSquare = null;
                         removeHighlights();
                     }
@@ -205,17 +209,17 @@
             }
         }
 
-        // Настройка доски (ВЫКЛЮЧАЕМ перетаскивание)
+        // Инициализация доски БЕЗ перетаскивания
         var config = {
-            draggable: false, // <--- Отключили тягу
+            draggable: false, 
             position: 'start',
             pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
         }
         board = Chessboard('board', config);
 
-        // Привязываем клик к каждой клетке доски
-        $('#board').on('click', '.square-55d63', function() {
-            // Получаем название клетки (например, "e4")
+        // Обработка кликов
+        $('#board').on('click', '.square-55d63', function(e) {
+            e.preventDefault(); // Предотвращаем стандартное поведение браузера
             var square = $(this).attr('data-square');
             onSquareClick(square);
         });
