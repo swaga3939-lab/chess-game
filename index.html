@@ -3,25 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Шахматы</title>
+    <title>Шахматы Онлайн</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
     
+    <!-- Подключаем Socket.IO для связи с сервером -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    
     <style>
         :root {
-            --bg-color: var(--tg-theme-bg-color, #2c2e33);
-            --text-color: var(--tg-theme-text-color, #ffffff);
-            --secondary-bg: var(--tg-theme-secondary-bg-color, #1c1d22);
-            --accent: var(--tg-theme-button-color, #5288c1);
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #000000);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            --accent: var(--tg-theme-button-color, #2481cc);
         }
 
         body { 
             background-color: var(--bg-color); 
             color: var(--text-color); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: sans-serif; 
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -29,132 +32,72 @@
             height: 100vh;
             user-select: none;
             -webkit-user-select: none;
-            overflow: hidden; /* Запрещаем скролл страницы */
+            overflow: hidden;
         }
-
-        /* Шапка с игроками */
-        .player-bar {
-            width: 90%;
-            max-width: 400px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            margin: 10px 0;
-        }
-
-        .player-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background-color: #555;
-            background-image: url('https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y');
-            background-size: cover;
-        }
-
-        .name { font-weight: bold; font-size: 16px; }
-        .timer { font-size: 14px; color: #aaa; background: var(--secondary-bg); padding: 4px 8px; border-radius: 6px; }
-
-        /* Доска */
-        #board-container { position: relative; }
+        
         #board { width: 95vw; max-width: 400px; touch-action: none; }
 
-        /* Скрываем стандартные координаты, чтобы было чище */
+        /* Скрываем координаты для чистоты */
         .notation-322f9 { display: none; }
 
-        /* Стили для точек и колец */
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; -webkit-user-drag: none !important; }
         
-        .highlight-dot::after {
-            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 32%; height: 32%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none;
-        }
-        .highlight-capture::after {
-            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none;
-        }
+        .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 32%; height: 32%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none; }
+        .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none; }
         .black-3c85d .highlight-dot::after { background-color: rgba(255, 255, 255, 0.3); }
         .black-3c85d .highlight-capture::after { border-color: rgba(255, 255, 255, 0.3); }
         .highlight-selected { background-color: rgba(255, 255, 0, 0.4) !important; }
 
-        /* Кнопки управления */
-        .controls { margin-top: 20px; display: flex; gap: 10px; }
-        button {
-            padding: 12px 20px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
-            background-color: var(--accent); color: white; cursor: pointer;
-        }
-        button:active { opacity: 0.8; }
+        #status-panel { margin-top: 15px; padding: 10px 20px; border-radius: 8px; background: var(--secondary-bg); font-weight: bold; text-align: center; min-width: 200px;}
+        .check-warning { color: #ff4444; }
 
-        /* Модальное окно победы */
-        #modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
-        }
-        #modal h2 { color: white; margin-bottom: 20px; font-size: 28px; }
+        .controls { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        button { padding: 12px 20px; border: none; border-radius: 8px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; font-size: 16px;}
+        button:active { opacity: 0.8; }
+        .btn-green { background-color: #4CAF50; }
+        .btn-red { background-color: #f44336; }
+
+        /* Модальное окно */
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        #modal h2 { color: white; margin-bottom: 20px; font-size: 28px; text-align: center;}
     </style>
 </head>
 <body>
-    <!-- Противник -->
-    <div class="player-bar">
-        <div class="player-info">
-            <div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/bottts/svg?seed=Opponent');"></div>
-            <div>
-                <div class="name" id="opponent-name">Противник</div>
-                <div class="timer">10:00</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Доска -->
-    <div id="board-container">
-        <div id="board"></div>
-    </div>
-
-    <!-- Ты -->
-    <div class="player-bar">
-        <div class="player-info">
-            <div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/bottts/svg?seed=Player');"></div>
-            <div>
-                <div class="name" id="player-name">Игрок</div>
-                <div class="timer">10:00</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Кнопки -->
+    <div id="status-panel">Подключение...</div>
+    <div id="board" style="width: 350px"></div>
+    
     <div class="controls">
-        <button id="create-game-btn" style="background-color: #4CAF50;">Создать игру</button>
-        <button id="restart-btn" style="background-color: #f44336;">Сброс</button>
+        <button id="create-game-btn" class="btn-green">Создать игру</button>
+        <button id="join-game-btn">Присоединиться</button>
+        <button id="restart-btn" class="btn-red">Сброс</button>
     </div>
 
-    <!-- Модалка окончания игры -->
     <div id="modal">
         <h2 id="modal-text">МАТ!</h2>
-        <button onclick="closeModal()">Играть снова</button>
+        <button onclick="closeModal()">Ок</button>
     </div>
 
     <script>
-        // ... (ТУТ ВЕСЬ ТВОЙ КОД ИЗ ПРЕДЫДУЩЕГО ФАЙЛА, ОН НЕ МЕНЯЕТСЯ) ...
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
-        // Получаем имя из Telegram
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('player-name').innerText = tg.initDataUnsafe.user.first_name;
-        }
+        // АДРЕС ТВОЕГО СЕРВЕРА НА RENDER
+        const SERVER_URL = 'https://chess-server-gh0q.onrender.com';
+        
+        // Подключаемся к серверу
+        const socket = io(SERVER_URL);
 
         var board = null;
         var game = new Chess();
         var selectedSquare = null;
+        var currentRoom = null;
+        var myColor = null; // 'w' (белые) или 'b' (черные)
 
+        var $status = document.getElementById('status-panel');
+
+        // --- ЛОГИКА ДОСКИ ---
         function removeHighlights() {
             $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
         }
@@ -176,6 +119,18 @@
 
         function onSquareClick(square) {
             if (game.game_over()) return;
+            
+            // Если мы не в комнате, нельзя ходить
+            if (!currentRoom) {
+                $status.innerText = "Сначала создайте или присоединитесь к игре!";
+                return;
+            }
+
+            // Если сейчас не наш ход, нельзя ходить
+            if (game.turn() !== myColor) {
+                $status.innerText = "Сейчас не ваш ход!";
+                return;
+            }
 
             if (!selectedSquare) {
                 var piece = game.get(square);
@@ -192,10 +147,13 @@
                 var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
                 if (move) {
                     board.position(game.fen());
-                    checkGameOver();
+                    updateStatus();
+                    // Отправляем ход на сервер
+                    if (socket.connected) {
+                        socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } });
+                    }
                     selectedSquare = null;
                     removeHighlights();
-                    // ТУТ БУДЕТ ОТПРАВКА ХОДА НА СЕРВЕР: socket.emit('move', move);
                 } else {
                     var piece = game.get(square);
                     if (piece && piece.color === game.turn()) {
@@ -209,38 +167,98 @@
             }
         }
 
-        function checkGameOver() {
+        function updateStatus() {
             if (game.in_checkmate()) {
                 var winner = game.turn() === 'w' ? 'Черные' : 'Белые';
+                $status.innerHTML = 'МАТ! Победили ' + winner;
+                $status.classList.add('check-warning');
                 document.getElementById('modal-text').innerText = 'МАТ! Победили ' + winner;
                 document.getElementById('modal').style.display = 'flex';
             } else if (game.in_draw()) {
+                $status.innerHTML = 'НИЧЬЯ';
+                $status.classList.remove('check-warning');
                 document.getElementById('modal-text').innerText = 'НИЧЬЯ';
                 document.getElementById('modal').style.display = 'flex';
+            } else {
+                var turnText = game.turn() === 'w' ? 'Белые' : 'Черные';
+                $status.innerHTML = 'Ход: ' + turnText;
+                $status.classList.remove('check-warning');
+                if (game.in_check()) {
+                    $status.innerHTML += ' (ШАХ!)';
+                    $status.classList.add('check-warning');
+                }
             }
         }
 
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
-            game.reset();
-            board.start();
-            selectedSquare = null;
-            removeHighlights();
         }
 
-        var config = {
-            draggable: false, 
+        // --- ИНИЦИАЛИЗАЦИЯ ---
+        board = Chessboard('board', {
+            draggable: false,
             position: 'start',
             pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
-        }
-        board = Chessboard('board', config);
+        });
 
         $('#board').on('click', '.square-55d63', function(e) {
             e.preventDefault();
             onSquareClick($(this).attr('data-square'));
         });
 
-        document.getElementById('restart-btn').addEventListener('click', closeModal);
+        // --- КНОПКИ ---
+        document.getElementById('create-game-btn').onclick = () => {
+            const roomId = Math.random().toString(36).substring(2, 6).toUpperCase();
+            currentRoom = roomId;
+            myColor = 'w'; // Создатель всегда играет белыми
+            socket.emit('join', { room: roomId });
+            $status.innerHTML = `Вы играете <b>Белыми</b>.<br>ID комнаты: <b>${roomId}</b>.<br>Ждем соперника...`;
+        };
+
+        document.getElementById('join-game-btn').onclick = () => {
+            const roomId = prompt("Введите ID комнаты (4 символа):");
+            if (roomId) {
+                currentRoom = roomId.toUpperCase();
+                myColor = 'b'; // Присоединившийся играет черными
+                socket.emit('join', { room: currentRoom });
+                $status.innerHTML = `Вы играете <b>Черными</b>.<br>Комната: <b>${currentRoom}</b>`;
+            }
+        };
+
+        document.getElementById('restart-btn').onclick = () => {
+            if(currentRoom) socket.emit('join', { room: currentRoom }); // Перезаход в комнату сбрасывает игру
+        };
+
+        // --- СОБЫТИЯ СЕРВЕРА (SOCKET.IO) ---
+        socket.on('connect', () => {
+            if (!currentRoom) $status.innerText = "Подключено. Создайте игру!";
+        });
+
+        socket.on('disconnect', () => {
+            $status.innerText = "Связь с сервером потеряна...";
+        });
+
+        // Сервер прислал новое состояние доски
+        socket.on('board_state', (data) => {
+            game.load(data.fen);
+            board.position(data.fen);
+            selectedSquare = null;
+            removeHighlights();
+            updateStatus();
+        });
+
+        socket.on('game_over', (data) => {
+            if (data.result === 'checkmate') {
+                document.getElementById('modal-text').innerText = `МАТ! Победили ${data.winner === 'white' ? 'Белые' : 'Черные'}`;
+            } else {
+                document.getElementById('modal-text').innerText = 'Ничья.';
+            }
+            document.getElementById('modal').style.display = 'flex';
+        });
+
+        socket.on('invalid_move', (data) => {
+            alert('Сервер отклонил ход: ' + data.msg);
+        });
     </script>
 </body>
 </html>
