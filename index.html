@@ -29,13 +29,12 @@
             margin: 0 auto; 
         }
 
-        /* ОБЯЗАТЕЛЬНО: Чтобы точки позиционировались ровно по центру */
+        /* Делаем курсор в виде пальца, чтобы было понятно, что можно нажимать */
         .square-55d63 {
             position: relative;
+            cursor: pointer !important;
         }
 
-        /* --- СТИЛЬ CHESS.COM --- */
-        
         /* 1. Точка для пустой клетки */
         .highlight-dot::after {
             content: '';
@@ -46,7 +45,7 @@
             width: 30%;
             height: 30%;
             border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.15); /* Серый полупрозрачный */
+            background-color: rgba(0, 0, 0, 0.15);
             pointer-events: none;
         }
 
@@ -60,16 +59,18 @@
             width: 85%;
             height: 85%;
             border-radius: 50%;
-            border: 6px solid rgba(0, 0, 0, 0.15); /* Толстое серое кольцо */
+            border: 6px solid rgba(0, 0, 0, 0.15);
             box-sizing: border-box;
             pointer-events: none;
         }
 
-        /* Делаем точки светлее на черных клетках */
+        /* Подсветка самой выбранной фигуры (желтый фон) */
+        .highlight-selected {
+            background-color: rgba(255, 255, 0, 0.4) !important;
+        }
+
         .black-3c85d .highlight-dot::after { background-color: rgba(255, 255, 255, 0.25); }
         .black-3c85d .highlight-capture::after { border-color: rgba(255, 255, 255, 0.25); }
-
-        /* --- КОНЕЦ СТИЛЯ --- */
 
         #status-panel {
             margin-top: 20px;
@@ -109,58 +110,79 @@
         var board = null;
         var game = new Chess();
         var $status = document.getElementById('status-panel');
+        var selectedSquare = null; // Храним клетку, на которую нажали
 
+        // Очистка всех подсветок
         function removeHighlights() {
-            $('#board .square-55d63').removeClass('highlight-dot highlight-capture');
+            $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
         }
 
+        // Подсветка возможных ходов
         function highlightMoves(source) {
             removeHighlights();
-            // Получаем список возможных ходов для выбранной фигуры
-            var moves = game.moves({ square: source, verbose: true });
+            $('#board .square-' + source).addClass('highlight-selected'); // Подсвечиваем саму выбранную фигуру
             
+            var moves = game.moves({ square: source, verbose: true });
             for (var i = 0; i < moves.length; i++) {
                 var targetSquare = moves[i].to;
-                // Проверяем, стоит ли на целевой клетке фигура
                 var pieceOnTarget = game.get(targetSquare);
                 
                 if (pieceOnTarget) {
-                    // Если там фигура соперника (или своя, но туда нельзя) - рисуем кольцо
                     $('#board .square-' + targetSquare).addClass('highlight-capture');
                 } else {
-                    // Если клетка пустая - рисуем точку
                     $('#board .square-' + targetSquare).addClass('highlight-dot');
                 }
             }
         }
 
-        function onDragStart (source, piece, position, orientation) {
-            if (game.game_over()) return false;
-            if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-                (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-                return false;
+        // Главная функция, которая срабатывает при клике на клетку
+        function onSquareClick(square) {
+            if (game.game_over()) return;
+
+            // Если мы еще ничего не выбрали
+            if (!selectedSquare) {
+                var piece = game.get(square);
+                // Выбираем только свои фигуры
+                if (piece && piece.color === game.turn()) {
+                    selectedSquare = square;
+                    highlightMoves(square);
+                }
+            } 
+            // Если фигура уже выбрана
+            else {
+                // Если нажали на ту же клетку, где стоит фигура — отменяем выбор
+                if (selectedSquare === square) {
+                    selectedSquare = null;
+                    removeHighlights();
+                    return;
+                }
+
+                // Проверяем, можно ли туда пойти
+                var move = game.move({
+                    from: selectedSquare,
+                    to: square,
+                    promotion: 'q'
+                });
+
+                if (move) {
+                    // Ход сделан!
+                    board.position(game.fen());
+                    updateStatus();
+                    selectedSquare = null;
+                    removeHighlights();
+                } else {
+                    // Ход невозможен. Проверяем, не нажали ли мы на другую свою фигуру
+                    var piece = game.get(square);
+                    if (piece && piece.color === game.turn()) {
+                        selectedSquare = square;
+                        highlightMoves(square);
+                    } else {
+                        // Нажали на пустую/чужую клетку — просто сбрасываем выбор
+                        selectedSquare = null;
+                        removeHighlights();
+                    }
+                }
             }
-            highlightMoves(source);
-        }
-
-        function onDrop (source, target) {
-            removeHighlights();
-            var move = game.move({
-                from: source,
-                to: target,
-                promotion: 'q'
-            });
-            if (move === null) return 'snapback';
-            updateStatus();
-        }
-
-        // Важно: если пользователь отпустил фигуру ВНЕ доски, подсветку надо убрать
-        function onMouseoutSquare(square, piece) {
-            if (piece) removeHighlights();
-        }
-
-        function onSnapEnd () {
-            board.position(game.fen());
         }
 
         function updateStatus () {
@@ -183,20 +205,26 @@
             }
         }
 
+        // Настройка доски (ВЫКЛЮЧАЕМ перетаскивание)
         var config = {
-            draggable: true,
+            draggable: false, // <--- Отключили тягу
             position: 'start',
-            onDragStart: onDragStart,
-            onDrop: onDrop,
-            onSnapEnd: onSnapEnd,
-            onMouseoutSquare: onMouseoutSquare,
             pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
         }
         board = Chessboard('board', config);
 
+        // Привязываем клик к каждой клетке доски
+        $('#board').on('click', '.square-55d63', function() {
+            // Получаем название клетки (например, "e4")
+            var square = $(this).attr('data-square');
+            onSquareClick(square);
+        });
+
         document.getElementById('restart-btn').addEventListener('click', function() {
             game.reset();
             board.start();
+            selectedSquare = null;
+            removeHighlights();
             $status.classList.remove('check-warning');
             $status.innerHTML = 'Ход: Белых';
         });
