@@ -22,139 +22,83 @@
         body { 
             background-color: var(--bg-color); 
             color: var(--text-color); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            height: 100vh;
-            user-select: none;
-            -webkit-user-select: none;
-            overflow: hidden; /* Блокируем скролл */
-            padding-top: 10px;
+            font-family: sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            margin: 0; height: 100vh; user-select: none; overflow: hidden; padding-top: 10px;
         }
 
-        /* Панель игрока (Сверху и Снизу) */
         .player-bar {
-            width: 90%;
-            max-width: 380px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background-color: var(--secondary-bg);
-            border-radius: 12px;
-            margin: 5px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 90%; max-width: 380px; display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; background-color: var(--secondary-bg); border-radius: 12px; margin: 5px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .player-info { display: flex; align-items: center; gap: 12px; }
-        
-        .avatar {
-            width: 36px; height: 36px; border-radius: 50%;
-            background-color: #555; background-size: cover;
-        }
-
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background-color: #555; background-size: cover; }
         .name { font-weight: 600; font-size: 15px; }
         .timer { font-size: 14px; font-weight: bold; color: #aaa; }
 
-        /* Доска */
         #board-container { 
-            position: relative; 
-            width: 95vw; 
-            max-width: 400px; 
-            margin: 10px 0;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            position: relative; width: 95vw; max-width: 400px; margin: 10px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
         }
         #board { width: 100%; touch-action: none; }
-
-        /* Координаты */
         .notation-322f9 { display: none; }
 
-        /* Стили для точек и колец */
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; -webkit-user-drag: none !important; }
         
-        .highlight-dot::after {
-            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 32%; height: 32%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none;
-        }
-        .highlight-capture::after {
-            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none;
-        }
+        .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 32%; height: 32%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none; }
+        .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none; }
         .black-3c85d .highlight-dot::after { background-color: rgba(255, 255, 255, 0.3); }
         .black-3c85d .highlight-capture::after { border-color: rgba(255, 255, 255, 0.3); }
         .highlight-selected { background-color: rgba(255, 255, 0, 0.4) !important; }
 
-        /* Статус бар */
         #status-panel { 
-            margin-top: 5px; padding: 8px 20px; border-radius: 20px; 
-            background: var(--secondary-bg); font-weight: bold; font-size: 14px;
-            text-align: center; min-width: 200px; transition: all 0.3s ease;
+            margin-top: 5px; padding: 8px 15px; border-radius: 20px; background: var(--secondary-bg); 
+            font-weight: bold; font-size: 14px; text-align: center; min-width: 220px; transition: all 0.3s ease;
+            display: flex; justify-content: center; gap: 8px;
         }
+        .room-badge { background: var(--accent); padding: 2px 8px; border-radius: 10px; color: white; font-size: 12px; display: flex; align-items: center;}
         .check-warning { color: #ff4444; background-color: rgba(255, 68, 68, 0.1); }
 
-        /* Кнопки управления */
-        .controls { 
-            margin-top: 15px; display: flex; gap: 10px; width: 90%; max-width: 400px; justify-content: center;
-        }
-        button { 
-            flex: 1; padding: 12px; border: none; border-radius: 12px; 
-            font-size: 15px; font-weight: bold; cursor: pointer;
-            background-color: var(--accent); color: white;
-            transition: transform 0.1s, opacity 0.2s;
-        }
+        .controls { margin-top: 15px; display: flex; gap: 10px; width: 90%; max-width: 400px; justify-content: center; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; background-color: var(--accent); color: white; transition: transform 0.1s; }
         button:active { transform: scale(0.96); opacity: 0.8; }
         .btn-green { background-color: #4CAF50; }
         .btn-red { background-color: #f44336; }
 
-        /* Модальное окно (Победа/Поражение) */
-        #modal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); z-index: 1000; 
-            justify-content: center; align-items: center; flex-direction: column; 
-            backdrop-filter: blur(5px);
-        }
-        .modal-card {
-            background: var(--secondary-bg); padding: 30px; border-radius: 20px;
-            text-align: center; width: 80%; max-width: 300px;
-        }
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); }
+        .modal-card { background: var(--secondary-bg); padding: 30px; border-radius: 20px; text-align: center; width: 80%; max-width: 300px; }
         .modal-card h2 { color: white; margin-top: 0; font-size: 26px; }
     </style>
 </head>
 <body>
-
-    <!-- Противник -->
     <div class="player-bar">
         <div class="player-info">
             <div class="avatar" id="opp-avatar" style="background-image: url('https://api.dicebear.com/7.x/bottts/svg?seed=Opponent');"></div>
             <div>
                 <div class="name" id="opp-name">Ожидание...</div>
-                <div class="timer">10:00</div>
             </div>
         </div>
     </div>
 
-    <!-- Доска -->
     <div id="board-container">
         <div id="board"></div>
     </div>
 
-    <!-- Ты -->
     <div class="player-bar">
         <div class="player-info">
             <div class="avatar" id="my-avatar" style="background-image: url('https://api.dicebear.com/7.x/bottts/svg?seed=Player');"></div>
             <div>
                 <div class="name" id="my-name">Вы</div>
-                <div class="timer">10:00</div>
             </div>
         </div>
     </div>
 
-    <div id="status-panel">Нажмите "Создать игру"</div>
+    <!-- Тут теперь красиво отображается и ход, и комната -->
+    <div id="status-panel">
+        <span id="turn-text">Нажмите "Создать"</span>
+        <span id="room-info" class="room-badge" style="display: none;"></span>
+    </div>
 
     <div class="controls">
         <button id="create-game-btn" class="btn-green">Создать</button>
@@ -162,7 +106,6 @@
         <button id="restart-btn" class="btn-red">Сброс</button>
     </div>
 
-    <!-- Модалка -->
     <div id="modal">
         <div class="modal-card">
             <h2 id="modal-text">МАТ!</h2>
@@ -175,7 +118,6 @@
         tg.ready();
         tg.expand();
 
-        // Устанавливаем имена и аватарки из Telegram
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
             document.getElementById('my-name').innerText = user.first_name;
@@ -189,11 +131,12 @@
         var game = new Chess();
         var selectedSquare = null;
         var currentRoom = null;
-        var myColor = null; // 'w' или 'b'
+        var myColor = null;
 
-        var $status = document.getElementById('status-panel');
+        var $turnText = document.getElementById('turn-text');
+        var $roomInfo = document.getElementById('room-info');
+        var $statusPanel = document.getElementById('status-panel');
 
-        // --- ЛОГИКА ДОСКИ ---
         function removeHighlights() {
             $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
         }
@@ -250,23 +193,32 @@
             }
         }
 
+        // ОБНОВЛЕНИЕ СТАТУСА
         function updateStatus() {
+            // Показываем комнату, если она есть
+            if (currentRoom) {
+                $roomInfo.style.display = "inline-block";
+                $roomInfo.innerText = currentRoom;
+            } else {
+                $roomInfo.style.display = "none";
+            }
+
             if (game.in_checkmate()) {
                 var winner = game.turn() === 'w' ? 'Черные' : 'Белые';
-                $status.innerHTML = 'МАТ! Победили ' + winner;
-                $status.classList.add('check-warning');
-                document.getElementById('modal-text').innerText = 'МАТ! Победили ' + winner;
+                $turnText.innerHTML = 'МАТ! Победа: ' + winner;
+                $statusPanel.classList.add('check-warning');
+                document.getElementById('modal-text').innerText = 'МАТ! Победа: ' + winner;
                 document.getElementById('modal').style.display = 'flex';
             } else if (game.in_draw()) {
-                $status.innerHTML = 'НИЧЬЯ';
-                $status.classList.remove('check-warning');
+                $turnText.innerHTML = 'НИЧЬЯ';
+                $statusPanel.classList.remove('check-warning');
             } else {
                 var turnText = game.turn() === 'w' ? 'Белые' : 'Черные';
-                $status.innerHTML = 'Ход: ' + turnText;
-                $status.classList.remove('check-warning');
+                $turnText.innerHTML = 'Ход: ' + turnText;
+                $statusPanel.classList.remove('check-warning');
                 if (game.in_check()) {
-                    $status.innerHTML += ' (ШАХ!)';
-                    $status.classList.add('check-warning');
+                    $turnText.innerHTML += ' (ШАХ!)';
+                    $statusPanel.classList.add('check-warning');
                 }
             }
         }
@@ -275,7 +227,6 @@
             document.getElementById('modal').style.display = 'none';
         }
 
-        // --- ИНИЦИАЛИЗАЦИЯ ---
         board = Chessboard('board', {
             draggable: false,
             position: 'start',
@@ -287,42 +238,39 @@
             onSquareClick($(this).attr('data-square'));
         });
 
-        // --- КНОПКИ ---
         document.getElementById('create-game-btn').onclick = () => {
             const roomId = Math.random().toString(36).substring(2, 6).toUpperCase();
             currentRoom = roomId;
-            myColor = 'w'; // Создатель играет белыми
-            
-            // Белые внизу
+            myColor = 'w'; 
             board.orientation('white'); 
             
             socket.emit('join', { room: roomId });
-            $status.innerHTML = `Вы: <b>Белые</b>. ID: <b>${roomId}</b>`;
+            updateStatus(); // Обновляем плашку с комнатой
+            
+            // Показываем окошко, чтобы код не потерялся
+            tg.showAlert(`Вы играете БЕЛЫМИ.\nКод комнаты: ${roomId}\n\nОтправьте этот код сопернику.`);
         };
 
         document.getElementById('join-game-btn').onclick = () => {
-            const roomId = prompt("Введите ID комнаты:");
+            const roomId = prompt("Введите ID комнаты (4 символа):");
             if (roomId) {
                 currentRoom = roomId.toUpperCase();
-                myColor = 'b'; // Присоединившийся играет черными
-                
-                // ЧЕРНЫЕ ВНИЗУ!
+                myColor = 'b'; 
                 board.orientation('black'); 
                 
                 socket.emit('join', { room: currentRoom });
-                $status.innerHTML = `Вы: <b>Черные</b>. Комната: <b>${currentRoom}</b>`;
+                updateStatus();
             }
         };
 
         document.getElementById('restart-btn').onclick = () => {
-            if(currentRoom) {
-                socket.emit('join', { room: currentRoom }); 
-            }
+            if(currentRoom) socket.emit('join', { room: currentRoom }); 
         };
 
-        // --- СОБЫТИЯ СЕРВЕРА ---
         socket.on('connect', () => {
-            if (!currentRoom) $status.innerText = "Подключено. Создайте игру!";
+            if (!currentRoom) {
+                $turnText.innerText = "Создайте игру!";
+            }
         });
 
         socket.on('board_state', (data) => {
@@ -330,7 +278,7 @@
             board.position(data.fen);
             selectedSquare = null;
             removeHighlights();
-            updateStatus();
+            updateStatus(); // Теперь этот вызов не затирает ID комнаты
         });
 
         socket.on('game_over', (data) => {
