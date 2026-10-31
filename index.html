@@ -11,115 +11,148 @@
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
     
     <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #2c2e33);
+            --text-color: var(--tg-theme-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #1c1d22);
+            --accent: var(--tg-theme-button-color, #5288c1);
+        }
+
         body { 
-            background-color: var(--tg-theme-bg-color, #ffffff); 
-            color: var(--tg-theme-text-color, #000000); 
-            font-family: sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 20px;
             margin: 0;
             height: 100vh;
-            user-select: none; /* Запрещаем выделять текст */
+            user-select: none;
             -webkit-user-select: none;
-        }
-        
-        #board { 
-            width: 95vw; 
-            max-width: 400px; 
-            margin: 0 auto; 
-            touch-action: none; /* Запрещаем скролл при касании доски */
+            overflow: hidden; /* Запрещаем скролл страницы */
         }
 
-        /* --- МАГИЯ, КОТОРАЯ ЗАПРЕЩАЕТ ТАСКАТЬ ФИГУРЫ --- */
-        /* Отключаем реакцию на клики и перетаскивания для самих картинок фигур */
-        .board-b72b1 .piece-417db {
-            pointer-events: none !important; 
-            -webkit-user-drag: none !important;
-            user-drag: none !important;
+        /* Шапка с игроками */
+        .player-bar {
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin: 10px 0;
         }
 
-        .square-55d63 {
-            position: relative;
-            cursor: pointer !important;
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* 1. Точка для пустой клетки */
-        .highlight-dot::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 30%;
-            height: 30%;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.15);
-            pointer-events: none;
-        }
-
-        /* 2. Кольцо для съедобной фигуры */
-        .highlight-capture::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
-            height: 85%;
-            border-radius: 50%;
-            border: 6px solid rgba(0, 0, 0, 0.15);
-            box-sizing: border-box;
-            pointer-events: none;
-        }
-
-        /* Подсветка самой выбранной фигуры (желтый фон) */
-        .highlight-selected {
-            background-color: rgba(255, 255, 0, 0.4) !important;
-        }
-
-        .black-3c85d .highlight-dot::after { background-color: rgba(255, 255, 255, 0.25); }
-        .black-3c85d .highlight-capture::after { border-color: rgba(255, 255, 255, 0.25); }
-
-        #status-panel {
-            margin-top: 20px;
-            padding: 15px 30px;
-            border-radius: 10px;
-            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .check-warning { color: #ff4444; }
-
-        #restart-btn {
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: var(--tg-theme-button-color, #2481cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
+        .avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
+            background-color: #555;
+            background-image: url('https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y');
+            background-size: cover;
         }
+
+        .name { font-weight: bold; font-size: 16px; }
+        .timer { font-size: 14px; color: #aaa; background: var(--secondary-bg); padding: 4px 8px; border-radius: 6px; }
+
+        /* Доска */
+        #board-container { position: relative; }
+        #board { width: 95vw; max-width: 400px; touch-action: none; }
+
+        /* Скрываем стандартные координаты, чтобы было чище */
+        .notation-322f9 { display: none; }
+
+        /* Стили для точек и колец */
+        .square-55d63 { position: relative; cursor: pointer !important; }
+        .board-b72b1 .piece-417db { pointer-events: none !important; -webkit-user-drag: none !important; }
+        
+        .highlight-dot::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 32%; height: 32%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none;
+        }
+        .highlight-capture::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none;
+        }
+        .black-3c85d .highlight-dot::after { background-color: rgba(255, 255, 255, 0.3); }
+        .black-3c85d .highlight-capture::after { border-color: rgba(255, 255, 255, 0.3); }
+        .highlight-selected { background-color: rgba(255, 255, 0, 0.4) !important; }
+
+        /* Кнопки управления */
+        .controls { margin-top: 20px; display: flex; gap: 10px; }
+        button {
+            padding: 12px 20px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+            background-color: var(--accent); color: white; cursor: pointer;
+        }
+        button:active { opacity: 0.8; }
+
+        /* Модальное окно победы */
+        #modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
+        }
+        #modal h2 { color: white; margin-bottom: 20px; font-size: 28px; }
     </style>
 </head>
 <body>
-    <div id="status-panel">Ход белых</div>
-    <div id="board" style="width: 350px"></div>
-    <button id="restart-btn">🔄 Начать заново</button>
+    <!-- Противник -->
+    <div class="player-bar">
+        <div class="player-info">
+            <div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/bottts/svg?seed=Opponent');"></div>
+            <div>
+                <div class="name" id="opponent-name">Противник</div>
+                <div class="timer">10:00</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Доска -->
+    <div id="board-container">
+        <div id="board"></div>
+    </div>
+
+    <!-- Ты -->
+    <div class="player-bar">
+        <div class="player-info">
+            <div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/bottts/svg?seed=Player');"></div>
+            <div>
+                <div class="name" id="player-name">Игрок</div>
+                <div class="timer">10:00</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="controls">
+        <button id="create-game-btn" style="background-color: #4CAF50;">Создать игру</button>
+        <button id="restart-btn" style="background-color: #f44336;">Сброс</button>
+    </div>
+
+    <!-- Модалка окончания игры -->
+    <div id="modal">
+        <h2 id="modal-text">МАТ!</h2>
+        <button onclick="closeModal()">Играть снова</button>
+    </div>
 
     <script>
+        // ... (ТУТ ВЕСЬ ТВОЙ КОД ИЗ ПРЕДЫДУЩЕГО ФАЙЛА, ОН НЕ МЕНЯЕТСЯ) ...
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
+        // Получаем имя из Telegram
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('player-name').innerText = tg.initDataUnsafe.user.first_name;
+        }
+
         var board = null;
         var game = new Chess();
-        var $status = document.getElementById('status-panel');
         var selectedSquare = null;
 
         function removeHighlights() {
@@ -129,12 +162,10 @@
         function highlightMoves(source) {
             removeHighlights();
             $('#board .square-' + source).addClass('highlight-selected');
-            
             var moves = game.moves({ square: source, verbose: true });
             for (var i = 0; i < moves.length; i++) {
                 var targetSquare = moves[i].to;
                 var pieceOnTarget = game.get(targetSquare);
-                
                 if (pieceOnTarget) {
                     $('#board .square-' + targetSquare).addClass('highlight-capture');
                 } else {
@@ -146,37 +177,26 @@
         function onSquareClick(square) {
             if (game.game_over()) return;
 
-            // Если ничего не выбрано - выбираем фигуру
             if (!selectedSquare) {
                 var piece = game.get(square);
                 if (piece && piece.color === game.turn()) {
                     selectedSquare = square;
                     highlightMoves(square);
                 }
-            } 
-            // Если фигура уже выбрана
-            else {
-                // Отмена выбора при клике на ту же клетку
+            } else {
                 if (selectedSquare === square) {
                     selectedSquare = null;
                     removeHighlights();
                     return;
                 }
-
-                // Пробуем сделать ход
-                var move = game.move({
-                    from: selectedSquare,
-                    to: square,
-                    promotion: 'q'
-                });
-
+                var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
                 if (move) {
                     board.position(game.fen());
-                    updateStatus();
+                    checkGameOver();
                     selectedSquare = null;
                     removeHighlights();
+                    // ТУТ БУДЕТ ОТПРАВКА ХОДА НА СЕРВЕР: socket.emit('move', move);
                 } else {
-                    // Если ход невозможен, проверяем: может, нажали на другую свою фигуру?
                     var piece = game.get(square);
                     if (piece && piece.color === game.turn()) {
                         selectedSquare = square;
@@ -189,27 +209,25 @@
             }
         }
 
-        function updateStatus () {
-            var moveColor = 'Белых';
-            if (game.turn() === 'b') { moveColor = 'Черных'; }
-
+        function checkGameOver() {
             if (game.in_checkmate()) {
-                $status.innerHTML = 'МАТ! Победа ' + (moveColor === 'Белых' ? 'Черных' : 'Белых');
-                $status.classList.add('check-warning');
+                var winner = game.turn() === 'w' ? 'Черные' : 'Белые';
+                document.getElementById('modal-text').innerText = 'МАТ! Победили ' + winner;
+                document.getElementById('modal').style.display = 'flex';
             } else if (game.in_draw()) {
-                $status.innerHTML = 'НИЧЬЯ';
-                $status.classList.remove('check-warning');
-            } else {
-                $status.innerHTML = 'Ход: ' + moveColor;
-                $status.classList.remove('check-warning');
-                if (game.in_check()) {
-                    $status.innerHTML += ' (ШАХ!)';
-                    $status.classList.add('check-warning');
-                }
+                document.getElementById('modal-text').innerText = 'НИЧЬЯ';
+                document.getElementById('modal').style.display = 'flex';
             }
         }
 
-        // Инициализация доски БЕЗ перетаскивания
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            game.reset();
+            board.start();
+            selectedSquare = null;
+            removeHighlights();
+        }
+
         var config = {
             draggable: false, 
             position: 'start',
@@ -217,23 +235,12 @@
         }
         board = Chessboard('board', config);
 
-        // Обработка кликов
         $('#board').on('click', '.square-55d63', function(e) {
-            e.preventDefault(); // Предотвращаем стандартное поведение браузера
-            var square = $(this).attr('data-square');
-            onSquareClick(square);
+            e.preventDefault();
+            onSquareClick($(this).attr('data-square'));
         });
 
-        document.getElementById('restart-btn').addEventListener('click', function() {
-            game.reset();
-            board.start();
-            selectedSquare = null;
-            removeHighlights();
-            $status.classList.remove('check-warning');
-            $status.innerHTML = 'Ход: Белых';
-        });
-
-        updateStatus();
+        document.getElementById('restart-btn').addEventListener('click', closeModal);
     </script>
 </body>
 </html>
