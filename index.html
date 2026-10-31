@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Шахматы</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -10,65 +10,172 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
     <style>
-        body { background-color: var(--tg-theme-bg-color, #ffffff); color: var(--tg-theme-text-color, #000000); text-align: center; font-family: sans-serif; padding-top: 20px; }
-        #board { width: 90vw; max-width: 400px; margin: 0 auto; }
+        /* Стили для темной и светлой темы Telegram */
+        body { 
+            background-color: var(--tg-theme-bg-color, #ffffff); 
+            color: var(--tg-theme-text-color, #000000); 
+            font-family: sans-serif; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            margin: 0;
+            height: 100vh;
+        }
+        
+        #board { 
+            width: 95vw; 
+            max-width: 400px; 
+            margin: 0 auto; 
+        }
+
+        /* Подсветка возможных ходов */
+        .highlight-move {
+            box-shadow: inset 0 0 3px 3px rgba(255, 215, 0, 0.8); /* Золотая рамка */
+            background-color: rgba(255, 215, 0, 0.3);
+        }
+
+        /* Панель статуса */
+        #status-panel {
+            margin-top: 20px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Красный цвет при шахе/мате */
+        .check-warning {
+            color: #ff4444;
+        }
+
+        /* Кнопка перезапуска */
+        #restart-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h3>Играйте в шахматы!</h3>
+    <div id="status-panel">Ход белых</div>
     <div id="board" style="width: 350px"></div>
-    <p id="status">Ход белых</p>
+    <button id="restart-btn">🔄 Начать заново</button>
 
     <script>
+        // Инициализация Telegram
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
         var board = null;
         var game = new Chess();
+        var $status = document.getElementById('status-panel');
 
+        // Функция для удаления подсветки со всех клеток
+        function removeHighlights() {
+            $('#board .square-55d63').removeClass('highlight-move');
+        }
+
+        // Функция для подсветки возможных ходов
+        function highlightMoves(source) {
+            removeHighlights();
+            var moves = game.moves({ square: source, verbose: true });
+            for (var i = 0; i < moves.length; i++) {
+                $('#board .square-' + moves[i].to).addClass('highlight-move');
+            }
+        }
+
+        // Когда начинаем тянуть фигуру
         function onDragStart (source, piece, position, orientation) {
             if (game.game_over()) return false;
+            // Нельзя двигать чужие фигуры
             if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
                 (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
                 return false;
             }
+            // Подсвечиваем куда можно пойти
+            highlightMoves(source);
         }
 
+        // Когда отпустили фигуру
         function onDrop (source, target) {
+            removeHighlights(); // Убираем подсветку
+            
+            // Пробуем сделать ход
             var move = game.move({
                 from: source,
                 to: target,
-                promotion: 'q'
+                promotion: 'q' // Всегда превращаем пешку в ферзя (для простоты)
             });
+
+            // Если ход невозможен — возвращаем фигуру назад
             if (move === null) return 'snapback';
-            updateStatus();
+
+            updateStatus(); // Обновляем текст
         }
 
+        // Отрисовка фигуры после хода
+        function onSnapEnd () {
+            board.position(game.fen());
+        }
+
+        // Обновление статуса (Шах, Мат, Ход)
         function updateStatus () {
-            var status = '';
-            var moveColor = 'Белые';
-            if (game.turn() === 'b') { moveColor = 'Черные'; }
+            var moveColor = 'Белых';
+            if (game.turn() === 'b') { moveColor = 'Черных'; }
 
+            // Если Мат
             if (game.in_checkmate()) {
-                status = 'Мат! Победа ' + (moveColor === 'Белые' ? 'Черных' : 'Белых');
-            } else if (game.in_draw()) {
-                status = 'Ничья';
-            } else {
-                status = 'Ход: ' + moveColor;
-                if (game.in_check()) { status += ' (Шах!)'; }
+                $status.innerHTML = 'МАТ! Победа ' + (moveColor === 'Белых' ? 'Черных' : 'Белых');
+                $status.classList.add('check-warning');
+            } 
+            // Если Ничья
+            else if (game.in_draw()) {
+                $status.innerHTML = 'НИЧЬЯ';
+                $status.classList.remove('check-warning');
+            } 
+            // Если просто ход
+            else {
+                $status.innerHTML = 'Ход: ' + moveColor;
+                $status.classList.remove('check-warning');
+
+                // Если Шах
+                if (game.in_check()) {
+                    $status.innerHTML += ' (ШАХ!)';
+                    $status.classList.add('check-warning');
+                }
             }
-            document.getElementById('status').innerHTML = status;
         }
 
+        // Настройка доски
         var config = {
             draggable: true,
             position: 'start',
             onDragStart: onDragStart,
             onDrop: onDrop,
+            onSnapEnd: onSnapEnd,
             pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
         }
         board = Chessboard('board', config);
+
+        // Кнопка перезапуска
+        document.getElementById('restart-btn').addEventListener('click', function() {
+            game.reset();
+            board.start();
+            $status.classList.remove('check-warning');
+            $status.innerHTML = 'Ход: Белых';
+        });
+
+        // Первичный статус
         updateStatus();
     </script>
 </body>
