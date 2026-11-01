@@ -198,7 +198,7 @@
         var premoveFrom = null, premoveTo = null, isPremoveMode = false;
         
         var evalHistory = [], currentAnalyzeIndex = 0;
-        var isAutoMovePending = false; // Флаг, что мы ждем ход от Стокфиша
+        var isAutoMovePending = false;
 
         var $premoveBtn = document.getElementById('premove-btn');
         var $cancelPremoveBtn = document.getElementById('cancel-premove-btn');
@@ -243,7 +243,7 @@
                                     socket.emit('move', { room: currentRoom, move: { from: fromSq, to: toSq } });
                                 }
                             }
-                            return; // Выходим, чтобы не обновлять панель анализа
+                            return; 
                         }
 
                         // ЛОГИКА ДЛЯ РЕПЛЕЯ (АНАЛИЗ)
@@ -286,7 +286,7 @@
             document.getElementById('eval-fill').style.width = (50 + (clamped * 10)) + '%';
         }
 
-                function calculateMoveQuality(prevEval, currentEval, bestMoveUCI) {
+        function calculateMoveQuality(prevEval, currentEval, bestMoveUCI) {
             let diff = currentEval - prevEval; 
             let qualityText = "", badgeClass = "";
             let isWhiteMove = (replayGame.turn() === 'b'); 
@@ -324,7 +324,7 @@
             myColor = 'w'; startGame(true);
         };
 
-        document.getElementById('join-game-btn').onclick = async () => {
+                document.getElementById('join-game-btn').onclick = async () => {
             const code = document.getElementById('join-code-input').value.toUpperCase().trim();
             if (code.length !== 4) return tg.showAlert("Введите 4-символьный код!");
 
@@ -372,7 +372,7 @@
                 document.getElementById('replay-controls').style.display = 'flex';
                 document.getElementById('analysis-panel').style.display = 'block';
                 document.getElementById('status-text').innerText = "Анализ партии";
-                document.getElementById('cheat-controls').style.display = 'none'; // Скрываем чит в реплее
+                document.getElementById('cheat-controls').style.display = 'none';
                 
                 document.getElementById('my-timer').style.display = 'none';
                 document.getElementById('opp-timer').style.display = 'none';
@@ -441,6 +441,7 @@
             navigator.clipboard.writeText(currentRoom); tg.showAlert("Код скопирован!");
         };
 
+        // --- УМНАЯ ЛОГИКА ЧИТ-КНОПКИ ---
         document.getElementById('auto-move-btn').addEventListener('click', () => {
             if (!currentRoom || game.game_over()) return;
             if (currentTurn !== myColor) return tg.showAlert("Сейчас не ваш ход!");
@@ -449,10 +450,17 @@
             if (!stockfish) initStockfish();
             
             if (stockfish) {
+                // Выбираем время обдумывания в зависимости от режима
+                let thinkTime = 1500; // по умолчанию 1.5 сек
+                if (timeControl === 60) thinkTime = 500;   // Пуля
+                else if (timeControl === 180) thinkTime = 1000; // Блиц
+                else if (timeControl === 600) thinkTime = 2000; // Рапид
+
                 stockfish.postMessage('stop');
                 stockfish.postMessage('position fen ' + game.fen());
-                stockfish.postMessage('go depth 15');
-                tg.showAlert("Стокфиш ищет лучший ход...");
+                stockfish.postMessage('go movetime ' + thinkTime);
+                
+                tg.showAlert(`Анализ (${(thinkTime/1000).toFixed(1)} сек)...`);
             }
         });
 
