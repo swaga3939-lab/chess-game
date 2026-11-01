@@ -36,13 +36,7 @@
         #board { width: 100%; height: 100%; touch-action: none; }
         
         /* КООРДИНАТЫ */
-        .notation-322f9 {
-            color: #666;
-            font-size: 11px;
-            font-weight: bold;
-            font-family: sans-serif;
-            pointer-events: none; /* Чтобы клики проходили сквозь них */
-        }
+        .notation-322f9 { color: #666; font-size: 11px; font-weight: bold; font-family: sans-serif; pointer-events: none; }
 
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; }
@@ -196,7 +190,9 @@
             document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
         }
 
-        const SERVER_URL = 'https://chess-server-gh0q.onrender.com';
+        // НОВЫЙ СЕРВЕР НА FIRSTVDS
+        const SERVER_URL = 'https://loffchess.dpdns.org';
+        
         const socket = io(SERVER_URL, { transports: ['websocket'] });
 
         var board = null, game = new Chess();
@@ -330,12 +326,12 @@
             }
         });
 
-        document.getElementById('create-game-btn').onclick = () => {
+                document.getElementById('create-game-btn').onclick = () => {
             currentRoom = Math.random().toString(36).substring(2, 6).toUpperCase();
             myColor = 'w'; startGame(true);
         };
 
-                document.getElementById('join-game-btn').onclick = async () => {
+        document.getElementById('join-game-btn').onclick = async () => {
             const code = document.getElementById('join-code-input').value.toUpperCase().trim();
             if (code.length !== 4) return tg.showAlert("Введите 4-символьный код!");
 
