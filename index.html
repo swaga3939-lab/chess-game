@@ -38,7 +38,6 @@
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .player-info { display: flex; align-items: center; gap: 12px; }
         
-        /* Аватарки круглые */
         .avatar { width: 42px; height: 42px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; border: 2px solid rgba(255,255,255,0.1); }
         
         .name-box { display: flex; flex-direction: column; }
@@ -316,7 +315,7 @@
 
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-        $('#board').on('click', '.square-55d63', function(e) { e.preventDefault(); onSquareClick($(this).attr('data-square')); });
+        $('#board').on('click', '.square-55d63', function(e) { e.preventDefault(); onSquareClick($(e.target).attr('data-square')); });
 
         function joinRoom(room, color) {
             currentRoom = room; myColor = color;
@@ -365,14 +364,13 @@
         
         tg.onEvent('activated', () => { if (currentRoom && !socket.connected) socket.connect(); });
         
-        // ИСПРАВЛЕННЫЙ ПРИЕМ ИГРОКОВ
         socket.on('players_update', (data) => {
             const userIds = Object.keys(data);
             if (userIds.length >= 2) {
                 const oppId = userIds.find(id => id !== myUserId);
                 if (oppId) {
                     const oppData = data[oppId];
-                    document.getElementById('opp-name').innerText = oppData.name; // ТЕПЕРЬ БЕРЕМ ИМЯ ИЗ ОБЪЕКТА
+                    document.getElementById('opp-name').innerText = oppData.name;
                     
                     if (oppData.photo && oppData.photo.length > 5) {
                         document.getElementById('opp-avatar').style.backgroundImage = `url('${oppData.photo}')`;
