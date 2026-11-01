@@ -364,16 +364,30 @@
         
         tg.onEvent('activated', () => { if (currentRoom && !socket.connected) socket.connect(); });
         
+                // УМНАЯ ОБРАБОТКА ИМЕН И АВАТАРОК (ЗАЩИТА ОТ [object Object])
         socket.on('players_update', (data) => {
             const userIds = Object.keys(data);
             if (userIds.length >= 2) {
                 const oppId = userIds.find(id => id !== myUserId);
                 if (oppId) {
-                    const oppData = data[oppId];
-                    document.getElementById('opp-name').innerText = oppData.name;
+                    const rawData = data[oppId];
+                    let oppName = "Соперник";
+                    let oppPhoto = "";
+
+                    // Если сервер прислал строку (старый формат)
+                    if (typeof rawData === 'string') {
+                        oppName = rawData;
+                    } 
+                    // Если сервер прислал объект (новый формат)
+                    else if (typeof rawData === 'object' && rawData !== null) {
+                        oppName = rawData.name || "Соперник";
+                        oppPhoto = rawData.photo || "";
+                    }
+
+                    document.getElementById('opp-name').innerText = oppName;
                     
-                    if (oppData.photo && oppData.photo.length > 5) {
-                        document.getElementById('opp-avatar').style.backgroundImage = `url('${oppData.photo}')`;
+                    if (oppPhoto && oppPhoto.length > 5) {
+                        document.getElementById('opp-avatar').style.backgroundImage = `url('${oppPhoto}')`;
                     } else {
                         document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
                     }
@@ -384,7 +398,7 @@
             }
         });
 
-                socket.on('board_state', (data) => {
+        socket.on('board_state', (data) => {
             game.load(data.fen);
             board.position(data.fen);
             selectedSquare = null; 
