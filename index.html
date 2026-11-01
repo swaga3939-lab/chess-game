@@ -12,7 +12,7 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
     <style>
-        /* Стили (без изменений) */
+        /* Стили оставляем без изменений */
         :root { --bg-color: var(--tg-theme-bg-color, #161512); --text-color: var(--tg-theme-text-color, #ffffff); --panel-bg: var(--tg-theme-secondary-bg-color, #262421); --accent: var(--tg-theme-button-color, #81b64c); }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; user-select: none; overflow: hidden; padding-top: 10px; }
         .player-bar { width: 95%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; }
@@ -47,34 +47,23 @@
 </head>
 <body>
     <div class="player-bar">
-        <div class="player-info">
-            <div class="avatar" id="opp-avatar"></div>
-            <div class="name-box"><div class="name" id="opp-name">Ожидание...</div></div>
-        </div>
+        <div class="player-info"><div class="avatar" id="opp-avatar"></div><div class="name-box"><div class="name" id="opp-name">Ожидание...</div></div></div>
         <div class="timer" id="opp-timer">10:00</div>
     </div>
-
     <div id="board-container"><div id="board"></div></div>
-
     <div class="player-bar">
-        <div class="player-info">
-            <div class="avatar" id="my-avatar"></div>
-            <div class="name-box"><div class="name" id="my-name">Вы</div></div>
-        </div>
+        <div class="player-info"><div class="avatar" id="my-avatar"></div><div class="name-box"><div class="name" id="my-name">Вы</div></div></div>
         <div class="timer active" id="my-timer">10:00</div>
     </div>
-
     <div id="status-bar">
         <div id="status-text">Ожидание...</div>
-        <div class="room-badge" id="room-badge" style="display: none;" title="Скопировать">---</div>
+        <div class="room-badge" id="room-badge" style="display: none;">---</div>
     </div>
-
     <div class="controls">
         <button id="create-game-btn" class="btn-green">Создать</button>
         <button id="join-game-btn" class="btn-blue">Войти</button>
         <button id="restart-btn" class="btn-red">Сброс</button>
     </div>
-
     <div id="modal"><div class="modal-card"><h2 id="modal-text">МАТ!</h2><button class="btn-blue" onclick="closeModal()" style="width: 100%;">Ок</button></div></div>
 
     <script>
@@ -83,18 +72,23 @@
         tg.expand();
 
         let myRealName = "Игрок";
+        let myUserId = "guest_" + Math.floor(Math.random() * 1000); // Заглушка, если открыто вне ТГ
+        
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             myRealName = tg.initDataUnsafe.user.first_name;
+            myUserId = String(tg.initDataUnsafe.user.id); // Уникальный ID
             document.getElementById('my-name').innerText = myRealName;
-            document.getElementById('my-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${tg.initDataUnsafe.user.id}')`;
+            document.getElementById('my-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
         }
 
         const SERVER_URL = 'https://chess-server-gh0q.onrender.com';
         
-        // ВАЖНО: Принудительно используем WebSocket
         const socket = io(SERVER_URL, {
             transports: ['websocket'],
-            upgrade: false
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: Infinity
         });
 
         var board = null;
@@ -102,19 +96,15 @@
         var selectedSquare = null;
         var currentRoom = null;
         var myColor = null;
-
         var $statusText = document.getElementById('status-text');
         var $roomBadge = document.getElementById('room-badge');
 
         $roomBadge.addEventListener('click', () => {
-            if(currentRoom) {
-                navigator.clipboard.writeText(currentRoom);
-                tg.showAlert("ID комнаты скопирован!");
-            }
+            if(currentRoom) { navigator.clipboard.writeText(currentRoom); tg.showAlert("ID скопирован!"); }
         });
 
         function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected'); }
-
+        
         function highlightMoves(source) {
             removeHighlights();
             $('#board .square-' + source).addClass('highlight-selected');
@@ -137,10 +127,7 @@
                 if (move) {
                     board.position(game.fen());
                     updateStatus();
-                    if (socket.connected) {
-                        console.log("Отправляю ход:", selectedSquare, "->", square);
-                        socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } });
-                    }
+                    if (socket.connected) socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } });
                     selectedSquare = null; removeHighlights();
                 } else {
                     var piece = game.get(square);
@@ -173,45 +160,63 @@
         board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png' });
         $('#board').on('click', '.square-55d63', function(e) { e.preventDefault(); onSquareClick($(this).attr('data-square')); });
 
+        function joinRoom(room, color) {
+            currentRoom = room; myColor = color;
+            board.orientation(color === 'w' ? 'white' : 'black');
+            socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId });
+            updateStatus();
+        }
+
         document.getElementById('create-game-btn').onclick = () => {
-            currentRoom = Math.random().toString(36).substring(2, 6).toUpperCase();
-            myColor = 'w'; board.orientation('white'); 
-            socket.emit('join', { room: currentRoom, name: myRealName });
-            updateStatus(); 
-            tg.showAlert(`Вы играете БЕЛЫМИ.\nКод комнаты: ${currentRoom}`);
+            const roomId = Math.random().toString(36).substring(2, 6).toUpperCase();
+            joinRoom(roomId, 'w');
+            tg.showAlert(`Вы играете БЕЛЫМИ.\nКод: ${roomId}`);
         };
 
         document.getElementById('join-game-btn').onclick = () => {
             const roomId = prompt("Введите ID комнаты:");
-            if (roomId) {
-                currentRoom = roomId.toUpperCase(); myColor = 'b'; board.orientation('black'); 
-                socket.emit('join', { room: currentRoom, name: myRealName });
-                updateStatus();
-            }
+            if (roomId) joinRoom(roomId.toUpperCase(), 'b');
         };
 
-        document.getElementById('restart-btn').onclick = () => { if(currentRoom) socket.emit('join', { room: currentRoom, name: myRealName }); };
+        document.getElementById('restart-btn').onclick = () => { 
+            if(currentRoom) socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId }); 
+        };
 
+        // АВТО-ПЕРЕПОДКЛЮЧЕНИЕ
         socket.on('connect', () => { 
-            console.log("Подключено к серверу! Мой ID:", socket.id); 
-            if (!currentRoom) $statusText.innerText = "Создайте игру!"; 
+            console.log("Подключено. Мой Telegram ID:", myUserId); 
+            if (currentRoom) {
+                // Если мы были в комнате, а связь оборвалась (свернули апп), возвращаемся обратно!
+                console.log("Восстанавливаю сессию в комнате:", currentRoom);
+                socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId });
+            } else {
+                $statusText.innerText = "Создайте игру!";
+            }
+        });
+        
+        // Telegram событие "приложение снова активно"
+        tg.onEvent('activated', () => {
+             if (currentRoom && !socket.connected) {
+                 console.log("Приложение восстановлено, переподключаемся...");
+                 socket.connect();
+             }
         });
         
         socket.on('players_update', (data) => {
-            console.log("Обновление игроков:", data);
-            const sids = Object.keys(data);
-            if (sids.length === 2) {
-                const oppSid = sids.find(sid => sid !== socket.id);
-                const oppName = data[oppSid];
-                document.getElementById('opp-name').innerText = oppName;
-                document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppName}')`;
+            const userIds = Object.keys(data);
+            if (userIds.length >= 2) {
+                const oppId = userIds.find(id => id !== myUserId);
+                if (oppId) {
+                    const oppName = data[oppId];
+                    document.getElementById('opp-name').innerText = oppName;
+                    document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
+                }
             } else {
                 document.getElementById('opp-name').innerText = "Ожидание...";
             }
         });
 
         socket.on('board_state', (data) => {
-            console.log("Сервер прислал доску:", data.fen);
             game.load(data.fen);
             board.position(data.fen);
             selectedSquare = null; removeHighlights(); updateStatus();
