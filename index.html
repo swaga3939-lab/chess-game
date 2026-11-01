@@ -20,7 +20,20 @@
             --text-main: #f0f0f0;
             --accent-green: #81b64c;
         }
-        body { background: var(--bg-gradient); color: var(--text-main); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; user-select: none; overflow: hidden; padding-top: 15px; }
+        
+        body { 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0; 
+            min-height: 100vh; 
+            overflow-y: auto; 
+            padding-top: 10px;
+            padding-bottom: 20px;
+        }
         
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .player-info { display: flex; align-items: center; gap: 12px; }
@@ -30,21 +43,30 @@
         .timer { background: rgba(0,0,0,0.4); color: #888; padding: 6px 10px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 16px; font-weight: bold; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
         .timer.active { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
         
-        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 15px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 0 4px rgba(255,255,255,0.05); }
-        #board { width: 100%; touch-action: none; }
+        #board-container { 
+            position: relative; 
+            width: 92vw; 
+            max-width: 400px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 0 4px rgba(255,255,255,0.05); 
+            background-color: #f0d9b5; 
+            aspect-ratio: 1 / 1; 
+        }
+        
+        #board { width: 100%; height: 100%; touch-action: none; }
         .notation-322f9 { display: none; }
         
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; -webkit-user-drag: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.5)); }
         
-        /* Обычные ходы */
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none; }
         .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none; }
         .black-3c85d .highlight-dot::after { background-color: rgba(255, 255, 255, 0.3); }
         .black-3c85d .highlight-capture::after { border-color: rgba(255, 255, 255, 0.3); }
         .highlight-selected { background-color: rgba(255, 215, 0, 0.4) !important; }
 
-        /* Премувы (Фиолетовые) */
         .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.7); pointer-events: none; }
         .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(156, 39, 176, 0.7); box-sizing: border-box; pointer-events: none; }
         .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.4) !important; }
@@ -61,14 +83,13 @@
         .btn-blue { background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%); }
         .btn-red { background: linear-gradient(135deg, #ef5350 0%, #c62828 100%); flex: 0.6; }
         
-        /* Кнопки премува */
         .btn-purple { background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%); }
         .btn-orange { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
 
         #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-card { background: #222; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 80%; max-width: 300px; border: 1px solid var(--panel-border); animation: popIn 0.3s ease-out; }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-card h2 { margin-top: 0; font-size: 24px; margin-bottom: 20px; }
+        .modal-card h2 { margin-top: 0; font-size: 24px; margin-bottom: 20px; color: white;}
     </style>
 </head>
 <body>
@@ -89,14 +110,12 @@
         <div class="room-badge" id="room-badge" style="display: none;" title="Скопировать">---</div>
     </div>
 
-    <!-- Основные кнопки -->
     <div class="controls">
         <button id="create-game-btn" class="btn-green">Создать</button>
         <button id="join-game-btn" class="btn-blue">Войти</button>
         <button id="restart-btn" class="btn-red">Сброс</button>
     </div>
 
-    <!-- Кнопки премува (скрыты по умолчанию) -->
     <div class="controls" style="margin-top: 5px;">
         <button id="premove-btn" class="btn-purple" style="display: none;">Включить премув</button>
         <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить премув</button>
@@ -135,6 +154,19 @@
         var $roomBadge = document.getElementById('room-badge');
         var $premoveBtn = document.getElementById('premove-btn');
         var $cancelPremoveBtn = document.getElementById('cancel-premove-btn');
+
+        window.onload = function() {
+            board = Chessboard('board', { 
+                draggable: false, 
+                position: 'start', 
+                // ИСПОЛЬЗУЕМ НАДЕЖНЫЙ CDN ДЛЯ КАРТИНОК
+                pieceTheme: 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/website/img/chesspieces/wikipedia/{piece}.png' 
+            });
+            
+            $(window).resize(function() {
+                if(board) board.resize();
+            });
+        };
 
         $roomBadge.addEventListener('click', () => {
             if(currentRoom) { navigator.clipboard.writeText(currentRoom); tg.showAlert("ID скопирован!"); }
@@ -189,7 +221,7 @@
         }
 
         function onSquareClick(square) {
-            if (game.game_over() || !currentRoom) return;
+            if (game.game_over() || !currentRoom || !board) return;
 
             if (isPremoveMode) {
                 if (game.turn() === myColor) {
@@ -282,7 +314,6 @@
 
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-        board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png' });
         $('#board').on('click', '.square-55d63', function(e) { e.preventDefault(); onSquareClick($(this).attr('data-square')); });
 
         function joinRoom(room, color) {
@@ -355,12 +386,15 @@
             updateStatus();
         });
 
-        socket.on('game_over', (data) => {
+                socket.on('game_over', (data) => {
             document.getElementById('modal-text').innerText = data.result === 'checkmate' ? `МАТ! Победили ${data.winner === 'white' ? 'Белые' : 'Черные'}` : 'Ничья.';
             document.getElementById('modal').style.display = 'flex';
         });
         
-        socket.on('invalid_move', (data) => { tg.showAlert('Сервер отклонил ход: ' + data.msg); });
+        socket.on('invalid_move', (data) => { 
+            tg.showAlert('Сервер отклонил ход: ' + data.msg); 
+        });
     </script>
 </body>
 </html>
+            
