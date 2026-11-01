@@ -15,7 +15,6 @@
         :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.05); --panel-border: rgba(255, 255, 255, 0.1); --accent-green: #81b64c; --accent-blue: #42a5f5; }
         body { background: var(--bg-gradient); color: #f0f0f0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; padding-bottom: 20px; }
         
-        /* ЛОББИ */
         #lobby { display: flex; flex-direction: column; width: 90%; max-width: 400px; padding: 20px; background: var(--panel-bg); border-radius: 16px; margin-top: 30px; border: 1px solid var(--panel-border); box-sizing: border-box; }
         #lobby h2 { margin-top: 0; margin-bottom: 15px; font-size: 18px; }
         .time-options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
@@ -23,7 +22,6 @@
         .time-btn.active { background: var(--accent-green); border-color: var(--accent-green); }
         .join-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 10px; box-sizing: border-box; }
 
-        /* ИГРА */
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); border-radius: 12px; }
         .player-info { display: flex; align-items: center; gap: 12px; }
@@ -38,22 +36,29 @@
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; }
         
-        /* Подсветка */
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); }
         .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; }
         .highlight-selected { background-color: rgba(255, 215, 0, 0.4) !important; }
         
-        /* Подсветка премува (фиолетовая) */
         .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.7); }
         .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(156, 39, 176, 0.7); box-sizing: border-box; }
         .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.4) !important; }
 
-        /* Панель анализа */
+        /* ПАНЕЛЬ АНАЛИЗА */
         #analysis-panel { display: none; width: 92%; max-width: 380px; background: var(--panel-bg); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--panel-border); text-align: center; }
         .eval-bar-container { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 5px; }
         .eval-bar-fill { height: 100%; background: #fff; width: 50%; transition: width 0.3s ease; }
         .eval-text { font-weight: bold; font-size: 16px; }
         .best-move-text { font-size: 14px; color: #81b64c; margin-top: 5px; }
+        
+        /* КАЧЕСТВО ХОДА */
+        #move-quality { font-size: 18px; font-weight: bold; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .quality-badge { padding: 4px 10px; border-radius: 6px; font-size: 14px; }
+        .q-blunder { background: #ff4444; color: white; }
+        .q-mistake { background: #ff9800; color: white; }
+        .q-inaccuracy { background: #ffeb3b; color: black; }
+        .q-good { background: #81b64c; color: white; }
+        .q-best { background: #2196f3; color: white; }
 
         #move-log { width: 92%; max-width: 380px; height: 100px; overflow-y: auto; background: var(--panel-bg); border-radius: 8px; padding: 10px; font-family: monospace; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 5px 15px; }
         .move-item { display: flex; gap: 5px; width: 45%; }
@@ -116,17 +121,18 @@
             <div class="room-badge" id="room-badge">----</div>
         </div>
 
-        <!-- Кнопки премува -->
         <div id="premove-controls">
             <button id="premove-btn" class="btn-purple">Включить премув</button>
             <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
 
+        <!-- Обновленная панель анализа -->
         <div id="analysis-panel">
             <div class="eval-bar-container">
                 <div class="eval-bar-fill" id="eval-fill"></div>
             </div>
             <div class="eval-text" id="eval-text">Оценка: 0.00</div>
+            <div id="move-quality"></div>
             <div class="best-move-text" id="best-move-text">Лучший ход: ...</div>
         </div>
 
@@ -159,10 +165,7 @@
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             let fName = tg.initDataUnsafe.user.first_name;
             let uName = tg.initDataUnsafe.user.username;
-            
-            // ВОТ ЗДЕСЬ МЫ СКЛЕИВАЕМ ИМЯ И ЮЗЕРНЕЙМ
             myRealName = uName ? `${fName} | @${uName}` : fName;
-            
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
             document.getElementById('my-name').innerText = myRealName;
@@ -178,8 +181,12 @@
         
         var isReplayMode = false, replayMoves = [], replayIndex = 0, replayGame = new Chess();
         var stockfish = null, lastServerFen = ""; 
-
         var premoveFrom = null, premoveTo = null, isPremoveMode = false;
+        
+        // Переменные для анализа
+        var evalHistory = []; // Храним оценку для каждого индекса хода
+        var currentAnalyzeIndex = 0; // Какой ход сейчас анализируем
+
         var $premoveBtn = document.getElementById('premove-btn');
         var $cancelPremoveBtn = document.getElementById('cancel-premove-btn');
 
@@ -194,39 +201,106 @@
                     stockfish.postMessage('uci');
                     stockfish.onmessage = function(event) {
                         const line = event.data;
+                        let score = null;
+                        let mateIn = null;
+                        let bestMove = null;
+
                         if (line.includes('score cp')) {
                             const match = line.match(/score cp (-?\d+)/);
-                            if (match) updateEvalBar(parseInt(match[1]) / 100.0);
+                            if (match) score = parseInt(match[1]) / 100.0;
                         }
                         if (line.includes('score mate')) {
                             const match = line.match(/score mate (-?\d+)/);
-                            if (match) {
-                                let mateIn = parseInt(match[1]);
-                                document.getElementById('eval-text').innerText = mateIn > 0 ? `Мат через ${mateIn}` : `Мат через ${Math.abs(mateIn)}`;
-                            }
+                            if (match) mateIn = parseInt(match[1]);
                         }
                         if (line.includes('bestmove')) {
-                            const bestMove = line.split(' ')[1];
-                            if (bestMove && bestMove !== '(none)') document.getElementById('best-move-text').innerText = `Лучший ход: ${bestMove}`;
+                            bestMove = line.split(' ')[1];
+                        }
+
+                        // Если получили оценку, обновляем панель и считаем качество хода
+                        if (score !== null || mateIn !== null) {
+                            let displayText = mateIn !== null ? (mateIn > 0 ? `Мат через ${mateIn}` : `Мат через ${Math.abs(mateIn)}`) : `Оценка: ${(score > 0 ? '+' : '') + score.toFixed(2)}`;
+                            document.getElementById('eval-text').innerText = displayText;
+                            
+                            let normalizedScore = mateIn !== null ? (mateIn > 0 ? 10 : -10) : score;
+                            // Если ход черных, инвертируем оценку для отображения с точки зрения белых
+                            if (replayGame.turn() === 'b') normalizedScore = -normalizedScore;
+                            
+                            updateEvalBar(normalizedScore);
+                            evalHistory[currentAnalyzeIndex] = normalizedScore;
+
+                            // Считаем качество хода (сравниваем с предыдущим)
+                            if (currentAnalyzeIndex > 0 && evalHistory[currentAnalyzeIndex - 1] !== undefined) {
+                                calculateMoveQuality(evalHistory[currentAnalyzeIndex - 1], normalizedScore, bestMove);
+                            }
+                        }
+
+                        if (bestMove && bestMove !== '(none)') {
+                            document.getElementById('best-move-text').innerText = `Лучший ход: ${bestMove}`;
                         }
                     };
                 }).catch(e => console.log("Stockfish Error:", e));
         }
 
-        function analyzePosition(fen) {
+        function analyzePosition(fen, index) {
             if (!stockfish) initStockfish();
+            currentAnalyzeIndex = index;
             document.getElementById('eval-text').innerText = "Анализ...";
+            document.getElementById('move-quality').innerHTML = ""; 
             if (stockfish) {
                 stockfish.postMessage('stop');
                 stockfish.postMessage('position fen ' + fen);
-                stockfish.postMessage('go depth 12');
+                stockfish.postMessage('go depth 14'); // Глубина 14 для более точного анализа
             }
         }
 
         function updateEvalBar(score) {
-            document.getElementById('eval-text').innerText = `Оценка: ${(score > 0 ? '+' : '') + score.toFixed(2)}`;
             let clamped = Math.max(-5, Math.min(5, score));
             document.getElementById('eval-fill').style.width = (50 + (clamped * 10)) + '%';
+        }
+
+                // Функция классификации хода
+        function calculateMoveQuality(prevEval, currentEval, bestMoveUCI) {
+            let diff = currentEval - prevEval; 
+            let qualityText = "";
+            let badgeClass = "";
+
+            // Определяем, был ли это ход белых или черных
+            let isWhiteMove = (replayGame.turn() === 'b'); // Если сейчас ход черных, значит только что ходили белые
+            
+            // Если оценка упала для того, кто ходил — это плохо
+            let drop = isWhiteMove ? -diff : diff; 
+
+            // Получаем сыгранный ход в UCI (e2e4)
+            let history = replayGame.history({verbose: true});
+            let playedMoveUCI = "";
+            if (history.length > 0) {
+                let last = history[history.length - 1];
+                playedMoveUCI = last.from + last.to + (last.promotion || '');
+            }
+
+            if (playedMoveUCI === bestMoveUCI && drop < 0.5) {
+                qualityText = "Лучший ход";
+                badgeClass = "q-best";
+            } else if (drop > 2.0) {
+                qualityText = "Зевок";
+                badgeClass = "q-blunder";
+            } else if (drop > 1.0) {
+                qualityText = "Ошибка";
+                badgeClass = "q-mistake";
+            } else if (drop > 0.5) {
+                qualityText = "Неточность";
+                badgeClass = "q-inaccuracy";
+            } else {
+                qualityText = "Хороший ход";
+                badgeClass = "q-good";
+            }
+
+            let diffStr = (drop > 0) ? `-${drop.toFixed(1)}` : "0.0";
+            let innerHtml = `<span class="quality-badge ${badgeClass}">${qualityText}</span>`;
+            if (drop > 0.5) innerHtml += ` <span style="color:#aaa; font-size:14px;">(потеря ${diffStr})</span>`;
+            
+            document.getElementById('move-quality').innerHTML = innerHtml;
         }
 
         document.querySelectorAll('.time-btn').forEach(btn => {
@@ -250,20 +324,16 @@
                 const res = await fetch(`${SERVER_URL}/get_game_info/${code}`);
                 if (!res.ok) throw new Error("Партия не найдена");
                 const data = await res.json();
-                
                 if (data.status !== 'waiting') return tg.showAlert("В эту партию уже нельзя войти.");
 
                 document.getElementById('invite-name').innerText = data.creator_name;
                 document.getElementById('invite-avatar').src = data.creator_photo || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + data.creator_name;
                 document.getElementById('invite-time').innerText = `Контроль времени: ${data.time_control / 60} мин.`;
-                
                 document.getElementById('invite-modal').style.display = 'flex';
                 
                 document.getElementById('accept-invite-btn').onclick = () => {
                     document.getElementById('invite-modal').style.display = 'none';
-                    currentRoom = code;
-                    myColor = 'b'; 
-                    startGame(false);
+                    currentRoom = code; myColor = 'b'; startGame(false);
                 };
             } catch (e) {
                 tg.showAlert("Ошибка: Партия с таким кодом не найдена.");
@@ -286,6 +356,7 @@
                 currentRoom = code;
                 replayMoves = data.history || [];
                 replayIndex = 0;
+                evalHistory = []; // Сбрасываем историю оценок
                 
                 document.getElementById('lobby').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'flex';
@@ -332,10 +403,12 @@
             
             board.position(replayGame.fen());
             document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
-            analyzePosition(replayGame.fen());
+            
+            // Запускаем анализ текущей позиции
+            analyzePosition(replayGame.fen(), replayIndex);
         }
 
-                function startGame(isCreator) {
+        function startGame(isCreator) {
             document.getElementById('lobby').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('room-badge').innerText = currentRoom;
@@ -358,10 +431,7 @@
         };
 
         $premoveBtn.addEventListener('click', () => {
-            if (currentTurn === myColor) {
-                tg.showAlert("Сейчас ваш ход.");
-                return;
-            }
+            if (currentTurn === myColor) return tg.showAlert("Сейчас ваш ход.");
             isPremoveMode = !isPremoveMode;
             if (isPremoveMode) {
                 $premoveBtn.innerText = "Режим премува ВКЛ";
@@ -490,7 +560,7 @@
         });
 
         $('#board').on('click', '.square-55d63', function(e) {
-            if (isReplayMode || game.game_over() || currentTurn !== myColor) return;
+            if (isReplayMode || game.game_over()) return; 
             const square = $(e.target).attr('data-square');
 
             if (isPremoveMode) {
