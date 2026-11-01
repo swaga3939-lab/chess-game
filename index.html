@@ -15,7 +15,6 @@
         :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.05); --panel-border: rgba(255, 255, 255, 0.1); --accent-green: #81b64c; --accent-blue: #42a5f5; }
         body { background: var(--bg-gradient); color: #f0f0f0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; padding-bottom: 20px; }
         
-        /* ЛОББИ */
         #lobby { display: flex; flex-direction: column; width: 90%; max-width: 400px; padding: 20px; background: var(--panel-bg); border-radius: 16px; margin-top: 30px; border: 1px solid var(--panel-border); box-sizing: border-box; }
         #lobby h2 { margin-top: 0; margin-bottom: 15px; font-size: 18px; }
         .time-options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
@@ -23,7 +22,6 @@
         .time-btn.active { background: var(--accent-green); border-color: var(--accent-green); }
         .join-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 10px; box-sizing: border-box; }
 
-        /* ИГРА */
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); border-radius: 12px; }
         .player-info { display: flex; align-items: center; gap: 12px; }
@@ -41,7 +39,6 @@
         .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; }
         .highlight-selected { background-color: rgba(255, 215, 0, 0.4) !important; }
 
-        /* ПАНЕЛЬ АНАЛИЗА */
         #analysis-panel { display: none; width: 92%; max-width: 380px; background: var(--panel-bg); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--panel-border); text-align: center; }
         .eval-bar-container { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 5px; }
         .eval-bar-fill { height: 100%; background: #fff; width: 50%; transition: width 0.3s ease; }
@@ -146,12 +143,12 @@
         
         var isReplayMode = false, replayMoves = [], replayIndex = 0, replayGame = new Chess();
         var stockfish = null;
+        var lastServerFen = ""; 
 
         function initStockfish() {
             if (stockfish) return;
             stockfish = new Worker('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js');
             stockfish.postMessage('uci');
-            
             stockfish.onmessage = function(event) {
                 const line = event.data;
                 if (line.includes('score cp')) {
@@ -326,7 +323,9 @@
 
         socket.on('game_state', (data) => {
             if (isReplayMode) return;
-            game.load(data.fen); board.position(data.fen);
+            lastServerFen = data.fen; 
+            game.load(data.fen); 
+            board.position(data.fen);
             currentTurn = game.turn();
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
@@ -334,11 +333,20 @@
             if (data.status === 'playing') startLocalTimer();
         });
 
-                socket.on('game_over', (data) => {
+        socket.on('game_over', (data) => {
             if (isReplayMode) return;
             clearInterval(timerInterval);
             document.getElementById('modal-text').innerText = data.result === 'timeout' ? "Время вышло!" : (data.result === 'draw' ? "Ничья" : "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных'));
             document.getElementById('modal').style.display = 'flex';
+        });
+
+                socket.on('invalid_move', (data) => {
+            tg.showAlert('Сервер отклонил ход: ' + data.msg);
+            if (lastServerFen) {
+                game.load(lastServerFen);
+                board.position(lastServerFen);
+            }
+            selectedSquare = null; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
         });
 
         $('#board').on('click', '.square-55d63', function(e) {
