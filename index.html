@@ -12,82 +12,62 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
     <style>
-        :root {
-            --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%);
-            --panel-bg: rgba(255, 255, 255, 0.05);
-            --panel-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f0f0f0;
-            --accent-green: #81b64c;
-            --accent-blue: #42a5f5;
-        }
+        :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.05); --panel-border: rgba(255, 255, 255, 0.1); --accent-green: #81b64c; --accent-blue: #42a5f5; }
+        body { background: var(--bg-gradient); color: #f0f0f0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; padding-bottom: 20px; }
         
-        body { background: var(--bg-gradient); color: var(--text-main); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; overflow-y: auto; padding-bottom: 20px; }
-        
-        /* --- ЛОББИ --- */
-        #lobby {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 90%; max-width: 400px; padding: 20px; background: var(--panel-bg); border-radius: 16px; margin-top: 50px; border: 1px solid var(--panel-border);
-        }
-        #lobby h2 { margin-top: 0; margin-bottom: 20px; }
+        /* ЛОББИ */
+        #lobby { display: flex; flex-direction: column; width: 90%; max-width: 400px; padding: 20px; background: var(--panel-bg); border-radius: 16px; margin-top: 30px; border: 1px solid var(--panel-border); box-sizing: border-box; }
+        #lobby h2 { margin-top: 0; margin-bottom: 15px; font-size: 18px; }
         .time-options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
-        .time-btn { padding: 10px 15px; border-radius: 8px; border: 1px solid var(--panel-border); background: transparent; color: white; cursor: pointer; font-weight: bold; }
+        .time-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: transparent; color: white; cursor: pointer; font-weight: bold; }
         .time-btn.active { background: var(--accent-green); border-color: var(--accent-green); }
-        
-        .join-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 10px; box-sizing: border-box;}
+        .join-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 10px; box-sizing: border-box; }
 
-        /* --- ИГРА --- */
+        /* ИГРА */
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
-        
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); border-radius: 12px; }
         .player-info { display: flex; align-items: center; gap: 12px; }
         .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; }
         .name { font-weight: 600; font-size: 15px; }
+        .timer { font-size: 20px; font-weight: bold; font-family: monospace; padding: 6px 12px; background: rgba(0,0,0,0.5); border-radius: 6px; color: #888; transition: 0.3s; }
+        .timer.active { background: #fff; color: #000; }
         
-        /* Таймеры */
-        .timer { font-size: 20px; font-weight: bold; font-family: monospace; padding: 6px 12px; background: rgba(0,0,0,0.5); border-radius: 6px; border: 1px solid var(--panel-border); color: #888; transition: 0.3s; }
-        .timer.active { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.4); }
-        .timer.low-time { color: #ff4444; }
-
-        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 10px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.6); background-color: #f0d9b5; aspect-ratio: 1 / 1; }
+        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 10px 0; border-radius: 8px; overflow: hidden; background-color: #f0d9b5; aspect-ratio: 1 / 1; }
         #board { width: 100%; height: 100%; touch-action: none; }
         .notation-322f9 { display: none; }
-        
         .square-55d63 { position: relative; cursor: pointer !important; }
-        .board-b72b1 .piece-417db { pointer-events: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.5)); }
-        
-        .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none; }
-        .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none; }
-        .black-3c85d .highlight-dot::after { background-color: rgba(255, 255, 255, 0.3); }
-        .black-3c85d .highlight-capture::after { border-color: rgba(255, 255, 255, 0.3); }
+        .board-b72b1 .piece-417db { pointer-events: none !important; }
+        .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); }
+        .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; }
         .highlight-selected { background-color: rgba(255, 215, 0, 0.4) !important; }
 
-        /* Логи ходов */
-        #move-log { 
-            width: 92%; max-width: 380px; height: 120px; overflow-y: auto; 
-            background: var(--panel-bg); border-radius: 8px; padding: 10px; 
-            font-family: monospace; font-size: 14px; box-sizing: border-box;
-            display: flex; flex-wrap: wrap; align-content: flex-start; gap: 5px 15px;
-        }
+        /* ПАНЕЛЬ АНАЛИЗА */
+        #analysis-panel { display: none; width: 92%; max-width: 380px; background: var(--panel-bg); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--panel-border); text-align: center; }
+        .eval-bar-container { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 5px; }
+        .eval-bar-fill { height: 100%; background: #fff; width: 50%; transition: width 0.3s ease; }
+        .eval-text { font-weight: bold; font-size: 16px; }
+        .best-move-text { font-size: 14px; color: #81b64c; margin-top: 5px; }
+
+        #move-log { width: 92%; max-width: 380px; height: 100px; overflow-y: auto; background: var(--panel-bg); border-radius: 8px; padding: 10px; font-family: monospace; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 5px 15px; }
         .move-item { display: flex; gap: 5px; width: 45%; }
         .move-num { color: #666; }
-        .move-white { color: #fff; font-weight: bold; }
-        .move-black { color: #aaa; font-weight: bold; }
-
-        #status-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-top: 10px; background: var(--panel-bg); border-radius: 10px; }
-        .room-badge { background: rgba(129, 182, 76, 0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; }
         
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-card { background: #222; padding: 30px; border-radius: 16px; text-align: center; width: 80%; max-width: 300px; }
+        #status-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; padding: 10px; margin-top: 10px; background: var(--panel-bg); border-radius: 10px; }
+        .room-badge { background: rgba(129, 182, 76, 0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 6px; font-family: monospace; cursor: pointer; }
         
-        /* Кнопки */
         button { padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; margin-bottom: 10px; }
         .btn-green { background: var(--accent-green); }
         .btn-blue { background: var(--accent-blue); }
+
+        #replay-controls { display: none; width: 92%; max-width: 380px; justify-content: space-between; gap: 10px; margin-top: 10px; }
+        .replay-btn { background: #444; padding: 10px; border-radius: 8px; font-size: 20px; }
+        
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-card { background: #222; padding: 30px; border-radius: 16px; text-align: center; width: 80%; max-width: 300px; }
     </style>
 </head>
 <body>
 
-    <!-- ЭКРАН ЛОББИ -->
     <div id="lobby">
         <h2>Создать игру</h2>
         <div class="time-options">
@@ -97,34 +77,52 @@
         </div>
         <button id="create-game-btn" class="btn-green">Создать</button>
         
-        <h2 style="margin-top: 30px;">Войти по коду</h2>
-        <input type="text" id="join-code-input" class="join-input" placeholder="Введите код (например, A1B2)" maxlength="4">
+        <h2 style="margin-top: 20px;">Войти по коду</h2>
+        <input type="text" id="join-code-input" class="join-input" placeholder="Код (например, A1B2)" maxlength="4">
         <button id="join-game-btn" class="btn-blue">Присоединиться</button>
+        
+        <h2 style="margin-top: 20px;">Смотреть и анализировать</h2>
+        <input type="text" id="watch-code-input" class="join-input" placeholder="Код партии" maxlength="4">
+        <button id="watch-game-btn" style="background: #555;">Смотреть партию</button>
     </div>
 
-    <!-- ЭКРАН ИГРЫ -->
     <div id="game-screen">
         <div class="player-bar">
             <div class="player-info"><div class="avatar" id="opp-avatar"></div><div class="name" id="opp-name">Ожидание...</div></div>
-            <div class="timer" id="opp-timer">10:00</div>
+            <div class="timer" id="opp-timer">--:--</div>
         </div>
 
         <div id="board-container"><div id="board"></div></div>
 
         <div class="player-bar">
             <div class="player-info"><div class="avatar" id="my-avatar"></div><div class="name" id="my-name">Вы</div></div>
-            <div class="timer" id="my-timer">10:00</div>
+            <div class="timer" id="my-timer">--:--</div>
         </div>
 
         <div id="status-bar">
-            <div id="status-text">Ожидание соперника...</div>
-            <div class="room-badge" id="room-badge" title="Скопировать">----</div>
+            <div id="status-text">...</div>
+            <div class="room-badge" id="room-badge">----</div>
+        </div>
+
+        <div id="analysis-panel">
+            <div class="eval-bar-container">
+                <div class="eval-bar-fill" id="eval-fill"></div>
+            </div>
+            <div class="eval-text" id="eval-text">Оценка: 0.00</div>
+            <div class="best-move-text" id="best-move-text">Лучший ход: ...</div>
+        </div>
+
+        <div id="replay-controls">
+            <button class="replay-btn" onclick="replayStep(-1)">◀</button>
+            <button class="replay-btn" onclick="replayStep(1)">▶</button>
         </div>
 
         <div id="move-log"></div>
     </div>
 
-    <div id="modal"><div class="modal-card"><h2 id="modal-text">МАТ!</h2><button class="btn-blue" onclick="location.reload()">В лобби</button></div></div>
+    <div id="modal"><div class="modal-card"><h2 id="modal-text"></h2><button class="btn-blue" onclick="location.reload()">В лобби</button></div></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js"></script>
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -143,14 +141,51 @@
         const socket = io(SERVER_URL, { transports: ['websocket'] });
 
         var board = null, game = new Chess();
-        var selectedSquare = null; 
-        var currentRoom = null, myColor = null;
-        var timeControl = 600; // Выбранное время
-        var timerInterval = null;
-        var localTimeLeft = { w: 600, b: 600 };
-        var currentTurn = 'w';
+        var selectedSquare = null, currentRoom = null, myColor = null;
+        var timeControl = 600, timerInterval = null, localTimeLeft = { w: 600, b: 600 }, currentTurn = 'w';
+        
+        var isReplayMode = false, replayMoves = [], replayIndex = 0, replayGame = new Chess();
+        var stockfish = null;
 
-        // --- ЛОББИ ЛОГИКА ---
+        function initStockfish() {
+            if (stockfish) return;
+            stockfish = new Worker('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js');
+            stockfish.postMessage('uci');
+            
+            stockfish.onmessage = function(event) {
+                const line = event.data;
+                if (line.includes('score cp')) {
+                    const match = line.match(/score cp (-?\d+)/);
+                    if (match) updateEvalBar(parseInt(match[1]) / 100.0);
+                }
+                if (line.includes('score mate')) {
+                    const match = line.match(/score mate (-?\d+)/);
+                    if (match) {
+                        let mateIn = parseInt(match[1]);
+                        document.getElementById('eval-text').innerText = mateIn > 0 ? `Мат через ${mateIn}` : `Мат через ${Math.abs(mateIn)}`;
+                    }
+                }
+                if (line.includes('bestmove')) {
+                    const bestMove = line.split(' ')[1];
+                    if (bestMove && bestMove !== '(none)') document.getElementById('best-move-text').innerText = `Лучший ход: ${bestMove}`;
+                }
+            };
+        }
+
+        function analyzePosition(fen) {
+            if (!stockfish) initStockfish();
+            document.getElementById('eval-text').innerText = "Анализ...";
+            stockfish.postMessage('stop');
+            stockfish.postMessage('position fen ' + fen);
+            stockfish.postMessage('go depth 12');
+        }
+
+        function updateEvalBar(score) {
+            document.getElementById('eval-text').innerText = `Оценка: ${(score > 0 ? '+' : '') + score.toFixed(2)}`;
+            let clamped = Math.max(-5, Math.min(5, score));
+            document.getElementById('eval-fill').style.width = (50 + (clamped * 10)) + '%';
+        }
+
         document.querySelectorAll('.time-btn').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
@@ -161,59 +196,98 @@
 
         document.getElementById('create-game-btn').onclick = () => {
             currentRoom = Math.random().toString(36).substring(2, 6).toUpperCase();
-            myColor = 'w';
-            startGame(true);
+            myColor = 'w'; startGame(true);
         };
 
         document.getElementById('join-game-btn').onclick = () => {
             const code = document.getElementById('join-code-input').value.toUpperCase().trim();
-            if (code.length === 4) {
+            if (code.length === 4) { currentRoom = code; myColor = 'b'; startGame(false); }
+        };
+
+        document.getElementById('watch-game-btn').onclick = async () => {
+            const code = document.getElementById('watch-code-input').value.toUpperCase().trim();
+            if (code.length !== 4) return tg.showAlert("Введите 4-символьный код!");
+
+            try {
+                const res = await fetch(`${SERVER_URL}/get_game/${code}`);
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || "Партия не найдена");
+                }
+                const data = await res.json();
+                
+                isReplayMode = true;
                 currentRoom = code;
-                myColor = 'b';
-                // Отправляем запрос, время узнаем от сервера
-                socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId, photo_url: myPhotoUrl, action: 'join' });
-            } else {
-                tg.showAlert("Введите 4-символьный код!");
+                replayMoves = data.history || [];
+                replayIndex = 0;
+                
+                document.getElementById('lobby').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'flex';
+                document.getElementById('room-badge').innerText = currentRoom;
+                document.getElementById('replay-controls').style.display = 'flex';
+                document.getElementById('analysis-panel').style.display = 'block';
+                document.getElementById('status-text').innerText = "Анализ партии";
+                
+                document.getElementById('my-timer').style.display = 'none';
+                document.getElementById('opp-timer').style.display = 'none';
+
+                board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
+                renderLog(replayMoves);
+                
+                initStockfish();
+                replayStep(0); 
+
+            } catch (e) {
+                tg.showAlert(e.message);
             }
         };
+
+        function replayStep(dir) {
+            if (!isReplayMode) return;
+            if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
+            if (dir === -1 && replayIndex > 0) replayIndex--;
+
+            replayGame = new Chess();
+            for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
+            
+            board.position(replayGame.fen());
+            document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
+            analyzePosition(replayGame.fen());
+        }
 
         function startGame(isCreator) {
             document.getElementById('lobby').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('room-badge').innerText = currentRoom;
+            document.getElementById('my-timer').style.display = 'block';
+            document.getElementById('opp-timer').style.display = 'block';
             
-            board = Chessboard('board', { 
-                draggable: false, position: 'start', 
-                pieceTheme: function(p) { return 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/' + p.toLowerCase() + '.png'; }
-            });
+            board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
 
             if (isCreator) {
-                socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId, photo_url: myPhotoUrl, time_control: timeControl, action: 'create' });
+                socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId, photo_url: myPhotoUrl, time_control: timeControl });
+            } else {
+                socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId, photo_url: myPhotoUrl });
             }
         }
 
         document.getElementById('room-badge').onclick = () => {
-            navigator.clipboard.writeText(currentRoom);
-            tg.showAlert("Код скопирован!");
+            navigator.clipboard.writeText(currentRoom); tg.showAlert("Код скопирован!");
         };
 
-        // --- ТАЙМЕР ---
         function updateTimers(timeLeft) {
             localTimeLeft = timeLeft;
             renderTimer('my', localTimeLeft[myColor]);
             renderTimer('opp', localTimeLeft[myColor === 'w' ? 'b' : 'w']);
-            
             document.getElementById('my-timer').classList.toggle('active', currentTurn === myColor);
             document.getElementById('opp-timer').classList.toggle('active', currentTurn !== myColor);
         }
 
         function renderTimer(who, seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            const el = document.getElementById(who + '-timer');
-            el.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-            el.classList.toggle('low-time', seconds < 30);
+            if (seconds === undefined) return;
+            const m = Math.floor(seconds / 60); const s = Math.floor(seconds % 60);
+            document.getElementById(who + '-timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
         function startLocalTimer() {
@@ -222,41 +296,24 @@
                 if (currentTurn && localTimeLeft[currentTurn] > 0) {
                     localTimeLeft[currentTurn]--;
                     updateTimers(localTimeLeft);
-                    if (localTimeLeft[currentTurn] <= 0) {
-                        socket.emit('timeout', { room: currentRoom, color: currentTurn });
-                        clearInterval(timerInterval);
-                    }
                 }
             }, 1000);
         }
 
-        // --- ОТРИСОВКА ЛОГОВ ---
         function renderLog(history) {
-            const logDiv = document.getElementById('move-log');
-            logDiv.innerHTML = '';
+            const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
             for (let i = 0; i < history.length; i += 2) {
                 const moveNum = Math.floor(i / 2) + 1;
-                const whiteMove = history[i];
-                const blackMove = history[i + 1] || '';
-                
-                const div = document.createElement('div');
-                div.className = 'move-item';
-                div.innerHTML = `<span class="move-num">${moveNum}.</span> <span class="move-white">${whiteMove}</span> <span class="move-black">${blackMove}</span>`;
+                const div = document.createElement('div'); div.className = 'move-item';
+                div.innerHTML = `<span class="move-num">${moveNum}.</span> <span>${history[i]}</span> <span style="color:#aaa">${history[i+1] || ''}</span>`;
                 logDiv.appendChild(div);
             }
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
-        // --- SOCKET СОБЫТИЯ ---
-        socket.on('connect', () => {
-            if (currentRoom) { // Переподключение
-                socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId, photo_url: myPhotoUrl, action: 'join' });
-            }
-        });
-
         socket.on('players_update', (data) => {
             const ids = Object.keys(data);
-            if (ids.length >= 2) {
+            if (ids.length >= 2 && !isReplayMode) {
                 const oppId = ids.find(id => id !== myUserId);
                 if (oppId) {
                     const opp = data[oppId];
@@ -268,43 +325,29 @@
         });
 
         socket.on('game_state', (data) => {
-            game.load(data.fen);
-            board.position(data.fen);
+            if (isReplayMode) return;
+            game.load(data.fen); board.position(data.fen);
             currentTurn = game.turn();
-            
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
-
-            document.getElementById('status-text').innerText = data.status === 'waiting' ? "Ожидание соперника..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
-            
-            if (data.status === 'playing') {
-                startLocalTimer();
-            }
+            document.getElementById('status-text').innerText = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
+            if (data.status === 'playing') startLocalTimer();
         });
 
-        socket.on('game_over', (data) => {
+                socket.on('game_over', (data) => {
+            if (isReplayMode) return;
             clearInterval(timerInterval);
-            let text = "МАТ!";
-            if (data.result === 'timeout') text = "Время вышло!";
-            else if (data.result === 'draw') text = "Ничья";
-            else if (data.winner) text = "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных');
-            
-            document.getElementById('modal-text').innerText = text;
+            document.getElementById('modal-text').innerText = data.result === 'timeout' ? "Время вышло!" : (data.result === 'draw' ? "Ничья" : "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных'));
             document.getElementById('modal').style.display = 'flex';
         });
 
-        // --- ЛОГИКА КЛИКОВ ПО ДОСКЕ ---
-        function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected'); }
-        
         $('#board').on('click', '.square-55d63', function(e) {
-            if (game.game_over() || currentTurn !== myColor) return;
+            if (isReplayMode || game.game_over() || currentTurn !== myColor) return;
             const square = $(e.target).attr('data-square');
-            
             if (!selectedSquare) {
                 var piece = game.get(square);
                 if (piece && piece.color === game.turn()) { 
-                    selectedSquare = square; 
-                    removeHighlights();
+                    selectedSquare = square; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
                     $('#board .square-' + square).addClass('highlight-selected');
                     var moves = game.moves({ square: square, verbose: true });
                     for (var i = 0; i < moves.length; i++) {
@@ -314,18 +357,16 @@
                     }
                 }
             } else {
-                if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
-                
+                if (selectedSquare === square) { selectedSquare = null; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected'); return; }
                 var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
                 if (move) {
                     board.position(game.fen());
                     socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } });
-                    selectedSquare = null; removeHighlights();
+                    selectedSquare = null; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
                 } else {
                     var piece = game.get(square);
                     if (piece && piece.color === game.turn()) { 
-                        selectedSquare = square; 
-                        removeHighlights();
+                        selectedSquare = square; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
                         $('#board .square-' + square).addClass('highlight-selected');
                         var moves = game.moves({ square: square, verbose: true });
                         for (var i = 0; i < moves.length; i++) {
@@ -333,7 +374,7 @@
                             if (game.get(target)) $('#board .square-' + target).addClass('highlight-capture');
                             else $('#board .square-' + target).addClass('highlight-dot');
                         }
-                    } else { selectedSquare = null; removeHighlights(); }
+                    } else { selectedSquare = null; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected'); }
                 }
             }
         });
