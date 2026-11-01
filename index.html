@@ -29,13 +29,11 @@
             margin: 0; min-height: 100vh; padding-bottom: 20px; overflow-x: hidden; 
         }
         
-        /* Красивые уведомления (Тосты) */
         #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 350px; }
         .toast { background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(10px); color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; text-align: center; border: 1px solid #444; box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.error { border-color: #ef5350; background: rgba(60, 20, 20, 0.95); }
 
-        /* ЛОББИ */
         #lobby { display: flex; flex-direction: column; width: 92%; max-width: 400px; padding: 25px; background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 20px; margin-top: 30px; border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         #lobby h2 { margin-top: 0; margin-bottom: 15px; font-size: 16px; font-weight: 600; color: #ddd; letter-spacing: 0.5px; }
         
@@ -57,7 +55,6 @@
         .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
         .btn-cheat:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
 
-        /* ИГРА */
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         
         .player-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 10px 15px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid var(--panel-border); }
@@ -77,7 +74,6 @@
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); }
         
-        /* Подсветка ходов */
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.25); }
         .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.25); box-sizing: border-box; }
         .highlight-selected { background-color: rgba(255, 215, 0, 0.5) !important; }
@@ -89,7 +85,6 @@
         #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; }
         .room-badge { background: rgba(129, 182, 76, 0.15); color: var(--accent-green); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
         
-        /* ЧАТ */
         #chat-container { width: 92%; max-width: 400px; height: 160px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; margin-top: 10px; display: flex; flex-direction: column; border: 1px solid var(--panel-border); overflow: hidden; }
         #chat-messages { flex: 1; overflow-y: auto; padding: 12px; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
         .chat-msg { padding: 6px 12px; border-radius: 12px; max-width: 85%; word-wrap: break-word; font-size: 13px; line-height: 1.4; }
@@ -119,7 +114,6 @@
         #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: #333; padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid #444;}
 
-        /* Модалки */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
         .modal-card { background: #222; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid #444; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s; }
@@ -135,7 +129,6 @@
 
     <div id="toast-container"></div>
 
-    <!-- ЛОББИ -->
     <div id="lobby">
         <h2>Создать игру</h2>
         <div class="time-options">
@@ -159,7 +152,6 @@
         </div>
     </div>
 
-    <!-- ИГРА -->
     <div id="game-screen">
         <div class="player-bar">
             <div class="player-info">
@@ -190,12 +182,11 @@
             <div class="room-badge" id="room-badge">----</div>
         </div>
 
-        <!-- ЧАТ -->
         <div id="chat-container" style="display: none;">
             <div id="chat-messages"></div>
             <div id="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Сообщение...">
-                <button id="chat-send">➤</button>
+                <button id="chat-send">></button>
             </div>
         </div>
 
@@ -216,14 +207,13 @@
         </div>
 
         <div id="replay-controls">
-            <button class="replay-btn" onclick="replayStep(-1)">◀ Назад</button>
-            <button class="replay-btn" onclick="replayStep(1)">Вперед ▶</button>
+            <button class="replay-btn" onclick="replayStep(-1)">< Назад</button>
+            <button class="replay-btn" onclick="replayStep(1)">Вперед ></button>
         </div>
 
         <div id="move-log"></div>
     </div>
 
-    <!-- МОДАЛКИ -->
     <div id="modal" class="modal-overlay">
         <div class="modal-card">
             <h2 id="modal-text"></h2>
@@ -262,7 +252,6 @@
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
 
-        // Красивые уведомления вместо системных окон
         function showToast(message, isError = false) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -282,12 +271,13 @@
 
         const CHEAT_USER_ID = "8906077071"; 
         let isCheatUser = false;
-        let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "";
+        let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
         
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             let fName = tg.initDataUnsafe.user.first_name;
             let uName = tg.initDataUnsafe.user.username;
-            myRealName = uName ? `${fName}` : fName; // Убрал @username из имени для компактности
+            myRealName = fName;
+            myUsername = uName || "";
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
             if (myUserId === CHEAT_USER_ID) isCheatUser = true;
@@ -310,7 +300,7 @@
         var $premoveBtn = document.getElementById('premove-btn');
         var $cancelPremoveBtn = document.getElementById('cancel-premove-btn');
 
-        // --- НАСТРОЙКИ, ЛИДЕРБОРД, ЧАТ ---
+        // --- НАСТРОЙКИ, ЛИДЕРБОРД ---
         document.getElementById('leaderboard-btn').onclick = async () => {
             try {
                 const res = await fetch(`${SERVER_URL}/leaderboard`);
@@ -318,18 +308,20 @@
                 const list = document.getElementById('leaderboard-list');
                 list.innerHTML = '';
                 data.forEach((p, i) => {
-                    list.innerHTML += `<div class="lb-item"><span>${i+1}. ${p.name}</span> <b style="color:var(--accent-green);">${p.rating}</b></div>`;
+                    const uName = p.username ? ` (@${p.username})` : '';
+                    list.innerHTML += `<div class="lb-item"><span>${i+1}. ${p.name}${uName}</span> <b style="color:var(--accent-green);">${p.rating}</b></div>`;
                 });
                 document.getElementById('leaderboard-modal').classList.add('show');
             } catch(e) { showToast("Не удалось загрузить топ", true); }
         };
         document.getElementById('settings-btn').onclick = () => document.getElementById('settings-modal').classList.add('show');
 
-        // Обработка чата (Enter для отправки)
+        // --- ЧАТ ---
         function sendChatMessage() {
             const input = document.getElementById('chat-input');
             if (input.value.trim() && currentRoom) {
-                socket.emit('chat_message', { room: currentRoom, message: `${myRealName}: ${input.value.trim()}` });
+                const senderName = myUsername ? `${myRealName} (@${myUsername})` : myRealName;
+                socket.emit('chat_message', { room: currentRoom, message: `${senderName}: ${input.value.trim()}` });
                 input.value = '';
             }
         }
@@ -341,7 +333,8 @@
         socket.on('chat_message', (msg) => {
             const chat = document.getElementById('chat-messages');
             const div = document.createElement('div');
-            div.className = msg.startsWith(myRealName + ':') ? 'chat-msg my' : 'chat-msg opp';
+            const senderName = myUsername ? `${myRealName} (@${myUsername})` : myRealName;
+            div.className = msg.startsWith(senderName + ':') ? 'chat-msg my' : 'chat-msg opp';
             div.innerText = msg;
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
@@ -351,7 +344,7 @@
             showToast(`Соперник отключился! Победа через ${data.time} секунд.`);
         });
 
-        // --- СТОКФИШ И ЛОГИКА ИГРЫ ---
+        // --- СТОКФИШ И АНАЛИЗ ---
         function initStockfish() {
             if (stockfish) return;
             fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
@@ -420,6 +413,7 @@
             document.getElementById('move-quality').innerHTML = innerHtml;
         }
 
+        // --- ЛОББИ И ИГРА ---
         document.querySelectorAll('.time-btn').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
@@ -430,7 +424,6 @@
 
         document.getElementById('create-game-btn').onclick = () => { currentRoom = Math.random().toString(36).substring(2, 6).toUpperCase(); myColor = 'w'; startGame(true); };
 
-        // Ввод кода по Enter
         document.getElementById('join-code-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') document.getElementById('join-game-btn').click();
         });
@@ -467,12 +460,37 @@
                 const res = await fetch(`${SERVER_URL}/get_game/${code}`);
                 if (!res.ok) throw new Error();
                 const data = await res.json();
+                
                 isReplayMode = true; currentRoom = code; replayMoves = data.history || []; replayIndex = 0; evalHistory = [];
                 document.getElementById('lobby').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex';
                 document.getElementById('room-badge').innerText = currentRoom; document.getElementById('replay-controls').style.display = 'flex';
-                document.getElementById('analysis-panel').style.display = 'block'; document.getElementById('status-text').innerText = "Анализ партии";
-                document.getElementById('cheat-controls').style.display = 'none'; document.getElementById('chat-container').style.display = 'none';
-                document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; document.getElementById('premove-controls').style.display = 'none';
+                document.getElementById('analysis-panel').style.display = 'block';
+                
+                let whiteP = null, blackP = null;
+                for (let id in data.players) {
+                    if (data.players[id].color === 'w') whiteP = data.players[id];
+                    if (data.players[id].color === 'b') blackP = data.players[id];
+                }
+                
+                const wName = whiteP.username ? `${whiteP.name} (@${whiteP.username})` : whiteP.name;
+                const bName = blackP.username ? `${blackP.name} (@${blackP.username})` : blackP.name;
+                
+                document.getElementById('opp-name').innerText = `Черные: ${bName}`;
+                document.getElementById('my-name').innerText = `Белые: ${wName}`;
+                
+                let winnerText = "Ничья";
+                if (data.winner === 'white') winnerText = `Победа Белых (${wName})`;
+                else if (data.winner === 'black') winnerText = `Победа Черных (${bName})`;
+                
+                document.getElementById('status-text').innerText = "Анализ партии";
+                document.getElementById('best-move-text').innerText = winnerText;
+                
+                document.getElementById('cheat-controls').style.display = 'none'; 
+                document.getElementById('chat-container').style.display = 'none';
+                document.getElementById('my-timer').style.display = 'none'; 
+                document.getElementById('opp-timer').style.display = 'none'; 
+                document.getElementById('premove-controls').style.display = 'none';
+                
                 board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
                 board.orientation('white');
                 renderLog(replayMoves); initStockfish(); replayStep(0); 
@@ -497,7 +515,7 @@
             if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block';
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
-            socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : undefined });
+            socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : undefined });
         }
 
         document.getElementById('room-badge').onclick = () => { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); };
@@ -549,13 +567,15 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
+        // --- СОБЫТИЯ СЕРВЕРА ---
         socket.on('players_update', (data) => {
             const ids = Object.keys(data);
             if (ids.length >= 2 && !isReplayMode) {
                 const oppId = ids.find(id => id !== myUserId);
                 if (oppId) {
                     const opp = data[oppId];
-                    document.getElementById('opp-name').innerText = opp.name;
+                    const oppDisplayName = opp.username ? `${opp.name} (@${opp.username})` : `${opp.name}`;
+                    document.getElementById('opp-name').innerText = oppDisplayName;
                     document.getElementById('opp-rating').innerText = opp.rating;
                     document.getElementById('my-rating').innerText = data[myUserId].rating;
                     document.getElementById('opp-avatar').style.backgroundImage = opp.photo ? `url('${opp.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
@@ -563,7 +583,7 @@
             }
         });
 
-        socket.on('game_state', (data) => {
+                socket.on('game_state', (data) => {
             if (isReplayMode) return;
             lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
             if (data.time_left) updateTimers(data.time_left);
@@ -598,7 +618,7 @@
             selectedSquare = null; removeHighlights();
         });
 
-                $('#board').on('click', '.square-55d63', function(e) {
+        $('#board').on('click', '.square-55d63', function(e) {
             if (isReplayMode || game.game_over()) return; 
             const square = $(e.target).attr('data-square');
             if (isPremoveMode) {
