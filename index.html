@@ -12,37 +12,63 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
     <style>
-        /* Стили оставляем без изменений */
-        :root { --bg-color: var(--tg-theme-bg-color, #161512); --text-color: var(--tg-theme-text-color, #ffffff); --panel-bg: var(--tg-theme-secondary-bg-color, #262421); --accent: var(--tg-theme-button-color, #81b64c); }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; user-select: none; overflow: hidden; padding-top: 10px; }
-        .player-bar { width: 95%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; }
-        .player-info { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; border-radius: 6px; background-color: #444; background-size: cover; }
+        :root {
+            --bg-dark: #121212;
+            --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%);
+            --panel-bg: rgba(255, 255, 255, 0.05);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f0f0f0;
+            --accent-green: #81b64c;
+        }
+        body { background: var(--bg-gradient); color: var(--text-main); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; user-select: none; overflow: hidden; padding-top: 15px; }
+        
+        .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .player-info { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 42px; height: 42px; border-radius: 10px; background-color: #333; background-size: cover; border: 2px solid rgba(255,255,255,0.1); }
         .name-box { display: flex; flex-direction: column; }
-        .name { font-weight: bold; font-size: 16px; }
-        .timer { background: var(--panel-bg); color: #eee; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 18px; font-weight: bold; border: 1px solid #333; }
-        .timer.active { background: #fff; color: #000; border-color: #fff; }
-        #board-container { position: relative; width: 95vw; max-width: 400px; margin: 10px 0; border-radius: 4px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .name { font-weight: 600; font-size: 15px; letter-spacing: 0.3px; }
+        .timer { background: rgba(0,0,0,0.4); color: #888; padding: 6px 10px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 16px; font-weight: bold; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+        .timer.active { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        
+        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 15px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 0 4px rgba(255,255,255,0.05); }
         #board { width: 100%; touch-action: none; }
         .notation-322f9 { display: none; }
+        
         .square-55d63 { position: relative; cursor: pointer !important; }
-        .board-b72b1 .piece-417db { pointer-events: none !important; -webkit-user-drag: none !important; }
-        .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 32%; height: 32%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none; }
-        .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none; }
+        .board-b72b1 .piece-417db { pointer-events: none !important; -webkit-user-drag: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.5)); }
+        
+        /* Обычные ходы */
+        .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); pointer-events: none; }
+        .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; pointer-events: none; }
         .black-3c85d .highlight-dot::after { background-color: rgba(255, 255, 255, 0.3); }
         .black-3c85d .highlight-capture::after { border-color: rgba(255, 255, 255, 0.3); }
-        .highlight-selected { background-color: rgba(255, 255, 0, 0.4) !important; }
-        #status-bar { width: 95%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-top: 5px; padding: 10px 0; }
-        #status-text { font-weight: bold; color: #bbb; }
-        .room-badge { background: #444; padding: 4px 10px; border-radius: 6px; color: white; font-family: monospace; font-weight: bold; cursor: pointer; }
-        .controls { margin-top: 10px; display: flex; gap: 10px; width: 95%; max-width: 400px; }
-        button { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; transition: transform 0.1s; }
-        button:active { transform: scale(0.96); opacity: 0.8; }
-        .btn-green { background: linear-gradient(180deg, #8ab962 0%, #6a9c44 100%); }
-        .btn-blue { background: linear-gradient(180deg, #4b90c2 0%, #3574a0 100%); }
-        .btn-red { background: linear-gradient(180deg, #c24b4b 0%, #a03535 100%); flex: 0.5; }
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-card { background: var(--panel-bg); padding: 30px; border-radius: 12px; text-align: center; width: 80%; max-width: 300px; }
+        .highlight-selected { background-color: rgba(255, 215, 0, 0.4) !important; }
+
+        /* Премувы (Фиолетовые) */
+        .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.7); pointer-events: none; }
+        .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(156, 39, 176, 0.7); box-sizing: border-box; pointer-events: none; }
+        .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.4) !important; }
+
+        #status-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; margin-top: 5px; background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 10px; }
+        #status-text { font-weight: 600; font-size: 14px; color: var(--text-main); }
+        .room-badge { background: rgba(129, 182, 76, 0.2); color: var(--accent-green); padding: 4px 10px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
+        
+        .controls { margin-top: 10px; display: flex; gap: 10px; width: 92%; max-width: 380px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; color: white; transition: transform 0.1s, filter 0.2s, box-shadow 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.3); filter: brightness(0.9); }
+        
+        .btn-green { background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%); }
+        .btn-blue { background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%); }
+        .btn-red { background: linear-gradient(135deg, #ef5350 0%, #c62828 100%); flex: 0.6; }
+        
+        /* Кнопки премува */
+        .btn-purple { background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%); }
+        .btn-orange { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
+
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-card { background: #222; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 80%; max-width: 300px; border: 1px solid var(--panel-border); animation: popIn 0.3s ease-out; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-card h2 { margin-top: 0; font-size: 24px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -50,20 +76,32 @@
         <div class="player-info"><div class="avatar" id="opp-avatar"></div><div class="name-box"><div class="name" id="opp-name">Ожидание...</div></div></div>
         <div class="timer" id="opp-timer">10:00</div>
     </div>
+
     <div id="board-container"><div id="board"></div></div>
+
     <div class="player-bar">
         <div class="player-info"><div class="avatar" id="my-avatar"></div><div class="name-box"><div class="name" id="my-name">Вы</div></div></div>
         <div class="timer active" id="my-timer">10:00</div>
     </div>
+
     <div id="status-bar">
         <div id="status-text">Ожидание...</div>
-        <div class="room-badge" id="room-badge" style="display: none;">---</div>
+        <div class="room-badge" id="room-badge" style="display: none;" title="Скопировать">---</div>
     </div>
+
+    <!-- Основные кнопки -->
     <div class="controls">
         <button id="create-game-btn" class="btn-green">Создать</button>
         <button id="join-game-btn" class="btn-blue">Войти</button>
         <button id="restart-btn" class="btn-red">Сброс</button>
     </div>
+
+    <!-- Кнопки премува (скрыты по умолчанию) -->
+    <div class="controls" style="margin-top: 5px;">
+        <button id="premove-btn" class="btn-purple" style="display: none;">Включить премув</button>
+        <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить премув</button>
+    </div>
+
     <div id="modal"><div class="modal-card"><h2 id="modal-text">МАТ!</h2><button class="btn-blue" onclick="closeModal()" style="width: 100%;">Ок</button></div></div>
 
     <script>
@@ -72,38 +110,67 @@
         tg.expand();
 
         let myRealName = "Игрок";
-        let myUserId = "guest_" + Math.floor(Math.random() * 1000); // Заглушка, если открыто вне ТГ
-        
+        let myUserId = "guest_" + Math.floor(Math.random() * 1000); 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             myRealName = tg.initDataUnsafe.user.first_name;
-            myUserId = String(tg.initDataUnsafe.user.id); // Уникальный ID
+            myUserId = String(tg.initDataUnsafe.user.id); 
             document.getElementById('my-name').innerText = myRealName;
             document.getElementById('my-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
         }
 
         const SERVER_URL = 'https://chess-server-gh0q.onrender.com';
-        
-        const socket = io(SERVER_URL, {
-            transports: ['websocket'],
-            reconnection: true,
-            reconnectionDelay: 1000,
-            reconnectionDelayMax: 5000,
-            reconnectionAttempts: Infinity
-        });
+        const socket = io(SERVER_URL, { transports: ['websocket'], reconnection: true });
 
         var board = null;
         var game = new Chess();
-        var selectedSquare = null;
+        var selectedSquare = null; 
         var currentRoom = null;
         var myColor = null;
+        
+        var premoveFrom = null;
+        var premoveTo = null;
+        var isPremoveMode = false;
+
         var $statusText = document.getElementById('status-text');
         var $roomBadge = document.getElementById('room-badge');
+        var $premoveBtn = document.getElementById('premove-btn');
+        var $cancelPremoveBtn = document.getElementById('cancel-premove-btn');
 
         $roomBadge.addEventListener('click', () => {
             if(currentRoom) { navigator.clipboard.writeText(currentRoom); tg.showAlert("ID скопирован!"); }
         });
 
-        function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected'); }
+        $premoveBtn.addEventListener('click', () => {
+            if (game.turn() === myColor) {
+                tg.showAlert("Сейчас ваш ход.");
+                return;
+            }
+            isPremoveMode = !isPremoveMode;
+            if (isPremoveMode) {
+                $premoveBtn.innerText = "Режим премува ВКЛ";
+                $premoveBtn.style.background = "#d32f2f"; 
+                tg.showAlert("Выберите свою фигуру, затем клетку, куда хотите пойти. Премув сработает автоматически после хода соперника.");
+            } else {
+                $premoveBtn.innerText = "Включить премув";
+                $premoveBtn.style.background = ""; 
+                removeHighlights();
+            }
+        });
+
+        $cancelPremoveBtn.addEventListener('click', () => {
+            premoveFrom = null;
+            premoveTo = null;
+            isPremoveMode = false;
+            $premoveBtn.innerText = "Включить премув";
+            $premoveBtn.style.background = "";
+            removeHighlights();
+            $cancelPremoveBtn.style.display = 'none';
+            tg.showAlert("Премув отменен.");
+        });
+
+        function removeHighlights() { 
+            $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected highlight-premove-dot highlight-premove-capture highlight-premove-selected'); 
+        }
         
         function highlightMoves(source) {
             removeHighlights();
@@ -116,8 +183,51 @@
             }
         }
 
+        function highlightPremove(source) {
+            removeHighlights();
+            $('#board .square-' + source).addClass('highlight-premove-selected');
+        }
+
         function onSquareClick(square) {
-            if (game.game_over() || !currentRoom || game.turn() !== myColor) return;
+            if (game.game_over() || !currentRoom) return;
+
+            if (isPremoveMode) {
+                if (game.turn() === myColor) {
+                    isPremoveMode = false;
+                    $premoveBtn.innerText = "Включить премув";
+                    $premoveBtn.style.background = "";
+                } else {
+                    if (!premoveFrom) {
+                        var piece = game.get(square);
+                        if (piece && piece.color === myColor) {
+                            premoveFrom = square;
+                            highlightPremove(square);
+                        }
+                    } else {
+                        if (premoveFrom === square) {
+                            premoveFrom = null;
+                            removeHighlights();
+                        } else {
+                            premoveTo = square;
+                            $('#board .square-' + premoveTo).addClass('highlight-premove-capture'); 
+                            
+                            isPremoveMode = false;
+                            $premoveBtn.innerText = "Включить премув";
+                            $premoveBtn.style.background = "";
+                            
+                            $cancelPremoveBtn.style.display = 'block';
+                            tg.showAlert(`Премув записан: ${premoveFrom} -> ${premoveTo}`);
+                        }
+                    }
+                    return; 
+                }
+            }
+
+            if (game.turn() !== myColor) {
+                tg.showAlert("Сейчас ход соперника.");
+                return;
+            }
+
             if (!selectedSquare) {
                 var piece = game.get(square);
                 if (piece && piece.color === game.turn()) { selectedSquare = square; highlightMoves(square); }
@@ -139,13 +249,28 @@
 
         function updateStatus() {
             if (currentRoom) { $roomBadge.style.display = "block"; $roomBadge.innerText = currentRoom; }
+            
+            if (currentRoom && game.turn() !== myColor && !game.game_over()) {
+                $premoveBtn.style.display = 'block';
+            } else {
+                $premoveBtn.style.display = 'none';
+            }
+
+            if (!premoveFrom || !premoveTo) {
+                $cancelPremoveBtn.style.display = 'none';
+            }
+
             if (game.in_checkmate()) {
                 $statusText.innerHTML = 'МАТ! Победа: ' + (game.turn() === 'w' ? 'Черные' : 'Белые');
                 $statusText.style.color = '#ff4444';
                 document.getElementById('modal-text').innerText = $statusText.innerHTML;
                 document.getElementById('modal').style.display = 'flex';
+                $premoveBtn.style.display = 'none';
+                $cancelPremoveBtn.style.display = 'none';
             } else if (game.in_draw()) {
                 $statusText.innerHTML = 'НИЧЬЯ'; $statusText.style.color = '#ff4444';
+                $premoveBtn.style.display = 'none';
+                $cancelPremoveBtn.style.display = 'none';
             } else {
                 $statusText.innerHTML = 'Ход: ' + (game.turn() === 'w' ? 'Белые' : 'Черные');
                 $statusText.style.color = (game.turn() === myColor) ? '#81b64c' : '#bbb';
@@ -182,33 +307,19 @@
             if(currentRoom) socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId }); 
         };
 
-        // АВТО-ПЕРЕПОДКЛЮЧЕНИЕ
         socket.on('connect', () => { 
-            console.log("Подключено. Мой Telegram ID:", myUserId); 
-            if (currentRoom) {
-                // Если мы были в комнате, а связь оборвалась (свернули апп), возвращаемся обратно!
-                console.log("Восстанавливаю сессию в комнате:", currentRoom);
-                socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId });
-            } else {
-                $statusText.innerText = "Создайте игру!";
-            }
+            if (currentRoom) socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId });
+            else $statusText.innerText = "Создайте игру!";
         });
         
-        // Telegram событие "приложение снова активно"
-        tg.onEvent('activated', () => {
-             if (currentRoom && !socket.connected) {
-                 console.log("Приложение восстановлено, переподключаемся...");
-                 socket.connect();
-             }
-        });
+        tg.onEvent('activated', () => { if (currentRoom && !socket.connected) socket.connect(); });
         
         socket.on('players_update', (data) => {
             const userIds = Object.keys(data);
             if (userIds.length >= 2) {
                 const oppId = userIds.find(id => id !== myUserId);
                 if (oppId) {
-                    const oppName = data[oppId];
-                    document.getElementById('opp-name').innerText = oppName;
+                    document.getElementById('opp-name').innerText = data[oppId];
                     document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
                 }
             } else {
@@ -219,7 +330,29 @@
         socket.on('board_state', (data) => {
             game.load(data.fen);
             board.position(data.fen);
-            selectedSquare = null; removeHighlights(); updateStatus();
+            selectedSquare = null; 
+            removeHighlights(); 
+            
+            if (premoveFrom && premoveTo && game.turn() === myColor) {
+                var move = game.move({ from: premoveFrom, to: premoveTo, promotion: 'q' });
+                
+                if (move) {
+                    board.position(game.fen());
+                    updateStatus();
+                    socket.emit('move', { room: currentRoom, move: { from: premoveFrom, to: premoveTo } });
+                } else {
+                    tg.showAlert("Ваш премув был отменен (нелегальный ход).");
+                }
+            }
+            
+            premoveFrom = null; 
+            premoveTo = null;
+            isPremoveMode = false;
+            $premoveBtn.innerText = "Включить премув";
+            $premoveBtn.style.background = "";
+            $cancelPremoveBtn.style.display = 'none';
+            
+            updateStatus();
         });
 
         socket.on('game_over', (data) => {
