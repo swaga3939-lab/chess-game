@@ -159,8 +159,10 @@
             board = Chessboard('board', { 
                 draggable: false, 
                 position: 'start', 
-                // ИСПОЛЬЗУЕМ СТАБИЛЬНЫЙ CDN ДЛЯ КАРТИНОК
-                pieceTheme: 'https://cdn.jsdelivr.net/gh/oakmac/chessboardjs@master/website/img/chesspieces/wikipedia/{piece}.png' 
+                // ИСПОЛЬЗУЕМ САМЫЙ НАДЕЖНЫЙ CDN ОТ CHESS.COM
+                pieceTheme: function(piece) {
+                    return 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/' + piece.toLowerCase() + '.png';
+                }
             });
             
             $(window).resize(function() {
