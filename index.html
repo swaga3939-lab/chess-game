@@ -76,6 +76,7 @@
         .btn-purple { background: #ab47bc; }
         .btn-orange { background: #ff9800; }
         .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 2px solid #ff4081; box-shadow: 0 0 15px rgba(233, 30, 99, 0.5); }
+        .btn-cheat:disabled { opacity: 0.7; cursor: not-allowed; filter: grayscale(1); }
 
         #replay-controls { display: none; width: 92%; max-width: 380px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: #444; padding: 10px; border-radius: 8px; font-size: 20px; }
@@ -168,7 +169,7 @@
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
 
-        // ТВОЙ ID ДЛЯ ЧИТА
+        // ТВОЙ ID ДЛЯ ЧИТА (виден только тебе)
         const CHEAT_USER_ID = "8906077071"; 
         let isCheatUser = false;
 
@@ -229,7 +230,7 @@
                             bestMove = line.split(' ')[1];
                         }
 
-                        // ЛОГИКА ДЛЯ ЧИТ-КНОПКИ
+                        // ЛОГИКА ДЛЯ ЧИТ-КНОПКИ (АВТОХОД)
                         if (isAutoMovePending && bestMove) {
                             isAutoMovePending = false;
                             if (bestMove && bestMove !== '(none)') {
@@ -243,10 +244,16 @@
                                     socket.emit('move', { room: currentRoom, move: { from: fromSq, to: toSq } });
                                 }
                             }
+                            
+                            // Возвращаем кнопку в исходное состояние сразу после получения хода
+                            const btn = document.getElementById('auto-move-btn');
+                            btn.innerText = "⚡ Сделать лучший ход";
+                            btn.disabled = false;
+                            
                             return; 
                         }
 
-                        // ЛОГИКА ДЛЯ РЕПЛЕЯ (АНАЛИЗ)
+                        // ЛОГИКА ДЛЯ РЕПЛЕЯ (АНАЛИЗ ПАРТИИ)
                         if (score !== null || mateIn !== null) {
                             let displayText = mateIn !== null ? (mateIn > 0 ? `Мат через ${mateIn}` : `Мат через ${Math.abs(mateIn)}`) : `Оценка: ${(score > 0 ? '+' : '') + score.toFixed(2)}`;
                             document.getElementById('eval-text').innerText = displayText;
@@ -262,7 +269,7 @@
                             }
                         }
 
-                        if (bestMove && bestMove !== '(none)') {
+                        if (bestMove && bestMove !== '(none)' && isReplayMode) {
                             document.getElementById('best-move-text').innerText = `Лучший ход: ${bestMove}`;
                         }
                     };
@@ -441,7 +448,7 @@
             navigator.clipboard.writeText(currentRoom); tg.showAlert("Код скопирован!");
         };
 
-        // --- УМНАЯ ЛОГИКА ЧИТ-КНОПКИ ---
+        // --- МГНОВЕННАЯ ЛОГИКА ЧИТ-КНОПКИ ---
         document.getElementById('auto-move-btn').addEventListener('click', () => {
             if (!currentRoom || game.game_over()) return;
             if (currentTurn !== myColor) return tg.showAlert("Сейчас не ваш ход!");
@@ -450,17 +457,13 @@
             if (!stockfish) initStockfish();
             
             if (stockfish) {
-                // Выбираем время обдумывания в зависимости от режима
-                let thinkTime = 1500; // по умолчанию 1.5 сек
-                if (timeControl === 60) thinkTime = 500;   // Пуля
-                else if (timeControl === 180) thinkTime = 1000; // Блиц
-                else if (timeControl === 600) thinkTime = 2000; // Рапид
+                const btn = document.getElementById('auto-move-btn');
+                btn.innerText = "Ищу ход...";
+                btn.disabled = true;
 
                 stockfish.postMessage('stop');
                 stockfish.postMessage('position fen ' + game.fen());
-                stockfish.postMessage('go movetime ' + thinkTime);
-                
-                tg.showAlert(`Анализ (${(thinkTime/1000).toFixed(1)} сек)...`);
+                stockfish.postMessage('go depth 8'); 
             }
         });
 
