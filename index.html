@@ -15,6 +15,7 @@
         :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.05); --panel-border: rgba(255, 255, 255, 0.1); --accent-green: #81b64c; --accent-blue: #42a5f5; }
         body { background: var(--bg-gradient); color: #f0f0f0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; padding-bottom: 20px; }
         
+        /* ЛОББИ */
         #lobby { display: flex; flex-direction: column; width: 90%; max-width: 400px; padding: 20px; background: var(--panel-bg); border-radius: 16px; margin-top: 30px; border: 1px solid var(--panel-border); box-sizing: border-box; }
         #lobby h2 { margin-top: 0; margin-bottom: 15px; font-size: 18px; }
         .time-options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
@@ -22,6 +23,7 @@
         .time-btn.active { background: var(--accent-green); border-color: var(--accent-green); }
         .join-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 10px; box-sizing: border-box; }
 
+        /* ИГРА */
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); border-radius: 12px; }
         .player-info { display: flex; align-items: center; gap: 12px; }
@@ -73,6 +75,7 @@
         .btn-red { background: #ef5350; }
         .btn-purple { background: #ab47bc; }
         .btn-orange { background: #ff9800; }
+        .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 2px solid #ff4081; box-shadow: 0 0 15px rgba(233, 30, 99, 0.5); }
 
         #replay-controls { display: none; width: 92%; max-width: 380px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: #444; padding: 10px; border-radius: 8px; font-size: 20px; }
@@ -126,7 +129,11 @@
             <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
 
-        <!-- Обновленная панель анализа -->
+        <!-- ЧИТ-КНОПКА (видна только тебе) -->
+        <div id="cheat-controls" style="display: none; width: 92%; max-width: 380px; margin-top: 10px;">
+            <button id="auto-move-btn" class="btn-cheat">⚡ Сделать лучший ход</button>
+        </div>
+
         <div id="analysis-panel">
             <div class="eval-bar-container">
                 <div class="eval-bar-fill" id="eval-fill"></div>
@@ -161,6 +168,10 @@
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
 
+        // ТВОЙ ID ДЛЯ ЧИТА
+        const CHEAT_USER_ID = "8906077071"; 
+        let isCheatUser = false;
+
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "";
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             let fName = tg.initDataUnsafe.user.first_name;
@@ -168,6 +179,9 @@
             myRealName = uName ? `${fName} | @${uName}` : fName;
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
+            
+            if (myUserId === CHEAT_USER_ID) isCheatUser = true;
+
             document.getElementById('my-name').innerText = myRealName;
             document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
         }
@@ -183,9 +197,8 @@
         var stockfish = null, lastServerFen = ""; 
         var premoveFrom = null, premoveTo = null, isPremoveMode = false;
         
-        // Переменные для анализа
-        var evalHistory = []; // Храним оценку для каждого индекса хода
-        var currentAnalyzeIndex = 0; // Какой ход сейчас анализируем
+        var evalHistory = [], currentAnalyzeIndex = 0;
+        var isAutoMovePending = false; // Флаг, что мы ждем ход от Стокфиша
 
         var $premoveBtn = document.getElementById('premove-btn');
         var $cancelPremoveBtn = document.getElementById('cancel-premove-btn');
@@ -199,11 +212,10 @@
                     const workerUrl = URL.createObjectURL(blob);
                     stockfish = new Worker(workerUrl);
                     stockfish.postMessage('uci');
+                    
                     stockfish.onmessage = function(event) {
                         const line = event.data;
-                        let score = null;
-                        let mateIn = null;
-                        let bestMove = null;
+                        let score = null, mateIn = null, bestMove = null;
 
                         if (line.includes('score cp')) {
                             const match = line.match(/score cp (-?\d+)/);
@@ -217,19 +229,34 @@
                             bestMove = line.split(' ')[1];
                         }
 
-                        // Если получили оценку, обновляем панель и считаем качество хода
+                        // ЛОГИКА ДЛЯ ЧИТ-КНОПКИ
+                        if (isAutoMovePending && bestMove) {
+                            isAutoMovePending = false;
+                            if (bestMove && bestMove !== '(none)') {
+                                const fromSq = bestMove.substring(0, 2);
+                                const toSq = bestMove.substring(2, 4);
+                                const promo = bestMove.length > 4 ? bestMove[4] : 'q';
+                                
+                                var move = game.move({ from: fromSq, to: toSq, promotion: promo });
+                                if (move) {
+                                    board.position(game.fen());
+                                    socket.emit('move', { room: currentRoom, move: { from: fromSq, to: toSq } });
+                                }
+                            }
+                            return; // Выходим, чтобы не обновлять панель анализа
+                        }
+
+                        // ЛОГИКА ДЛЯ РЕПЛЕЯ (АНАЛИЗ)
                         if (score !== null || mateIn !== null) {
                             let displayText = mateIn !== null ? (mateIn > 0 ? `Мат через ${mateIn}` : `Мат через ${Math.abs(mateIn)}`) : `Оценка: ${(score > 0 ? '+' : '') + score.toFixed(2)}`;
                             document.getElementById('eval-text').innerText = displayText;
                             
                             let normalizedScore = mateIn !== null ? (mateIn > 0 ? 10 : -10) : score;
-                            // Если ход черных, инвертируем оценку для отображения с точки зрения белых
                             if (replayGame.turn() === 'b') normalizedScore = -normalizedScore;
                             
                             updateEvalBar(normalizedScore);
                             evalHistory[currentAnalyzeIndex] = normalizedScore;
 
-                            // Считаем качество хода (сравниваем с предыдущим)
                             if (currentAnalyzeIndex > 0 && evalHistory[currentAnalyzeIndex - 1] !== undefined) {
                                 calculateMoveQuality(evalHistory[currentAnalyzeIndex - 1], normalizedScore, bestMove);
                             }
@@ -250,7 +277,7 @@
             if (stockfish) {
                 stockfish.postMessage('stop');
                 stockfish.postMessage('position fen ' + fen);
-                stockfish.postMessage('go depth 14'); // Глубина 14 для более точного анализа
+                stockfish.postMessage('go depth 14');
             }
         }
 
@@ -259,19 +286,12 @@
             document.getElementById('eval-fill').style.width = (50 + (clamped * 10)) + '%';
         }
 
-                // Функция классификации хода
-        function calculateMoveQuality(prevEval, currentEval, bestMoveUCI) {
+                function calculateMoveQuality(prevEval, currentEval, bestMoveUCI) {
             let diff = currentEval - prevEval; 
-            let qualityText = "";
-            let badgeClass = "";
-
-            // Определяем, был ли это ход белых или черных
-            let isWhiteMove = (replayGame.turn() === 'b'); // Если сейчас ход черных, значит только что ходили белые
-            
-            // Если оценка упала для того, кто ходил — это плохо
+            let qualityText = "", badgeClass = "";
+            let isWhiteMove = (replayGame.turn() === 'b'); 
             let drop = isWhiteMove ? -diff : diff; 
 
-            // Получаем сыгранный ход в UCI (e2e4)
             let history = replayGame.history({verbose: true});
             let playedMoveUCI = "";
             if (history.length > 0) {
@@ -279,27 +299,15 @@
                 playedMoveUCI = last.from + last.to + (last.promotion || '');
             }
 
-            if (playedMoveUCI === bestMoveUCI && drop < 0.5) {
-                qualityText = "Лучший ход";
-                badgeClass = "q-best";
-            } else if (drop > 2.0) {
-                qualityText = "Зевок";
-                badgeClass = "q-blunder";
-            } else if (drop > 1.0) {
-                qualityText = "Ошибка";
-                badgeClass = "q-mistake";
-            } else if (drop > 0.5) {
-                qualityText = "Неточность";
-                badgeClass = "q-inaccuracy";
-            } else {
-                qualityText = "Хороший ход";
-                badgeClass = "q-good";
-            }
+            if (playedMoveUCI === bestMoveUCI && drop < 0.5) { qualityText = "Лучший ход"; badgeClass = "q-best"; }
+            else if (drop > 2.0) { qualityText = "Зевок"; badgeClass = "q-blunder"; }
+            else if (drop > 1.0) { qualityText = "Ошибка"; badgeClass = "q-mistake"; }
+            else if (drop > 0.5) { qualityText = "Неточность"; badgeClass = "q-inaccuracy"; }
+            else { qualityText = "Хороший ход"; badgeClass = "q-good"; }
 
             let diffStr = (drop > 0) ? `-${drop.toFixed(1)}` : "0.0";
             let innerHtml = `<span class="quality-badge ${badgeClass}">${qualityText}</span>`;
             if (drop > 0.5) innerHtml += ` <span style="color:#aaa; font-size:14px;">(потеря ${diffStr})</span>`;
-            
             document.getElementById('move-quality').innerHTML = innerHtml;
         }
 
@@ -356,7 +364,7 @@
                 currentRoom = code;
                 replayMoves = data.history || [];
                 replayIndex = 0;
-                evalHistory = []; // Сбрасываем историю оценок
+                evalHistory = [];
                 
                 document.getElementById('lobby').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'flex';
@@ -364,6 +372,7 @@
                 document.getElementById('replay-controls').style.display = 'flex';
                 document.getElementById('analysis-panel').style.display = 'block';
                 document.getElementById('status-text').innerText = "Анализ партии";
+                document.getElementById('cheat-controls').style.display = 'none'; // Скрываем чит в реплее
                 
                 document.getElementById('my-timer').style.display = 'none';
                 document.getElementById('opp-timer').style.display = 'none';
@@ -403,8 +412,6 @@
             
             board.position(replayGame.fen());
             document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
-            
-            // Запускаем анализ текущей позиции
             analyzePosition(replayGame.fen(), replayIndex);
         }
 
@@ -416,6 +423,10 @@
             document.getElementById('opp-timer').style.display = 'block';
             document.getElementById('premove-controls').style.display = 'flex';
             
+            if (isCheatUser) {
+                document.getElementById('cheat-controls').style.display = 'block';
+            }
+
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
 
@@ -429,6 +440,21 @@
         document.getElementById('room-badge').onclick = () => {
             navigator.clipboard.writeText(currentRoom); tg.showAlert("Код скопирован!");
         };
+
+        document.getElementById('auto-move-btn').addEventListener('click', () => {
+            if (!currentRoom || game.game_over()) return;
+            if (currentTurn !== myColor) return tg.showAlert("Сейчас не ваш ход!");
+            
+            isAutoMovePending = true;
+            if (!stockfish) initStockfish();
+            
+            if (stockfish) {
+                stockfish.postMessage('stop');
+                stockfish.postMessage('position fen ' + game.fen());
+                stockfish.postMessage('go depth 15');
+                tg.showAlert("Стокфиш ищет лучший ход...");
+            }
+        });
 
         $premoveBtn.addEventListener('click', () => {
             if (currentTurn === myColor) return tg.showAlert("Сейчас ваш ход.");
