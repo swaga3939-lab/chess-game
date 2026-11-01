@@ -21,40 +21,19 @@
             --accent-green: #81b64c;
         }
         
-        body { 
-            background: var(--bg-gradient); 
-            color: var(--text-main); 
-            font-family: sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            margin: 0; 
-            min-height: 100vh; 
-            overflow-y: auto; 
-            padding-top: 10px;
-            padding-bottom: 20px;
-        }
-        
+        body { background: var(--bg-gradient); color: var(--text-main); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; overflow-y: auto; padding-top: 10px; padding-bottom: 20px; }
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .player-info { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 42px; height: 42px; border-radius: 10px; background-color: #333; background-size: cover; border: 2px solid rgba(255,255,255,0.1); }
+        
+        /* Аватарка теперь круглая, как в самом Телеграме */
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; border: 2px solid rgba(255,255,255,0.1); }
+        
         .name-box { display: flex; flex-direction: column; }
         .name { font-weight: 600; font-size: 15px; letter-spacing: 0.3px; }
         .timer { background: rgba(0,0,0,0.4); color: #888; padding: 6px 10px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 16px; font-weight: bold; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
         .timer.active { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
         
-        #board-container { 
-            position: relative; 
-            width: 92vw; 
-            max-width: 400px; 
-            margin: 10px 0; 
-            border-radius: 8px; 
-            overflow: hidden; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 0 4px rgba(255,255,255,0.05); 
-            background-color: #f0d9b5; 
-            aspect-ratio: 1 / 1; 
-        }
-        
+        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 10px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 0 4px rgba(255,255,255,0.05); background-color: #f0d9b5; aspect-ratio: 1 / 1; }
         #board { width: 100%; height: 100%; touch-action: none; }
         .notation-322f9 { display: none; }
         
@@ -130,11 +109,21 @@
 
         let myRealName = "Игрок";
         let myUserId = "guest_" + Math.floor(Math.random() * 1000); 
+        let myPhotoUrl = ""; // Тут будет ссылка на аву
+
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             myRealName = tg.initDataUnsafe.user.first_name;
             myUserId = String(tg.initDataUnsafe.user.id); 
+            myPhotoUrl = tg.initDataUnsafe.user.photo_url || ""; // Пытаемся достать аву
+            
             document.getElementById('my-name').innerText = myRealName;
-            document.getElementById('my-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
+            
+            // Если есть ава, ставим её, если нет — робота
+            if (myPhotoUrl) {
+                document.getElementById('my-avatar').style.backgroundImage = `url('${myPhotoUrl}')`;
+            } else {
+                document.getElementById('my-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
+            }
         }
 
         const SERVER_URL = 'https://chess-server-gh0q.onrender.com';
@@ -159,7 +148,6 @@
             board = Chessboard('board', { 
                 draggable: false, 
                 position: 'start', 
-                // ИСПОЛЬЗУЕМ САМЫЙ НАДЕЖНЫЙ CDN ОТ CHESS.COM
                 pieceTheme: function(piece) {
                     return 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/' + piece.toLowerCase() + '.png';
                 }
@@ -321,7 +309,13 @@
         function joinRoom(room, color) {
             currentRoom = room; myColor = color;
             board.orientation(color === 'w' ? 'white' : 'black');
-            socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId });
+            // Отправляем name, user_id и photo_url на сервер
+            socket.emit('join', { 
+                room: currentRoom, 
+                name: myRealName, 
+                user_id: myUserId,
+                photo_url: myPhotoUrl 
+            });
             updateStatus();
         }
 
@@ -337,26 +331,48 @@
         };
 
         document.getElementById('restart-btn').onclick = () => { 
-            if(currentRoom) socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId }); 
+            if(currentRoom) socket.emit('join', { 
+                room: currentRoom, 
+                name: myRealName, 
+                user_id: myUserId,
+                photo_url: myPhotoUrl 
+            }); 
         };
 
         socket.on('connect', () => { 
-            if (currentRoom) socket.emit('join', { room: currentRoom, name: myRealName, user_id: myUserId });
-            else $statusText.innerText = "Создайте игру!";
+            if (currentRoom) {
+                socket.emit('join', { 
+                    room: currentRoom, 
+                    name: myRealName, 
+                    user_id: myUserId,
+                    photo_url: myPhotoUrl 
+                });
+            } else {
+                $statusText.innerText = "Создайте игру!";
+            }
         });
         
         tg.onEvent('activated', () => { if (currentRoom && !socket.connected) socket.connect(); });
         
+                // ОБНОВЛЕННЫЙ ПРИЕМ ИГРОКОВ (с аватарками)
         socket.on('players_update', (data) => {
             const userIds = Object.keys(data);
             if (userIds.length >= 2) {
                 const oppId = userIds.find(id => id !== myUserId);
                 if (oppId) {
-                    document.getElementById('opp-name').innerText = data[oppId];
-                    document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
+                    const oppData = data[oppId];
+                    document.getElementById('opp-name').innerText = oppData.name;
+                    
+                    // Ставим аву соперника, если есть, иначе робота
+                    if (oppData.photo) {
+                        document.getElementById('opp-avatar').style.backgroundImage = `url('${oppData.photo}')`;
+                    } else {
+                        document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
+                    }
                 }
             } else {
                 document.getElementById('opp-name').innerText = "Ожидание...";
+                document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=Opponent')`;
             }
         });
 
@@ -388,7 +404,7 @@
             updateStatus();
         });
 
-                socket.on('game_over', (data) => {
+        socket.on('game_over', (data) => {
             document.getElementById('modal-text').innerText = data.result === 'checkmate' ? `МАТ! Победили ${data.winner === 'white' ? 'Белые' : 'Черные'}` : 'Ничья.';
             document.getElementById('modal').style.display = 'flex';
         });
