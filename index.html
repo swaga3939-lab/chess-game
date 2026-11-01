@@ -15,6 +15,7 @@
         :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.05); --panel-border: rgba(255, 255, 255, 0.1); --accent-green: #81b64c; --accent-blue: #42a5f5; }
         body { background: var(--bg-gradient); color: #f0f0f0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; padding-bottom: 20px; }
         
+        /* ЛОББИ */
         #lobby { display: flex; flex-direction: column; width: 90%; max-width: 400px; padding: 20px; background: var(--panel-bg); border-radius: 16px; margin-top: 30px; border: 1px solid var(--panel-border); box-sizing: border-box; }
         #lobby h2 { margin-top: 0; margin-bottom: 15px; font-size: 18px; }
         .time-options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
@@ -22,6 +23,7 @@
         .time-btn.active { background: var(--accent-green); border-color: var(--accent-green); }
         .join-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 10px; box-sizing: border-box; }
 
+        /* ИГРА */
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); border-radius: 12px; }
         .player-info { display: flex; align-items: center; gap: 12px; }
@@ -35,10 +37,18 @@
         .notation-322f9 { display: none; }
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; }
+        
+        /* Подсветка */
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.2); }
         .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(0, 0, 0, 0.2); box-sizing: border-box; }
         .highlight-selected { background-color: rgba(255, 215, 0, 0.4) !important; }
+        
+        /* Подсветка премува (фиолетовая) */
+        .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.7); }
+        .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 7px solid rgba(156, 39, 176, 0.7); box-sizing: border-box; }
+        .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.4) !important; }
 
+        /* Панель анализа */
         #analysis-panel { display: none; width: 92%; max-width: 380px; background: var(--panel-bg); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--panel-border); text-align: center; }
         .eval-bar-container { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 5px; }
         .eval-bar-fill { height: 100%; background: #fff; width: 50%; transition: width 0.3s ease; }
@@ -55,11 +65,16 @@
         button { padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; margin-bottom: 10px; }
         .btn-green { background: var(--accent-green); }
         .btn-blue { background: var(--accent-blue); }
+        .btn-red { background: #ef5350; }
+        .btn-purple { background: #ab47bc; }
+        .btn-orange { background: #ff9800; }
 
         #replay-controls { display: none; width: 92%; max-width: 380px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: #444; padding: 10px; border-radius: 8px; font-size: 20px; }
         
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        #premove-controls { display: none; width: 92%; max-width: 380px; gap: 10px; margin-top: 10px; }
+
+        #modal, #invite-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
         .modal-card { background: #222; padding: 30px; border-radius: 16px; text-align: center; width: 80%; max-width: 300px; }
     </style>
 </head>
@@ -101,6 +116,12 @@
             <div class="room-badge" id="room-badge">----</div>
         </div>
 
+        <!-- Кнопки премува -->
+        <div id="premove-controls">
+            <button id="premove-btn" class="btn-purple">Включить премув</button>
+            <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
+        </div>
+
         <div id="analysis-panel">
             <div class="eval-bar-container">
                 <div class="eval-bar-fill" id="eval-fill"></div>
@@ -119,7 +140,16 @@
 
     <div id="modal"><div class="modal-card"><h2 id="modal-text"></h2><button class="btn-blue" onclick="location.reload()">В лобби</button></div></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js"></script>
+    <div id="invite-modal">
+        <div class="modal-card">
+            <h2 style="margin-top:0;">Приглашение</h2>
+            <img id="invite-avatar" src="" style="width:60px; height:60px; border-radius:50%; margin-bottom:10px; background:#333;">
+            <p><b id="invite-name"></b> приглашает вас на партию.</p>
+            <p id="invite-time" style="color:#aaa;"></p>
+            <button id="accept-invite-btn" class="btn-green">Принять</button>
+            <button onclick="document.getElementById('invite-modal').style.display='none'" class="btn-red">Отмена</button>
+        </div>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -127,7 +157,12 @@
 
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "";
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            myRealName = tg.initDataUnsafe.user.first_name;
+            let fName = tg.initDataUnsafe.user.first_name;
+            let uName = tg.initDataUnsafe.user.username;
+            
+            // ВОТ ЗДЕСЬ МЫ СКЛЕИВАЕМ ИМЯ И ЮЗЕРНЕЙМ
+            myRealName = uName ? `${fName} | @${uName}` : fName;
+            
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
             document.getElementById('my-name').innerText = myRealName;
@@ -142,39 +177,50 @@
         var timeControl = 600, timerInterval = null, localTimeLeft = { w: 600, b: 600 }, currentTurn = 'w';
         
         var isReplayMode = false, replayMoves = [], replayIndex = 0, replayGame = new Chess();
-        var stockfish = null;
-        var lastServerFen = ""; 
+        var stockfish = null, lastServerFen = ""; 
+
+        var premoveFrom = null, premoveTo = null, isPremoveMode = false;
+        var $premoveBtn = document.getElementById('premove-btn');
+        var $cancelPremoveBtn = document.getElementById('cancel-premove-btn');
 
         function initStockfish() {
             if (stockfish) return;
-            stockfish = new Worker('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js');
-            stockfish.postMessage('uci');
-            stockfish.onmessage = function(event) {
-                const line = event.data;
-                if (line.includes('score cp')) {
-                    const match = line.match(/score cp (-?\d+)/);
-                    if (match) updateEvalBar(parseInt(match[1]) / 100.0);
-                }
-                if (line.includes('score mate')) {
-                    const match = line.match(/score mate (-?\d+)/);
-                    if (match) {
-                        let mateIn = parseInt(match[1]);
-                        document.getElementById('eval-text').innerText = mateIn > 0 ? `Мат через ${mateIn}` : `Мат через ${Math.abs(mateIn)}`;
-                    }
-                }
-                if (line.includes('bestmove')) {
-                    const bestMove = line.split(' ')[1];
-                    if (bestMove && bestMove !== '(none)') document.getElementById('best-move-text').innerText = `Лучший ход: ${bestMove}`;
-                }
-            };
+            fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js')
+                .then(res => res.text())
+                .then(text => {
+                    const blob = new Blob([text], { type: 'application/javascript' });
+                    const workerUrl = URL.createObjectURL(blob);
+                    stockfish = new Worker(workerUrl);
+                    stockfish.postMessage('uci');
+                    stockfish.onmessage = function(event) {
+                        const line = event.data;
+                        if (line.includes('score cp')) {
+                            const match = line.match(/score cp (-?\d+)/);
+                            if (match) updateEvalBar(parseInt(match[1]) / 100.0);
+                        }
+                        if (line.includes('score mate')) {
+                            const match = line.match(/score mate (-?\d+)/);
+                            if (match) {
+                                let mateIn = parseInt(match[1]);
+                                document.getElementById('eval-text').innerText = mateIn > 0 ? `Мат через ${mateIn}` : `Мат через ${Math.abs(mateIn)}`;
+                            }
+                        }
+                        if (line.includes('bestmove')) {
+                            const bestMove = line.split(' ')[1];
+                            if (bestMove && bestMove !== '(none)') document.getElementById('best-move-text').innerText = `Лучший ход: ${bestMove}`;
+                        }
+                    };
+                }).catch(e => console.log("Stockfish Error:", e));
         }
 
         function analyzePosition(fen) {
             if (!stockfish) initStockfish();
             document.getElementById('eval-text').innerText = "Анализ...";
-            stockfish.postMessage('stop');
-            stockfish.postMessage('position fen ' + fen);
-            stockfish.postMessage('go depth 12');
+            if (stockfish) {
+                stockfish.postMessage('stop');
+                stockfish.postMessage('position fen ' + fen);
+                stockfish.postMessage('go depth 12');
+            }
         }
 
         function updateEvalBar(score) {
@@ -196,9 +242,32 @@
             myColor = 'w'; startGame(true);
         };
 
-        document.getElementById('join-game-btn').onclick = () => {
+        document.getElementById('join-game-btn').onclick = async () => {
             const code = document.getElementById('join-code-input').value.toUpperCase().trim();
-            if (code.length === 4) { currentRoom = code; myColor = 'b'; startGame(false); }
+            if (code.length !== 4) return tg.showAlert("Введите 4-символьный код!");
+
+            try {
+                const res = await fetch(`${SERVER_URL}/get_game_info/${code}`);
+                if (!res.ok) throw new Error("Партия не найдена");
+                const data = await res.json();
+                
+                if (data.status !== 'waiting') return tg.showAlert("В эту партию уже нельзя войти.");
+
+                document.getElementById('invite-name').innerText = data.creator_name;
+                document.getElementById('invite-avatar').src = data.creator_photo || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + data.creator_name;
+                document.getElementById('invite-time').innerText = `Контроль времени: ${data.time_control / 60} мин.`;
+                
+                document.getElementById('invite-modal').style.display = 'flex';
+                
+                document.getElementById('accept-invite-btn').onclick = () => {
+                    document.getElementById('invite-modal').style.display = 'none';
+                    currentRoom = code;
+                    myColor = 'b'; 
+                    startGame(false);
+                };
+            } catch (e) {
+                tg.showAlert("Ошибка: Партия с таким кодом не найдена.");
+            }
         };
 
         document.getElementById('watch-game-btn').onclick = async () => {
@@ -227,10 +296,24 @@
                 
                 document.getElementById('my-timer').style.display = 'none';
                 document.getElementById('opp-timer').style.display = 'none';
+                document.getElementById('premove-controls').style.display = 'none';
 
                 board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
-                renderLog(replayMoves);
+                board.orientation('white');
                 
+                let whiteP = null, blackP = null;
+                for (let id in data.players) {
+                    if (data.players[id].color === 'w') whiteP = data.players[id];
+                    if (data.players[id].color === 'b') blackP = data.players[id];
+                }
+                
+                document.getElementById('opp-name').innerText = blackP ? blackP.name : "Черные";
+                if (blackP && blackP.photo) document.getElementById('opp-avatar').style.backgroundImage = `url('${blackP.photo}')`;
+                
+                document.getElementById('my-name').innerText = whiteP ? whiteP.name : "Белые";
+                if (whiteP && whiteP.photo) document.getElementById('my-avatar').style.backgroundImage = `url('${whiteP.photo}')`;
+
+                renderLog(replayMoves);
                 initStockfish();
                 replayStep(0); 
 
@@ -252,12 +335,13 @@
             analyzePosition(replayGame.fen());
         }
 
-        function startGame(isCreator) {
+                function startGame(isCreator) {
             document.getElementById('lobby').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('room-badge').innerText = currentRoom;
             document.getElementById('my-timer').style.display = 'block';
             document.getElementById('opp-timer').style.display = 'block';
+            document.getElementById('premove-controls').style.display = 'flex';
             
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
@@ -272,6 +356,36 @@
         document.getElementById('room-badge').onclick = () => {
             navigator.clipboard.writeText(currentRoom); tg.showAlert("Код скопирован!");
         };
+
+        $premoveBtn.addEventListener('click', () => {
+            if (currentTurn === myColor) {
+                tg.showAlert("Сейчас ваш ход.");
+                return;
+            }
+            isPremoveMode = !isPremoveMode;
+            if (isPremoveMode) {
+                $premoveBtn.innerText = "Режим премува ВКЛ";
+                $premoveBtn.style.background = "#d32f2f"; 
+                tg.showAlert("Выберите свою фигуру, затем клетку, куда хотите пойти.");
+            } else {
+                $premoveBtn.innerText = "Включить премув";
+                $premoveBtn.style.background = ""; 
+                removeHighlights();
+            }
+        });
+
+        $cancelPremoveBtn.addEventListener('click', () => {
+            premoveFrom = null; premoveTo = null; isPremoveMode = false;
+            $premoveBtn.innerText = "Включить премув";
+            $premoveBtn.style.background = "";
+            $cancelPremoveBtn.style.display = 'none';
+            removeHighlights();
+            tg.showAlert("Премув отменен.");
+        });
+
+        function removeHighlights() { 
+            $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected highlight-premove-dot highlight-premove-capture highlight-premove-selected'); 
+        }
 
         function updateTimers(timeLeft) {
             localTimeLeft = timeLeft;
@@ -329,8 +443,37 @@
             currentTurn = game.turn();
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
-            document.getElementById('status-text').innerText = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
+            
+            let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
+            if (game.in_check()) {
+                statusMsg += " (ШАХ!)";
+                document.getElementById('status-text').style.color = "#ff4444";
+            } else {
+                document.getElementById('status-text').style.color = "#bbb";
+            }
+            document.getElementById('status-text').innerText = statusMsg;
+
+            if (currentRoom && currentTurn !== myColor && !game.game_over()) {
+                $premoveBtn.style.display = 'block';
+            } else {
+                $premoveBtn.style.display = 'none';
+            }
+
             if (data.status === 'playing') startLocalTimer();
+
+            if (premoveFrom && premoveTo && currentTurn === myColor) {
+                var move = game.move({ from: premoveFrom, to: premoveTo, promotion: 'q' });
+                if (move) {
+                    board.position(game.fen());
+                    socket.emit('move', { room: currentRoom, move: { from: premoveFrom, to: premoveTo } });
+                } else {
+                    tg.showAlert("Ваш премув был отменен (нелегальный ход).");
+                }
+            }
+            premoveFrom = null; premoveTo = null; isPremoveMode = false;
+            $premoveBtn.innerText = "Включить премув";
+            $premoveBtn.style.background = "";
+            $cancelPremoveBtn.style.display = 'none';
         });
 
         socket.on('game_over', (data) => {
@@ -340,22 +483,55 @@
             document.getElementById('modal').style.display = 'flex';
         });
 
-                socket.on('invalid_move', (data) => {
+        socket.on('invalid_move', (data) => {
             tg.showAlert('Сервер отклонил ход: ' + data.msg);
-            if (lastServerFen) {
-                game.load(lastServerFen);
-                board.position(lastServerFen);
-            }
-            selectedSquare = null; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
+            if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
+            selectedSquare = null; removeHighlights();
         });
 
         $('#board').on('click', '.square-55d63', function(e) {
             if (isReplayMode || game.game_over() || currentTurn !== myColor) return;
             const square = $(e.target).attr('data-square');
+
+            if (isPremoveMode) {
+                if (currentTurn === myColor) {
+                    isPremoveMode = false;
+                    $premoveBtn.innerText = "Включить премув";
+                    $premoveBtn.style.background = "";
+                } else {
+                    if (!premoveFrom) {
+                        var piece = game.get(square);
+                        if (piece && piece.color === myColor) {
+                            premoveFrom = square;
+                            removeHighlights();
+                            $('#board .square-' + square).addClass('highlight-premove-selected');
+                        }
+                    } else {
+                        if (premoveFrom === square) {
+                            premoveFrom = null; removeHighlights();
+                        } else {
+                            premoveTo = square;
+                            $('#board .square-' + premoveTo).addClass('highlight-premove-capture'); 
+                            isPremoveMode = false;
+                            $premoveBtn.innerText = "Включить премув";
+                            $premoveBtn.style.background = "";
+                            $cancelPremoveBtn.style.display = 'block';
+                            tg.showAlert(`Премув записан: ${premoveFrom} -> ${premoveTo}`);
+                        }
+                    }
+                    return; 
+                }
+            }
+
+            if (currentTurn !== myColor) {
+                tg.showAlert("Сейчас ход соперника.");
+                return;
+            }
+
             if (!selectedSquare) {
                 var piece = game.get(square);
                 if (piece && piece.color === game.turn()) { 
-                    selectedSquare = square; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
+                    selectedSquare = square; removeHighlights();
                     $('#board .square-' + square).addClass('highlight-selected');
                     var moves = game.moves({ square: square, verbose: true });
                     for (var i = 0; i < moves.length; i++) {
@@ -365,16 +541,16 @@
                     }
                 }
             } else {
-                if (selectedSquare === square) { selectedSquare = null; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected'); return; }
+                if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
                 var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
                 if (move) {
                     board.position(game.fen());
                     socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } });
-                    selectedSquare = null; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
+                    selectedSquare = null; removeHighlights();
                 } else {
                     var piece = game.get(square);
                     if (piece && piece.color === game.turn()) { 
-                        selectedSquare = square; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected');
+                        selectedSquare = square; removeHighlights();
                         $('#board .square-' + square).addClass('highlight-selected');
                         var moves = game.moves({ square: square, verbose: true });
                         for (var i = 0; i < moves.length; i++) {
@@ -382,7 +558,7 @@
                             if (game.get(target)) $('#board .square-' + target).addClass('highlight-capture');
                             else $('#board .square-' + target).addClass('highlight-dot');
                         }
-                    } else { selectedSquare = null; $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected'); }
+                    } else { selectedSquare = null; removeHighlights(); }
                 }
             }
         });
