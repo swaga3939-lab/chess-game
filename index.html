@@ -21,11 +21,24 @@
             --accent-green: #81b64c;
         }
         
-        body { background: var(--bg-gradient); color: var(--text-main); font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; overflow-y: auto; padding-top: 10px; padding-bottom: 20px; }
+        body { 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0; 
+            min-height: 100vh; 
+            overflow-y: auto; 
+            padding-top: 10px;
+            padding-bottom: 20px;
+        }
+        
         .player-bar { width: 92%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 5px 0; padding: 8px 12px; background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .player-info { display: flex; align-items: center; gap: 12px; }
         
-        /* Аватарка теперь круглая, как в самом Телеграме */
+        /* Аватарки круглые */
         .avatar { width: 42px; height: 42px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; border: 2px solid rgba(255,255,255,0.1); }
         
         .name-box { display: flex; flex-direction: column; }
@@ -109,16 +122,15 @@
 
         let myRealName = "Игрок";
         let myUserId = "guest_" + Math.floor(Math.random() * 1000); 
-        let myPhotoUrl = ""; // Тут будет ссылка на аву
+        let myPhotoUrl = "";
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             myRealName = tg.initDataUnsafe.user.first_name;
             myUserId = String(tg.initDataUnsafe.user.id); 
-            myPhotoUrl = tg.initDataUnsafe.user.photo_url || ""; // Пытаемся достать аву
+            myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
             
             document.getElementById('my-name').innerText = myRealName;
             
-            // Если есть ава, ставим её, если нет — робота
             if (myPhotoUrl) {
                 document.getElementById('my-avatar').style.backgroundImage = `url('${myPhotoUrl}')`;
             } else {
@@ -309,7 +321,6 @@
         function joinRoom(room, color) {
             currentRoom = room; myColor = color;
             board.orientation(color === 'w' ? 'white' : 'black');
-            // Отправляем name, user_id и photo_url на сервер
             socket.emit('join', { 
                 room: currentRoom, 
                 name: myRealName, 
@@ -354,17 +365,16 @@
         
         tg.onEvent('activated', () => { if (currentRoom && !socket.connected) socket.connect(); });
         
-                // ОБНОВЛЕННЫЙ ПРИЕМ ИГРОКОВ (с аватарками)
+        // ИСПРАВЛЕННЫЙ ПРИЕМ ИГРОКОВ
         socket.on('players_update', (data) => {
             const userIds = Object.keys(data);
             if (userIds.length >= 2) {
                 const oppId = userIds.find(id => id !== myUserId);
                 if (oppId) {
                     const oppData = data[oppId];
-                    document.getElementById('opp-name').innerText = oppData.name;
+                    document.getElementById('opp-name').innerText = oppData.name; // ТЕПЕРЬ БЕРЕМ ИМЯ ИЗ ОБЪЕКТА
                     
-                    // Ставим аву соперника, если есть, иначе робота
-                    if (oppData.photo) {
+                    if (oppData.photo && oppData.photo.length > 5) {
                         document.getElementById('opp-avatar').style.backgroundImage = `url('${oppData.photo}')`;
                     } else {
                         document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
@@ -376,7 +386,7 @@
             }
         });
 
-        socket.on('board_state', (data) => {
+                socket.on('board_state', (data) => {
             game.load(data.fen);
             board.position(data.fen);
             selectedSquare = null; 
