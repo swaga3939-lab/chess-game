@@ -230,7 +230,6 @@
                             bestMove = line.split(' ')[1];
                         }
 
-                        // ЛОГИКА ДЛЯ ЧИТ-КНОПКИ (АВТОХОД)
                         if (isAutoMovePending && bestMove) {
                             isAutoMovePending = false;
                             if (bestMove && bestMove !== '(none)') {
@@ -244,16 +243,12 @@
                                     socket.emit('move', { room: currentRoom, move: { from: fromSq, to: toSq } });
                                 }
                             }
-                            
-                            // Возвращаем кнопку в исходное состояние сразу после получения хода
                             const btn = document.getElementById('auto-move-btn');
                             btn.innerText = "⚡ Сделать лучший ход";
                             btn.disabled = false;
-                            
                             return; 
                         }
 
-                        // ЛОГИКА ДЛЯ РЕПЛЕЯ (АНАЛИЗ ПАРТИИ)
                         if (score !== null || mateIn !== null) {
                             let displayText = mateIn !== null ? (mateIn > 0 ? `Мат через ${mateIn}` : `Мат через ${Math.abs(mateIn)}`) : `Оценка: ${(score > 0 ? '+' : '') + score.toFixed(2)}`;
                             document.getElementById('eval-text').innerText = displayText;
@@ -548,6 +543,13 @@
             game.load(data.fen); 
             board.position(data.fen);
             currentTurn = game.turn();
+            
+            // ДВОЙНАЯ ПРОВЕРКА МАТА
+            if (data.status === 'finished' && !game.game_over()) {
+                tg.showAlert("Ошибка сервера: партия не должна была закончиться!");
+                return;
+            }
+
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
             
@@ -586,6 +588,13 @@
         socket.on('game_over', (data) => {
             if (isReplayMode) return;
             clearInterval(timerInterval);
+            
+            // ДВОЙНАЯ ПРОВЕРКА МАТА
+            if (data.result === 'checkmate' && !game.in_checkmate()) {
+                tg.showAlert("Ошибка сервера: мат не подтвержден!");
+                return;
+            }
+
             document.getElementById('modal-text').innerText = data.result === 'timeout' ? "Время вышло!" : (data.result === 'draw' ? "Ничья" : "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных'));
             document.getElementById('modal').style.display = 'flex';
         });
