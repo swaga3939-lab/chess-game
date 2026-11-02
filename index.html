@@ -564,35 +564,39 @@
 
         function initStockfish() {
             if (stockfish) return;
+            
             try {
-                stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
-            } catch(e) {
-                stockfish = null;
-                showToast("Браузер запретил Worker: " + e.message, true);
-                return;
-            }
-            
-            stockfish.onerror = function(e) {
-                showToast("Ошибка загрузки Стокфиша (VPN блокирует?)", true);
-                stockfish = null;
-                resetAutoMoveBtn();
-            };
-            
-            stockfish.onmessage = function(event) {
-                const line = event.data;
-                if (isAutoMovePending && line.startsWith('bestmove')) {
-                    const bestMove = line.split(' ')[1];
-                    if (bestMove && bestMove !== '(none)') {
-                        const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
-                        game.move({ from: from, to: to, promotion: 'q' });
-                        board.position(game.fen());
-                        socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
-                    }
+                const wrapperCode = `importScripts('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');`;
+                const blob = new Blob([wrapperCode], { type: 'application/javascript' });
+                const blobUrl = URL.createObjectURL(blob);
+                
+                stockfish = new Worker(blobUrl);
+                
+                stockfish.onerror = function(e) {
+                    showToast("Ошибка загрузки движка (VPN?)", true);
+                    stockfish = null;
                     resetAutoMoveBtn();
-                }
-            };
-            
-            stockfish.postMessage('uci');
+                };
+                
+                stockfish.onmessage = function(event) {
+                    const line = event.data;
+                    if (isAutoMovePending && line.startsWith('bestmove')) {
+                        const bestMove = line.split(' ')[1];
+                        if (bestMove && bestMove !== '(none)') {
+                            const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
+                            game.move({ from: from, to: to, promotion: 'q' });
+                            board.position(game.fen());
+                            socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
+                        }
+                        resetAutoMoveBtn();
+                    }
+                };
+                
+                stockfish.postMessage('uci');
+            } catch (e) {
+                stockfish = null;
+                showToast("Браузер заблокировал Worker: " + e.message, true);
+            }
         }
     </script>
 </body>
