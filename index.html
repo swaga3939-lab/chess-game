@@ -51,7 +51,7 @@
 
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         
-        /* БЛОК ИГРОКА (ПО УМОЛЧАНИЮ БЕЗ ФОНА) */
+        /* СТАНДАРТНЫЙ БЛОК ИГРОКА (без кастомного фона) */
         .player-bar { 
             width: 92%; max-width: 400px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -63,28 +63,22 @@
             border: 1px solid var(--panel-border); 
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-        }
-
-        /* КЛАСС ДЛЯ КАСТОМНОГО ФОНА (ТОЛЬКО ДЛЯ АДМИНОВ) */
-        .custom-bg {
-            background: linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('bg.jpg') center/cover no-repeat !important;
+            transition: background 0.3s ease;
         }
         
         .player-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         
-        /* УМЕНЬШЕННАЯ АВАТАРКА С РАМКОЙ */
+        /* АВАТАРКА */
         .avatar-wrapper { 
             position: relative; 
-            width: 42px; 
-            height: 42px; 
+            width: 42px; height: 42px; 
             display: flex; align-items: center; justify-content: center; 
             flex-shrink: 0; 
             margin: 0;
         }
         
         .avatar { 
-            width: 28px; 
-            height: 28px; 
+            width: 28px; height: 28px; 
             border-radius: 50%; 
             background-color: #333; background-size: cover; background-position: center; 
             
@@ -103,7 +97,6 @@
             pointer-events: none; z-index: 2; 
             
             display: none;
-            background-image: url('frame.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center; 
         }
         
@@ -209,7 +202,6 @@
     </div>
 
     <div id="game-screen">
-        <!-- Плашка соперника -->
         <div class="player-bar" id="opp-player-bar">
             <div class="player-info">
                 <div class="avatar-wrapper" id="opp-avatar-wrapper">
@@ -226,7 +218,6 @@
 
         <div id="board-container"><div id="board"></div></div>
 
-        <!-- Твоя плашка -->
         <div class="player-bar" id="my-player-bar">
             <div class="player-info">
                 <div class="avatar-wrapper" id="my-avatar-wrapper">
@@ -313,14 +304,40 @@
 
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        // СЛОВАРЬ АДМИНОВ (cheat: true только у тебя)
+        // СЛОВАРЬ ВСЕХ КАСТОМНЫХ ОФОРМЛЕНИЙ
         const ADMINS = {
-            "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f", cheat: true },
-            "8327826623": { title: "АНЕМО АРХОНТ", color: "#00bcd4", cheat: false }
+            "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f", bg: "bg2.jpg", frame: "frame2.png", cheat: true },
+            "6051218168": { title: "SILENT", color: "#2e7d32", bg: "bg1.jpg", frame: "frame1.png", cheat: false },
+            "8327826623": { title: "АНЕМО АРХОНТ", color: "#00bcd4", bg: "bg.jpg", frame: "frame.png", cheat: false }
         };
         
                 let isCheatUser = false;
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
+
+        // Вспомогательная функция для применения стилей
+        function applyAdminStyles(prefix, userId) {
+            const bar = document.getElementById(`${prefix}-player-bar`);
+            const frame = document.getElementById(`${prefix}-frame`);
+            const wrapper = document.getElementById(`${prefix}-avatar-wrapper`);
+
+            if (ADMINS[userId]) {
+                const admin = ADMINS[userId];
+                // Фон
+                bar.style.background = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}') center/cover no-repeat`;
+                // Рамка
+                frame.style.backgroundImage = `url('${admin.frame}')`;
+                frame.classList.add('active-frame');
+                wrapper.classList.add('admin');
+                return admin;
+            } else {
+                // Сброс стилей
+                bar.style.background = 'var(--panel-bg)';
+                frame.style.backgroundImage = 'none';
+                frame.classList.remove('active-frame');
+                wrapper.classList.remove('admin');
+                return null;
+            }
+        }
         
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             myRealName = tg.initDataUnsafe.user.first_name;
@@ -328,23 +345,10 @@
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
             
-            if (ADMINS[myUserId]) {
-                const adminData = ADMINS[myUserId];
-                
-                // 1. Титул и цвет
-                document.getElementById('my-name').innerHTML = `${myRealName}<br><span class="admin-title" style="background: ${adminData.color}; box-shadow: 0 2px 5px ${adminData.color}80;">${adminData.title}</span>`;
-                
-                // 2. Рамка Венти
-                document.getElementById('my-frame').classList.add('active-frame');
-                document.getElementById('my-avatar-wrapper').classList.add('admin');
-                
-                // 3. Кастомный фон
-                document.getElementById('my-player-bar').classList.add('custom-bg');
-
-                // 4. Проверка на ЧИТ (кнопку лучшего хода)
-                if (adminData.cheat) {
-                    isCheatUser = true;
-                }
+            const myAdminData = applyAdminStyles('my', myUserId);
+            if (myAdminData) {
+                document.getElementById('my-name').innerHTML = `${myRealName}<br><span class="admin-title" style="background: ${myAdminData.color}; box-shadow: 0 2px 5px ${myAdminData.color}80;">${myAdminData.title}</span>`;
+                if (myAdminData.cheat) isCheatUser = true;
             } else {
                 document.getElementById('my-name').innerText = myRealName;
             }
@@ -391,29 +395,26 @@
                 document.getElementById('lobby').style.display = 'none'; 
                 document.getElementById('game-screen').style.display = 'flex';
                 
-                let whiteP = null, blackP = null;
+                let whiteP = null, blackP = null, whiteId = null, blackId = null;
                 for (let id in data.players) {
-                    if (data.players[id].color === 'w') whiteP = data.players[id];
-                    if (data.players[id].color === 'b') blackP = data.players[id];
+                    if (data.players[id].color === 'w') { whiteP = data.players[id]; whiteId = id; }
+                    if (data.players[id].color === 'b') { blackP = data.players[id]; blackId = id; }
                 }
                 
+                // Применяем стили для реплея (Белые - сверху, Черные - снизу)
+                const whiteAdmin = applyAdminStyles('my', whiteId);
+                const blackAdmin = applyAdminStyles('opp', blackId);
+
                 const wName = whiteP.username ? `${whiteP.name} (@${whiteP.username})` : whiteP.name;
                 const bName = blackP.username ? `${blackP.name} (@${blackP.username})` : blackP.name;
                 
-                document.getElementById('opp-name').innerText = `Черные: ${bName}`;
-                document.getElementById('my-name').innerText = `Белые: ${wName}`;
+                document.getElementById('opp-name').innerHTML = blackAdmin ? `Черные: ${bName}<br><span class="admin-title" style="background: ${blackAdmin.color};">${blackAdmin.title}</span>` : `Черные: ${bName}`;
+                document.getElementById('my-name').innerHTML = whiteAdmin ? `Белые: ${wName}<br><span class="admin-title" style="background: ${whiteAdmin.color};">${whiteAdmin.title}</span>` : `Белые: ${wName}`;
                 
-                const wPhoto = whiteP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${whiteP.name}`;
-                const bPhoto = blackP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${blackP.name}`;
-                document.getElementById('my-avatar').style.backgroundImage = `url('${wPhoto}')`;
-                document.getElementById('opp-avatar').style.backgroundImage = `url('${bPhoto}')`;
-                
-                let winnerText = "Ничья";
-                if (data.winner === 'white') winnerText = `Победа Белых (${wName})`;
-                else if (data.winner === 'black') winnerText = `Победа Черных (${bName})`;
+                document.getElementById('my-avatar').style.backgroundImage = whiteP.photo ? `url('${whiteP.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${wName}')`;
+                document.getElementById('opp-avatar').style.backgroundImage = blackP.photo ? `url('${blackP.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${bName}')`;
                 
                 document.getElementById('status-text').innerText = "Анализ партии";
-                document.getElementById('best-move-text').innerText = winnerText;
                 document.getElementById('cheat-controls').style.display = 'none'; 
                 document.getElementById('chat-container').style.display = 'none';
                 document.getElementById('my-timer').style.display = 'none'; 
@@ -455,11 +456,8 @@
             document.getElementById('opp-timer').style.display = 'block'; document.getElementById('premove-controls').style.display = 'flex';
             document.getElementById('chat-container').style.display = 'flex';
             
-            if (isCheatUser) {
-                document.getElementById('cheat-controls').style.display = 'block';
-            } else {
-                document.getElementById('cheat-controls').style.display = 'none';
-            }
+            if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block';
+            else document.getElementById('cheat-controls').style.display = 'none';
 
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
@@ -552,19 +550,17 @@
                 if (oppId) {
                     const opp = data[oppId];
                     const oppDisplayName = opp.username ? `${opp.name} (@${opp.username})` : `${opp.name}`;
-                    document.getElementById('opp-name').innerText = oppDisplayName;
+                    
                     document.getElementById('opp-rating').innerText = opp.rating;
                     document.getElementById('my-rating').innerText = data[myUserId].rating;
                     document.getElementById('opp-avatar').style.backgroundImage = opp.photo ? `url('${opp.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
                     
-                    if (ADMINS[oppId]) {
-                        document.getElementById('opp-frame').classList.add('active-frame');
-                        document.getElementById('opp-avatar-wrapper').classList.add('admin');
-                        document.getElementById('opp-player-bar').classList.add('custom-bg');
+                    // Применяем стили для соперника
+                    const oppAdminData = applyAdminStyles('opp', oppId);
+                    if (oppAdminData) {
+                        document.getElementById('opp-name').innerHTML = `${oppDisplayName}<br><span class="admin-title" style="background: ${oppAdminData.color}; box-shadow: 0 2px 5px ${oppAdminData.color}80;">${oppAdminData.title}</span>`;
                     } else {
-                        document.getElementById('opp-frame').classList.remove('active-frame');
-                        document.getElementById('opp-avatar-wrapper').classList.remove('admin');
-                        document.getElementById('opp-player-bar').classList.remove('custom-bg');
+                        document.getElementById('opp-name').innerText = oppDisplayName;
                     }
                 }
             }
@@ -650,7 +646,7 @@
 
         $('#chat-input').keypress((e) => { if (e.which === 13) { $('#chat-send').click(); return false; } });
 
-        $('#board').on('click', '.square-55d63', function(e) {
+                $('#board').on('click', '.square-55d63', function(e) {
             if (isReplayMode || game.game_over()) return; 
             const square = $(e.target).attr('data-square');
             if (isPremoveMode) {
@@ -664,7 +660,7 @@
                     return; 
                 }
             }
-                        if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
+            if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
             if (!selectedSquare) {
                 var piece = game.get(square);
                 if (piece && piece.color === game.turn()) { 
