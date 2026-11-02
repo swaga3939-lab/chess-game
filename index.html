@@ -542,13 +542,14 @@
             }
         });
 
-        // --- ДВИЖОК СТОКФИШ ---
+                // --- ДВИЖОК СТОКФИШ ---
         function initStockfish() {
             if (stockfish) return;
             stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
             stockfish.onmessage = function(event) {
                 const line = event.data;
                 
+                // Отрисовка оценки (для реплея)
                 if (line.startsWith('info') && line.includes('score cp')) {
                     const cpMatch = line.match(/score cp (-?\d+)/);
                     if (cpMatch) {
@@ -561,24 +562,56 @@
                     }
                 }
 
+                // Обработка лучшего хода для кнопки
                 if (isAutoMovePending && line.startsWith('bestmove')) {
                     const bestMove = line.split(' ')[1];
                     if (bestMove && bestMove !== '(none)') {
                         const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
-                        game.move({ from: from, to: to, promotion: 'q' });
-                        board.position(game.fen());
-                        socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
+                        // Если это превращение, берем фигуру из ответа движка, иначе ферзя
+                        const promotion = bestMove.length > 4 ? bestMove[4] : 'q'; 
+                        const move = game.move({ from: from, to: to, promotion: promotion });
+                        
+                        if (move) {
+                            board.position(game.fen());
+                            socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
+                        } else {
+                            showToast("Ошибка: движок предложил нелегальный ход", true);
+                        }
                     }
                     isAutoMovePending = false;
                     const btn = document.getElementById('engine-hint-btn');
                     btn.innerText = "Анализ позиции"; btn.disabled = false;
                 }
             };
+            // «Будим» движок
+            stockfish.postMessage('uci');
         }
-        
+
+        // ВАЖНО: Запускаем движок сразу при загрузке страницы
+        initStockfish();
+
+        // Обработчик клика по кнопке
+        document.getElementById('engine-hint-btn').addEventListener('click', () => {
+            if (!currentRoom || game.game_over()) return;
+            if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
+            if (!stockfish) initStockfish();
+            
+            const btn = document.getElementById('engine-hint-btn'); 
+            btn.innerText = "Анализ..."; btn.disabled = true; 
+            isAutoMovePending = true;
+            // Останавливаем предыдущий анализ (если был) и даем новую позицию
+            stockfish.postMessage('stop');
+            stockfish.postMessage('position fen ' + game.fen());
+            stockfish.postMessage('go depth 8');
+        });
+
         function analyzePosition(fen) {
             if (!stockfish) initStockfish();
-            if (stockfish) { stockfish.postMessage('stop'); stockfish.postMessage('position fen ' + fen); stockfish.postMessage('go depth 12'); }
+            if (stockfish) { 
+                stockfish.postMessage('stop'); 
+                stockfish.postMessage('position fen ' + fen); 
+                stockfish.postMessage('go depth 12'); 
+            }
             document.getElementById('analysis-panel').style.display = 'block';
         }
     </script>
