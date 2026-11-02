@@ -70,6 +70,10 @@
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.25); }
         .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.25); box-sizing: border-box; }
         .highlight-selected { background-color: rgba(255, 215, 0, 0.5) !important; }
+        
+        .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.8); }
+        .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(156, 39, 176, 0.8); box-sizing: border-box; }
+        .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.5) !important; }
 
         #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; }
         .room-badge { background: rgba(129, 182, 76, 0.15); color: var(--accent-green); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
@@ -293,12 +297,12 @@
                 document.getElementById('opp-name').innerText = `Черные: ${bName}`;
                 document.getElementById('my-name').innerText = `Белые: ${wName}`;
                 
-                const wPhoto = whiteP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${whiteP.name}`;
+                                const wPhoto = whiteP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${whiteP.name}`;
                 const bPhoto = blackP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${blackP.name}`;
                 document.getElementById('my-avatar').style.backgroundImage = `url('${wPhoto}')`;
                 document.getElementById('opp-avatar').style.backgroundImage = `url('${bPhoto}')`;
                 
-                                let winnerText = "Ничья";
+                let winnerText = "Ничья";
                 if (data.winner === 'white') winnerText = `Победа Белых (${wName})`;
                 else if (data.winner === 'black') winnerText = `Победа Черных (${bName})`;
                 
@@ -541,7 +545,8 @@
         function initStockfish() {
             if (stockfish) return;
             try {
-                stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish@16.0.0/src/stockfish.js');
+                stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
+                
                 stockfish.onmessage = function(event) {
                     const line = event.data;
                     if (isAutoMovePending && line.startsWith('bestmove')) {
@@ -554,15 +559,19 @@
                         }
                         isAutoMovePending = false;
                         const btn = document.getElementById('auto-move-btn');
-                        btn.innerText = "Сделать лучший ход"; btn.disabled = false;
+                        btn.innerText = "Сделать лучший ход"; 
+                        btn.disabled = false;
                     }
                 };
+                
                 stockfish.onerror = function(e) {
-                    showToast("Ошибка движка. Проверьте VPN.", true);
+                    showToast("Ошибка загрузки движка", true);
                     const btn = document.getElementById('auto-move-btn');
-                    btn.innerText = "Сделать лучший ход"; btn.disabled = false;
+                    btn.innerText = "Сделать лучший ход"; 
+                    btn.disabled = false;
                     stockfish = null;
                 };
+                
                 stockfish.postMessage('uci');
             } catch(e) {
                 showToast("Не удалось загрузить движок", true);
