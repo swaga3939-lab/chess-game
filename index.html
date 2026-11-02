@@ -295,10 +295,10 @@
         let selectedSquare = null, premoveFrom = null, premoveTo = null, isPremoveMode = false;
         let lastServerFen = "start";
         
-                // Реплей
+        // Реплей
         let isReplayMode = false, replayGame = null, replayMoves = [], replayIndex = 0;
         
-        // Стокфиш (анализ)
+                // Стокфиш (анализ)
         let stockfish = null, isAutoMovePending = false;
 
         const $premoveBtn = $('#premove-btn'), $cancelPremoveBtn = $('#cancel-premove-btn');
@@ -400,14 +400,18 @@
 
         document.getElementById('room-badge').onclick = () => { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); };
 
+        // --- КНОПКА АНАЛИЗА ---
         document.getElementById('engine-hint-btn').addEventListener('click', () => {
             if (!currentRoom || game.game_over()) return;
             if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
-            isAutoMovePending = true; if (!stockfish) initStockfish();
+            isAutoMovePending = true; 
+            if (!stockfish) initStockfish();
             if (stockfish) { 
                 const btn = document.getElementById('engine-hint-btn'); 
-                btn.innerText = "Анализ..."; btn.disabled = true; 
-                stockfish.postMessage('stop'); stockfish.postMessage('position fen ' + game.fen()); stockfish.postMessage('go depth 8'); 
+                btn.innerText = "Ищу ход..."; btn.disabled = true; 
+                stockfish.postMessage('stop'); 
+                stockfish.postMessage('position fen ' + game.fen()); 
+                stockfish.postMessage('go depth 8'); 
             }
         });
 
@@ -474,6 +478,18 @@
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
             
+            // --- ИСТОРИЯ ЧАТА ---
+            if (data.chat) { 
+                const chatMsgs = document.getElementById('chat-messages');
+                chatMsgs.innerHTML = '';
+                data.chat.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'chat-msg opp';
+                    div.innerText = m;
+                    chatMsgs.appendChild(div);
+                });
+            }
+
             let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
             if (game.in_check()) { statusMsg += " (ШАХ!)"; document.getElementById('status-text').style.color = "#ff4444"; } else { document.getElementById('status-text').style.color = "#ccc"; }
             document.getElementById('status-text').innerText = statusMsg;
@@ -493,7 +509,6 @@
         socket.on('game_over', (data) => {
             if (isReplayMode) return;
             clearInterval(timerInterval);
-            // УБРАН БАГ БЛОКИРОВКИ ОКНА: теперь оно появится в любом случае
             let text = data.result === 'timeout' ? "Время вышло!" : (data.result === 'draw' ? "Ничья" : (data.result === 'disconnect' ? "Соперник сдался!" : "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных')));
             document.getElementById('modal-text').innerText = text;
             document.getElementById('modal').classList.add('show');
@@ -503,6 +518,38 @@
             showToast('Сервер отклонил ход: ' + data.msg, true);
             if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
             selectedSquare = null; removeHighlights();
+        });
+
+        // --- ЧАТ ---
+        $('#chat-send').click(() => {
+            const msg = $('#chat-input').val().trim();
+            if (!msg) return;
+            
+            const div = document.createElement('div');
+            div.className = 'chat-msg my';
+            div.innerText = msg;
+            document.getElementById('chat-messages').appendChild(div);
+            document.getElementById('chat-messages').scrollTop = 99999;
+            
+            socket.emit('chat_message', { room: currentRoom, message: msg });
+            $('#chat-input').val('');
+            window._myLastChatMsg = msg;
+        });
+
+        $('#chat-input').keypress((e) => {
+            if (e.which === 13) { $('#chat-send').click(); return false; }
+        });
+
+        socket.on('chat_message', (msg) => {
+            if (window._myLastChatMsg === msg) {
+                window._myLastChatMsg = null;
+                return;
+            }
+            const div = document.createElement('div');
+            div.className = 'chat-msg opp';
+            div.innerText = msg;
+            document.getElementById('chat-messages').appendChild(div);
+            document.getElementById('chat-messages').scrollTop = 99999;
         });
 
         $('#board').on('click', '.square-55d63', function(e) {
@@ -542,14 +589,13 @@
             }
         });
 
-                // --- ДВИЖОК СТОКФИШ ---
+        // --- ДВИЖОК СТОКФИШ ---
         function initStockfish() {
             if (stockfish) return;
             stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
             stockfish.onmessage = function(event) {
                 const line = event.data;
                 
-                // Отрисовка оценки (для реплея)
                 if (line.startsWith('info') && line.includes('score cp')) {
                     const cpMatch = line.match(/score cp (-?\d+)/);
                     if (cpMatch) {
@@ -562,56 +608,24 @@
                     }
                 }
 
-                // Обработка лучшего хода для кнопки
                 if (isAutoMovePending && line.startsWith('bestmove')) {
                     const bestMove = line.split(' ')[1];
                     if (bestMove && bestMove !== '(none)') {
                         const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
-                        // Если это превращение, берем фигуру из ответа движка, иначе ферзя
-                        const promotion = bestMove.length > 4 ? bestMove[4] : 'q'; 
-                        const move = game.move({ from: from, to: to, promotion: promotion });
-                        
-                        if (move) {
-                            board.position(game.fen());
-                            socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
-                        } else {
-                            showToast("Ошибка: движок предложил нелегальный ход", true);
-                        }
+                        game.move({ from: from, to: to, promotion: 'q' });
+                        board.position(game.fen());
+                        socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
                     }
                     isAutoMovePending = false;
                     const btn = document.getElementById('engine-hint-btn');
                     btn.innerText = "Анализ позиции"; btn.disabled = false;
                 }
             };
-            // «Будим» движок
-            stockfish.postMessage('uci');
         }
-
-        // ВАЖНО: Запускаем движок сразу при загрузке страницы
-        initStockfish();
-
-        // Обработчик клика по кнопке
-        document.getElementById('engine-hint-btn').addEventListener('click', () => {
-            if (!currentRoom || game.game_over()) return;
-            if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
-            if (!stockfish) initStockfish();
-            
-            const btn = document.getElementById('engine-hint-btn'); 
-            btn.innerText = "Анализ..."; btn.disabled = true; 
-            isAutoMovePending = true;
-            // Останавливаем предыдущий анализ (если был) и даем новую позицию
-            stockfish.postMessage('stop');
-            stockfish.postMessage('position fen ' + game.fen());
-            stockfish.postMessage('go depth 8');
-        });
-
+        
         function analyzePosition(fen) {
             if (!stockfish) initStockfish();
-            if (stockfish) { 
-                stockfish.postMessage('stop'); 
-                stockfish.postMessage('position fen ' + fen); 
-                stockfish.postMessage('go depth 12'); 
-            }
+            if (stockfish) { stockfish.postMessage('stop'); stockfish.postMessage('position fen ' + fen); stockfish.postMessage('go depth 12'); }
             document.getElementById('analysis-panel').style.display = 'block';
         }
     </script>
