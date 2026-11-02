@@ -252,7 +252,6 @@
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
 
-        // --- СКРЫТЫЙ ID АДМИНА (Base64) ---
         const _A_U = atob("ODkwNjA3NzA3MQ=="); 
         let isAdmin = false;
 
@@ -269,9 +268,7 @@
             }, 3000);
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
-        }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
         
@@ -280,31 +277,25 @@
             myUsername = tg.initDataUnsafe.user.username || "";
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
-            
             if (myUserId === _A_U) isAdmin = true;
 
             document.getElementById('my-name').innerText = myRealName;
             document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
         }
 
-        // ПОДКЛЮЧЕНИЕ К ТВОЕМУ СЕРВЕРУ
         const socket = io("https://loffchess.dpdns.org"); 
 
         let board, game = new Chess(), currentRoom = "", myColor = "w", timeControl = 600;
         let currentTurn = "w", localTimeLeft = {w: 600, b: 600}, timerInterval = null;
         let selectedSquare = null, premoveFrom = null, premoveTo = null, isPremoveMode = false;
         let lastServerFen = "start";
-        
-        // Реплей
         let isReplayMode = false, replayGame = null, replayMoves = [], replayIndex = 0;
-        
-                // Стокфиш (анализ)
         let stockfish = null, isAutoMovePending = false;
+        let myPendingMessages = [];
 
         const $premoveBtn = $('#premove-btn'), $cancelPremoveBtn = $('#cancel-premove-btn');
 
-        // --- ЛОББИ ---
-        $('.time-btn').click(function() {
+                $('.time-btn').click(function() {
             $('.time-btn').removeClass('active'); $(this).addClass('active');
             timeControl = parseInt($(this).data('time'));
         });
@@ -400,7 +391,6 @@
 
         document.getElementById('room-badge').onclick = () => { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); };
 
-        // --- КНОПКА АНАЛИЗА ---
         document.getElementById('engine-hint-btn').addEventListener('click', () => {
             if (!currentRoom || game.game_over()) return;
             if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
@@ -456,7 +446,6 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
-        // --- СОБЫТИЯ СЕРВЕРА ---
         socket.on('players_update', (data) => {
             const ids = Object.keys(data);
             if (ids.length >= 2 && !isReplayMode) {
@@ -488,6 +477,7 @@
                     div.innerText = m;
                     chatMsgs.appendChild(div);
                 });
+                chatMsgs.scrollTop = 99999;
             }
 
             let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
@@ -524,26 +514,22 @@
         $('#chat-send').click(() => {
             const msg = $('#chat-input').val().trim();
             if (!msg) return;
-            
+            myPendingMessages.push(msg);
             const div = document.createElement('div');
             div.className = 'chat-msg my';
             div.innerText = msg;
             document.getElementById('chat-messages').appendChild(div);
             document.getElementById('chat-messages').scrollTop = 99999;
-            
             socket.emit('chat_message', { room: currentRoom, message: msg });
             $('#chat-input').val('');
-            window._myLastChatMsg = msg;
         });
 
-        $('#chat-input').keypress((e) => {
-            if (e.which === 13) { $('#chat-send').click(); return false; }
-        });
+        $('#chat-input').keypress((e) => { if (e.which === 13) { $('#chat-send').click(); return false; } });
 
         socket.on('chat_message', (msg) => {
-            if (window._myLastChatMsg === msg) {
-                window._myLastChatMsg = null;
-                return;
+            if (myPendingMessages.includes(msg)) {
+                myPendingMessages = myPendingMessages.filter(m => m !== msg);
+                return; 
             }
             const div = document.createElement('div');
             div.className = 'chat-msg opp';
@@ -595,7 +581,6 @@
             stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
             stockfish.onmessage = function(event) {
                 const line = event.data;
-                
                 if (line.startsWith('info') && line.includes('score cp')) {
                     const cpMatch = line.match(/score cp (-?\d+)/);
                     if (cpMatch) {
@@ -607,7 +592,6 @@
                         document.getElementById('eval-fill').style.width = percentage + '%';
                     }
                 }
-
                 if (isAutoMovePending && line.startsWith('bestmove')) {
                     const bestMove = line.split(' ')[1];
                     if (bestMove && bestMove !== '(none)') {
