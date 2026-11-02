@@ -92,7 +92,6 @@
         #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; }
         .room-badge { background: rgba(129, 182, 76, 0.15); color: var(--accent-green); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
         
-        /* Новые кнопки ничьей и сдачи */
         #game-actions { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
         #game-actions button { margin-bottom: 0; padding: 10px; font-size: 14px; }
 
@@ -112,7 +111,6 @@
         #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: #333; padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid #444; }
 
-        /* Плавные модальные окна */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
         
@@ -567,7 +565,9 @@
         });
 
         socket.on('draw_offered', (data) => {
-            document.getElementById('draw-modal').classList.add('show');
+            if (data.from_user !== myUserId) {
+                document.getElementById('draw-modal').classList.add('show');
+            }
         });
 
         socket.on('game_state', (data) => {
