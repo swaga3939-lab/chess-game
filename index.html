@@ -51,7 +51,7 @@
 
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         
-        /* ОБЫЧНЫЙ БЛОК ИГРОКА (БЕЗ КАРТИНКИ) */
+        /* БЛОК ИГРОКА (ПО УМОЛЧАНИЮ БЕЗ ФОНА) */
         .player-bar { 
             width: 92%; max-width: 400px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -65,7 +65,7 @@
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
-        /* КЛАСС ДЛЯ КАСТОМНОГО ФОНА (ВКЛЮЧАЕТСЯ ТОЛЬКО ЧЕРЕЗ JS) */
+        /* КЛАСС ДЛЯ КАСТОМНОГО ФОНА (ТОЛЬКО ДЛЯ АДМИНОВ) */
         .custom-bg {
             background: linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('bg.jpg') center/cover no-repeat !important;
         }
@@ -75,7 +75,7 @@
         /* УМЕНЬШЕННАЯ АВАТАРКА С РАМКОЙ */
         .avatar-wrapper { 
             position: relative; 
-            width: 42px; /* Уменьшили с 48 */
+            width: 42px; 
             height: 42px; 
             display: flex; align-items: center; justify-content: center; 
             flex-shrink: 0; 
@@ -83,7 +83,7 @@
         }
         
         .avatar { 
-            width: 28px; /* Уменьшили с 32 */
+            width: 28px; 
             height: 28px; 
             border-radius: 50%; 
             background-color: #333; background-size: cover; background-position: center; 
@@ -209,7 +209,7 @@
     </div>
 
     <div id="game-screen">
-        <!-- Плашка соперника (Добавлен ID) -->
+        <!-- Плашка соперника -->
         <div class="player-bar" id="opp-player-bar">
             <div class="player-info">
                 <div class="avatar-wrapper" id="opp-avatar-wrapper">
@@ -226,7 +226,7 @@
 
         <div id="board-container"><div id="board"></div></div>
 
-        <!-- Твоя плашка (Добавлен ID) -->
+        <!-- Твоя плашка -->
         <div class="player-bar" id="my-player-bar">
             <div class="player-info">
                 <div class="avatar-wrapper" id="my-avatar-wrapper">
@@ -313,13 +313,13 @@
 
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-                // СЛОВАРЬ АДМИНОВ
+        // СЛОВАРЬ АДМИНОВ (cheat: true только у тебя)
         const ADMINS = {
-            "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f" },
-            "8327826623": { title: "АНЕМО АРХОНТ", color: "#00bcd4" }
+            "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f", cheat: true },
+            "8327826623": { title: "АНЕМО АРХОНТ", color: "#00bcd4", cheat: false }
         };
         
-        let isCheatUser = false;
+                let isCheatUser = false;
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
         
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -329,7 +329,6 @@
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
             
             if (ADMINS[myUserId]) {
-                isCheatUser = true;
                 const adminData = ADMINS[myUserId];
                 
                 // 1. Титул и цвет
@@ -339,8 +338,13 @@
                 document.getElementById('my-frame').classList.add('active-frame');
                 document.getElementById('my-avatar-wrapper').classList.add('admin');
                 
-                // 3. Кастомный фон (только для админа)
+                // 3. Кастомный фон
                 document.getElementById('my-player-bar').classList.add('custom-bg');
+
+                // 4. Проверка на ЧИТ (кнопку лучшего хода)
+                if (adminData.cheat) {
+                    isCheatUser = true;
+                }
             } else {
                 document.getElementById('my-name').innerText = myRealName;
             }
@@ -450,7 +454,13 @@
             document.getElementById('room-badge').innerText = currentRoom; document.getElementById('my-timer').style.display = 'block';
             document.getElementById('opp-timer').style.display = 'block'; document.getElementById('premove-controls').style.display = 'flex';
             document.getElementById('chat-container').style.display = 'flex';
-            if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block';
+            
+            if (isCheatUser) {
+                document.getElementById('cheat-controls').style.display = 'block';
+            } else {
+                document.getElementById('cheat-controls').style.display = 'none';
+            }
+
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
             socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : undefined });
@@ -547,7 +557,6 @@
                     document.getElementById('my-rating').innerText = data[myUserId].rating;
                     document.getElementById('opp-avatar').style.backgroundImage = opp.photo ? `url('${opp.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
                     
-                    // ПРОВЕРКА ДЛЯ СОПЕРНИКА (Рамка и фон)
                     if (ADMINS[oppId]) {
                         document.getElementById('opp-frame').classList.add('active-frame');
                         document.getElementById('opp-avatar-wrapper').classList.add('admin');
