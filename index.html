@@ -228,7 +228,18 @@
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('modal')">&times;</span>
             <h2 id="modal-text"></h2>
-            <button class="btn-blue" onclick="location.reload()">В лобби</button>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-blue" onclick="location.reload()" style="margin: 0;">В лобби</button>
+                <button id="rematch-btn" class="btn-green" style="margin: 0;">Реванш</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rematch-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h2>Соперник предлагает реванш</h2>
+            <button class="btn-green" onclick="acceptRematch()" style="margin-bottom: 10px;">Принять</button>
+            <button class="btn-red" onclick="closeModal('rematch-modal')">Отклонить</button>
         </div>
     </div>
 
@@ -272,9 +283,9 @@
             setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+                function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-                const ADMINS = {
+        const ADMINS = {
             "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f", bg: "bg2.jpg", frame: "frame2.png", cheat: true },
             "6051218168": { title: "SILENT", color: "#2e7d32", bg: "bg1.jpg", frame: "frame1.png", cheat: false },
             "7053701218": { title: "АНЕМО АРХОНТ", color: "#00bcd4", bg: "bg.jpg", frame: "frame.png", cheat: false },
@@ -455,6 +466,30 @@
             closeModal('draw-modal');
         };
 
+        document.getElementById('rematch-btn').addEventListener('click', () => {
+            socket.emit('offer_rematch', { room: currentRoom, user_id: myUserId });
+            closeModal('modal');
+            showToast("Предложение реванша отправлено");
+        });
+
+        window.acceptRematch = function() {
+            socket.emit('accept_rematch', { room: currentRoom });
+            closeModal('rematch-modal');
+        };
+
+        socket.on('rematch_offered', (data) => {
+            if (data.from_user !== myUserId) {
+                document.getElementById('rematch-modal').classList.add('show');
+            }
+        });
+
+        socket.on('rematch_started', () => {
+            closeModal('modal');
+            closeModal('rematch-modal');
+            document.getElementById('chat-messages').innerHTML = '';
+            showToast("Реванш начался!");
+        });
+
         function resetAutoMoveBtn() {
             isAutoMovePending = false;
             const btn = document.getElementById('auto-move-btn');
@@ -543,6 +578,11 @@
         }
 
         socket.on('players_update', (data) => {
+            if (data[myUserId]) {
+                myColor = data[myUserId].color;
+                if (board) board.orientation(myColor === 'w' ? 'white' : 'black');
+            }
+
             const ids = Object.keys(data);
             if (ids.length >= 2) {
                 const oppId = ids.find(id => id !== myUserId);
@@ -593,7 +633,7 @@
                 chatMsgs.scrollTop = 99999;
             }
 
-            let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
+                        let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
             if (game.in_check()) { statusMsg += " (ШАХ!)"; document.getElementById('status-text').style.color = "#ff4444"; } else { document.getElementById('status-text').style.color = "#ccc"; }
             document.getElementById('status-text').innerText = statusMsg;
             if (currentRoom && currentTurn !== myColor && !game.game_over()) $premoveBtn.show(); else $premoveBtn.hide();
@@ -627,7 +667,7 @@
             selectedSquare = null; removeHighlights();
         });
 
-                socket.on('chat_message', (data) => {
+        socket.on('chat_message', (data) => {
             const name = data.name || "Игрок";
             const text = data.text || "";
             const isMe = name === myRealName;
