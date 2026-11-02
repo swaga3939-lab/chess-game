@@ -51,13 +51,16 @@
 
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         
-        /* СТАНДАРТНЫЙ БЛОК ИГРОКА (без кастомного фона) */
         .player-bar { 
             width: 92%; max-width: 400px; 
             display: flex; justify-content: space-between; align-items: center; 
             margin: 8px 0; padding: 10px 15px; 
             
-            background: var(--panel-bg);
+            background-color: var(--panel-bg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            
             backdrop-filter: blur(5px);
             border-radius: 15px; 
             border: 1px solid var(--panel-border); 
@@ -68,7 +71,6 @@
         
         .player-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         
-        /* АВАТАРКА */
         .avatar-wrapper { 
             position: relative; 
             width: 42px; height: 42px; 
@@ -104,12 +106,27 @@
         .avatar-wrapper.admin .avatar { border: none; box-shadow: none; }
         
         .name-box { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; overflow: hidden; }
-        .name { font-weight: 600; font-size: 15px; line-height: 1.2; word-break: break-word; color: #fff; }
+        
+        .name { 
+            font-weight: 600; 
+            font-size: 15px; 
+            line-height: 1.2; 
+            word-break: break-word; 
+            color: #fff; 
+            opacity: 0.85; /* Ник стал чуть прозрачным */
+        }
+        
         .rating { font-size: 12px; color: var(--accent-green); font-weight: bold; margin-top: 2px; }
         
         .admin-title { 
-            color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; 
-            line-height: 1; display: inline-block; margin-top: 4px; 
+            color: white; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-size: 10px; 
+            font-weight: bold; 
+            line-height: 1; 
+            display: inline-block; 
+            margin-top: 4px; 
             text-shadow: none;
         }
         
@@ -308,13 +325,13 @@
         const ADMINS = {
             "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f", bg: "bg2.jpg", frame: "frame2.png", cheat: true },
             "6051218168": { title: "SILENT", color: "#2e7d32", bg: "bg1.jpg", frame: "frame1.png", cheat: false },
-            "8327826623": { title: "АНЕМО АРХОНТ", color: "#00bcd4", bg: "bg.jpg", frame: "frame.png", cheat: false }
+            "7053701218": { title: "АНЕМО АРХОНТ", color: "#00bcd4", bg: "bg.jpg", frame: "frame.png", cheat: false }
         };
         
-                let isCheatUser = false;
+        let isCheatUser = false;
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
 
-        // Вспомогательная функция для применения стилей
+                // Вспомогательная функция для применения стилей
         function applyAdminStyles(prefix, userId) {
             const bar = document.getElementById(`${prefix}-player-bar`);
             const frame = document.getElementById(`${prefix}-frame`);
@@ -323,7 +340,9 @@
             if (ADMINS[userId]) {
                 const admin = ADMINS[userId];
                 // Фон
-                bar.style.background = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}') center/cover no-repeat`;
+                bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
+                bar.style.backgroundSize = 'cover';
+                bar.style.backgroundPosition = 'center';
                 // Рамка
                 frame.style.backgroundImage = `url('${admin.frame}')`;
                 frame.classList.add('active-frame');
@@ -331,7 +350,8 @@
                 return admin;
             } else {
                 // Сброс стилей
-                bar.style.background = 'var(--panel-bg)';
+                bar.style.backgroundImage = 'none';
+                bar.style.backgroundColor = 'var(--panel-bg)';
                 frame.style.backgroundImage = 'none';
                 frame.classList.remove('active-frame');
                 wrapper.classList.remove('admin');
@@ -401,7 +421,7 @@
                     if (data.players[id].color === 'b') { blackP = data.players[id]; blackId = id; }
                 }
                 
-                // Применяем стили для реплея (Белые - сверху, Черные - снизу)
+                // Применяем стили для реплея
                 const whiteAdmin = applyAdminStyles('my', whiteId);
                 const blackAdmin = applyAdminStyles('opp', blackId);
 
