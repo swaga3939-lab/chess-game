@@ -167,7 +167,7 @@
                 </div>
                 <div class="name-box">
                     <div class="name" id="opp-name">Ожидание...</div>
-                    <div class="rating" id="opp-rating">1200</div>
+                    <div class="rating" id="opp-rating">400</div>
                 </div>
             </div>
             <div class="timer" id="opp-timer">--:--</div>
@@ -183,7 +183,7 @@
                 </div>
                 <div class="name-box">
                     <div class="name" id="my-name">Вы</div>
-                    <div class="rating" id="my-rating">1200</div>
+                    <div class="rating" id="my-rating">400</div>
                 </div>
             </div>
             <div class="timer" id="my-timer">--:--</div>
@@ -250,6 +250,14 @@
             <button class="btn-red" onclick="closeModal('draw-modal')">Отклонить</button>
         </div>
     </div>
+
+    <div id="resign-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h2>Вы уверены, что хотите сдаться?</h2>
+            <button class="btn-red" onclick="confirmResign()" style="margin-bottom: 10px;">Сдаться</button>
+            <button class="btn-blue" onclick="closeModal('resign-modal')">Отмена</button>
+        </div>
+    </div>
     
     <div id="leaderboard-modal" class="modal-overlay">
         <div class="modal-card">
@@ -270,7 +278,7 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
+                const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
 
         function showToast(message, isError = false) {
@@ -283,7 +291,7 @@
             setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-                function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         const ADMINS = {
             "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f", bg: "bg2.jpg", frame: "frame2.png", cheat: true },
@@ -451,10 +459,13 @@
         document.getElementById('room-badge').onclick = () => { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); };
 
         document.getElementById('resign-btn').addEventListener('click', () => {
-            if (confirm("Вы уверены, что хотите сдаться?")) {
-                socket.emit('resign', { room: currentRoom, user_id: myUserId });
-            }
+            document.getElementById('resign-modal').classList.add('show');
         });
+
+        window.confirmResign = function() {
+            socket.emit('resign', { room: currentRoom, user_id: myUserId });
+            closeModal('resign-modal');
+        };
 
         document.getElementById('offer-draw-btn').addEventListener('click', () => {
             socket.emit('offer_draw', { room: currentRoom, user_id: myUserId });
