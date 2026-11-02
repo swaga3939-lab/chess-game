@@ -20,14 +20,8 @@
             --accent-blue: #42a5f5; 
             --input-bg: rgba(0, 0, 0, 0.4);
         }
-        
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        
-        body { 
-            background: var(--bg-gradient); color: #f0f0f0; 
-            display: flex; flex-direction: column; align-items: center; 
-            margin: 0; min-height: 100vh; padding-bottom: 20px; overflow-x: hidden; 
-        }
+        body { background: var(--bg-gradient); color: #f0f0f0; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; padding-bottom: 20px; overflow-x: hidden; }
         
         #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 350px; }
         .toast { background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(10px); color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; text-align: center; border: 1px solid #444; box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -44,8 +38,7 @@
         .join-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--input-bg); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 12px; transition: border 0.2s; outline: none; font-weight: bold; letter-spacing: 2px; }
         .join-input:focus { border-color: var(--accent-green); }
 
-        /* Убрал синее выделение при клике на кнопки */
-        button { padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; color: white; width: 100%; margin-bottom: 12px; transition: all 0.2s; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+        button { padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; color: white; width: 100%; margin-bottom: 12px; transition: all 0.2s; user-select: none; -webkit-tap-highlight-color: transparent; }
         button:active { transform: scale(0.97); }
         
         .btn-green { background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%); box-shadow: 0 4px 15px rgba(85, 139, 47, 0.4); }
@@ -57,7 +50,6 @@
         .btn-admin:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
 
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
-        
         .player-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 10px 15px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid var(--panel-border); }
         .player-info { display: flex; align-items: center; gap: 12px; }
         .avatar { width: 42px; height: 42px; border-radius: 12px; background-color: #333; background-size: cover; background-position: center; border: 1px solid rgba(255,255,255,0.1); }
@@ -104,9 +96,6 @@
         .eval-bar-fill { height: 100%; background: #fff; width: 50%; transition: width 0.3s; }
         .eval-text { font-weight: bold; font-size: 15px; }
         .best-move-text { font-size: 13px; color: var(--accent-green); margin-top: 5px; font-weight: 500;}
-        #move-quality { font-size: 16px; font-weight: bold; margin-top: 8px; display: flex; justify-content: center; gap: 8px; }
-        .quality-badge { padding: 4px 10px; border-radius: 6px; font-size: 13px; }
-        .q-blunder { background: #ff4444; color: white;} .q-mistake { background: #ff9800; color: white;} .q-inaccuracy { background: #ffeb3b; color: black;} .q-good { background: #81b64c; color: white;} .q-best { background: #2196f3; color: white;}
 
         #move-log { width: 92%; max-width: 400px; height: 80px; overflow-y: auto; background: var(--panel-bg); border-radius: 12px; padding: 12px; font-family: 'Courier New', monospace; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 20px; border: 1px solid var(--panel-border); margin-top: 10px;}
         .move-item { display: flex; gap: 6px; width: 45%; }
@@ -120,10 +109,6 @@
         .modal-card { background: #222; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid #444; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s; }
         .modal-overlay.show .modal-card { transform: scale(1); }
         .modal-card h2 { margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: bold; }
-        
-        #leaderboard-list { text-align: left; margin-bottom: 20px; max-height: 250px; overflow-y: auto; padding-right: 5px;}
-        .lb-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #333; font-size: 15px;}
-        .lb-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -146,11 +131,6 @@
         <h2 style="margin-top: 25px;">Смотреть и анализировать</h2>
         <input type="text" id="watch-code-input" class="join-input" placeholder="КОД ПАРТИИ" maxlength="4">
         <button id="watch-game-btn" style="background: #444;">Смотреть партию</button>
-        
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button id="leaderboard-btn" class="btn-blue" style="flex: 1; margin-bottom: 0;">Топ</button>
-            <button id="settings-btn" class="btn-purple" style="flex: 1; margin-bottom: 0;">Настройки</button>
-        </div>
     </div>
 
     <div id="game-screen">
@@ -187,7 +167,7 @@
             <div id="chat-messages"></div>
             <div id="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Сообщение...">
-                <button id="chat-send" onclick="sendChatMessage()">></button>
+                <button id="chat-send">></button>
             </div>
         </div>
 
@@ -197,13 +177,12 @@
         </div>
 
         <div id="sys-controls">
-            <button id="engine-hint-btn" class="btn-admin" onclick="makeBestMove()">Анализ позиции</button>
+            <button id="engine-hint-btn" class="btn-admin">Анализ позиции</button>
         </div>
 
         <div id="analysis-panel">
             <div class="eval-bar-container"><div class="eval-bar-fill" id="eval-fill"></div></div>
             <div class="eval-text" id="eval-text">Оценка: 0.00</div>
-            <div id="move-quality"></div>
             <div class="best-move-text" id="best-move-text">Лучший ход: ...</div>
         </div>
 
@@ -221,83 +200,25 @@
             <button class="btn-blue" onclick="location.reload()">В лобби</button>
         </div>
     </div>
-    
-    <div id="invite-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h2 style="margin-bottom: 10px;">Приглашение</h2>
-            <img id="invite-avatar" src="" style="width:70px; height:70px; border-radius:50%; margin-bottom:15px; background:#333; border: 2px solid #555;">
-            <p style="font-size: 16px; margin-bottom: 5px;"><b id="invite-name"></b></p>
-            <p style="color:#aaa; font-size: 14px; margin-bottom: 20px;">приглашает вас на партию.<br><span id="invite-time"></span></p>
-            <button id="accept-invite-btn" class="btn-green">Принять</button>
-            <button class="btn-red" onclick="closeModal('invite-modal')">Отмена</button>
-        </div>
-    </div>
-
-    <div id="leaderboard-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h2>Лидерборд</h2>
-            <div id="leaderboard-list"></div>
-            <button class="btn-blue" onclick="closeModal('leaderboard-modal')" style="margin-top: 20px;">Закрыть</button>
-        </div>
-    </div>
-
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h2>Настройки</h2>
-            <p style="color: #aaa; font-size: 15px; margin-bottom: 25px;">Скоро здесь можно будет менять доску и фигуры!</p>
-            <button class="btn-blue" onclick="closeModal('settings-modal')">Закрыть</button>
-        </div>
-    </div>
 
     <script>
-        // --- ЗАЩИТА ОТ ПАДЕНИЯ СКРИПТА ---
-        window.onerror = function(msg, url, line, col, error) {
+        // Глобальная ловушка ошибок
+        window.onerror = function(msg, url, line) {
             let errDiv = document.getElementById('global-error');
             if (!errDiv) {
                 errDiv = document.createElement('div');
                 errDiv.id = 'global-error';
-                errDiv.style.position = 'fixed';
-                errDiv.style.top = '10px';
-                errDiv.style.left = '10px';
-                errDiv.style.right = '10px';
-                errDiv.style.background = 'rgba(200,0,0,0.95)';
-                errDiv.style.color = 'white';
-                errDiv.style.padding = '10px';
-                errDiv.style.zIndex = '99999';
-                errDiv.style.borderRadius = '8px';
-                errDiv.style.fontSize = '12px';
-                errDiv.style.wordBreak = 'break-all';
+                errDiv.style = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:10px;z-index:99999;font-size:12px;';
                 document.body.appendChild(errDiv);
             }
-            errDiv.innerText = "ОШИБКА JS: " + msg + "\n" + url + ":" + line;
-            return false;
+            errDiv.innerText = "ОШИБКА: " + msg + " (строка " + line + ")";
         };
 
-        // Заглушки, чтобы скрипт работал даже если CDN заблокирован
-        if (typeof io === 'undefined') { window.io = function() { return { on: function(){}, emit: function(){} }; }; }
-        if (typeof Chess === 'undefined') { window.Chess = function() { return { load: function(){}, move: function(){}, fen: function(){}, turn: function(){ return 'w'; }, game_over: function(){ return false; }, in_check: function(){ return false; }, get: function(){ return null; }, moves: function(){ return []; } }; }; }
-        if (typeof Chessboard === 'undefined') { window.Chessboard = function() { return { orientation: function(){}, position: function(){} }; }; }
-
-        let tg = window.Telegram ? window.Telegram.WebApp : null;
+        const tg = window.Telegram ? window.Telegram.WebApp : null;
         if (tg) { tg.ready(); tg.expand(); }
 
-                const _A_U = "8906077071"; // Твой ID напрямую
+        const ADMIN_ID = "8906077071"; // Твой ID напрямую
         let isAdmin = false;
-
-        function showToast(message, isError = false) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${isError ? 'error' : ''}`;
-            toast.innerText = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
         
@@ -306,7 +227,7 @@
             myUsername = tg.initDataUnsafe.user.username || "";
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
-            if (myUserId === _A_U) isAdmin = true;
+            if (myUserId === ADMIN_ID) isAdmin = true;
         }
 
         document.getElementById('my-name').innerText = myRealName;
@@ -322,7 +243,33 @@
         let stockfish = null, isAutoMovePending = false;
         let mySentMessages = [];
 
-        // --- ОБРАБОТЧИКИ КНОПОК (БЕЗ JQUERY) ---
+        function showToast(message, isError = false) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function startGame(isCreator) {
+            document.getElementById('lobby').style.display = 'none'; 
+            document.getElementById('game-screen').style.display = 'flex';
+            document.getElementById('room-badge').innerText = currentRoom; 
+            document.getElementById('my-timer').style.display = 'block';
+            document.getElementById('opp-timer').style.display = 'block'; 
+            document.getElementById('premove-controls').style.display = 'flex';
+            document.getElementById('chat-container').style.display = 'flex';
+            
+            if (isAdmin) document.getElementById('sys-controls').style.display = 'block';
+            
+            board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
+            board.orientation(myColor === 'w' ? 'white' : 'black');
+            socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : undefined });
+        }
+
+        // --- КНОПКИ ---
         document.querySelectorAll('.time-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
@@ -342,99 +289,27 @@
             currentRoom = code; myColor = 'b'; startGame(false);
         });
 
-        document.getElementById('watch-game-btn').addEventListener('click', async () => {
-            const code = document.getElementById('watch-code-input').value.toUpperCase();
-            if (code.length !== 4) return showToast("Введите 4-значный код", true);
-            
-            try {
-                const res = await fetch(`https://loffchess.dpdns.org/get_game/${code}`);
-                const data = await res.json();
-                if (data.error) return showToast(data.error, true);
-
-                isReplayMode = true; replayMoves = data.history; replayIndex = 0;
-                document.getElementById('lobby').style.display = 'none'; 
-                document.getElementById('game-screen').style.display = 'flex';
-                
-                let whiteP = null, blackP = null;
-                for (let id in data.players) {
-                    if (data.players[id].color === 'w') whiteP = data.players[id];
-                    if (data.players[id].color === 'b') blackP = data.players[id];
-                }
-                
-                const wName = whiteP.username ? `${whiteP.name} (@${whiteP.username})` : whiteP.name;
-                const bName = blackP.username ? `${blackP.name} (@${blackP.username})` : blackP.name;
-                
-                document.getElementById('opp-name').innerText = `Черные: ${bName}`;
-                document.getElementById('my-name').innerText = `Белые: ${wName}`;
-                
-                const wPhoto = whiteP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${whiteP.name}`;
-                const bPhoto = blackP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${blackP.name}`;
-                document.getElementById('my-avatar').style.backgroundImage = `url('${wPhoto}')`;
-                document.getElementById('opp-avatar').style.backgroundImage = `url('${bPhoto}')`;
-                
-                let winnerText = "Ничья";
-                if (data.winner === 'white') winnerText = `Победа Белых (${wName})`;
-                else if (data.winner === 'black') winnerText = `Победа Черных (${bName})`;
-                
-                document.getElementById('status-text').innerText = "Анализ партии";
-                document.getElementById('best-move-text').innerText = winnerText;
-                
-                document.getElementById('sys-controls').style.display = 'none'; 
-                document.getElementById('chat-container').style.display = 'none';
-                document.getElementById('my-timer').style.display = 'none'; 
-                document.getElementById('opp-timer').style.display = 'none'; 
-                document.getElementById('premove-controls').style.display = 'none';
-                document.getElementById('replay-controls').style.display = 'flex';
-                
-                board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
-                board.orientation('white');
-                renderLog(replayMoves); initStockfish(); replayStep(0); 
-            } catch (e) { showToast("Партия не найдена или еще не завершена", true); }
-        });
-
-        document.getElementById('premove-btn').addEventListener('click', () => {
-            if (currentTurn === myColor) return showToast("Сейчас ваш ход.", true);
-            isPremoveMode = !isPremoveMode;
-            const btn = document.getElementById('premove-btn');
-            if (isPremoveMode) { btn.innerText = "Режим премува ВКЛ"; btn.style.background = "#d32f2f"; showToast("Выберите свою фигуру, затем клетку."); }
-            else { btn.innerText = "Включить премув"; btn.style.background = ""; removeHighlights(); }
-        });
-
-        document.getElementById('cancel-premove-btn').addEventListener('click', () => {
-            premoveFrom = null; premoveTo = null; isPremoveMode = false; 
-            const btn = document.getElementById('premove-btn');
-            btn.innerText = "Включить премув"; btn.style.background = ""; 
-            document.getElementById('cancel-premove-btn').style.display = 'none'; 
-            removeHighlights();
-        });
-
-        document.getElementById('room-badge').addEventListener('click', () => { 
-            navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); 
-        });
-
-        // Функция чата
-        window.sendChatMessage = function() {
+                document.getElementById('chat-send').addEventListener('click', () => {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if (!msg) return;
             
             mySentMessages.push(msg);
             const div = document.createElement('div');
-            div.className = 'chat-msg my';
+            div.className = 'chat-msg my'; 
             div.innerText = msg;
             document.getElementById('chat-messages').appendChild(div);
             document.getElementById('chat-messages').scrollTop = 99999;
             
             socket.emit('chat_message', { room: currentRoom, message: msg });
             input.value = '';
-        };
-
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.which === 13) { sendChatMessage(); }
         });
 
-        // Функция лучшего хода
-        window.makeBestMove = function() {
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.which === 13) document.getElementById('chat-send').click();
+        });
+
+        document.getElementById('engine-hint-btn').addEventListener('click', () => {
             if (!currentRoom || game.game_over()) return;
             if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
             isAutoMovePending = true; 
@@ -446,71 +321,16 @@
                 stockfish.postMessage('position fen ' + game.fen()); 
                 stockfish.postMessage('go depth 8'); 
             }
-        };
+        });
 
-        function startGame(isCreator) {
-            document.getElementById('lobby').style.display = 'none'; 
-            document.getElementById('game-screen').style.display = 'flex';
-            document.getElementById('room-badge').innerText = currentRoom; 
-            document.getElementById('my-timer').style.display = 'block';
-            document.getElementById('opp-timer').style.display = 'block'; 
-            document.getElementById('premove-controls').style.display = 'flex';
-            document.getElementById('chat-container').style.display = 'flex';
-            
-            if (isAdmin) document.getElementById('sys-controls').style.display = 'block';
-            
-            board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
-            board.orientation(myColor === 'w' ? 'white' : 'black');
-            socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : undefined });
-        }
+        document.getElementById('room-badge').addEventListener('click', () => { 
+            navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); 
+        });
 
-        function replayStep(dir) {
-            if (!isReplayMode) return;
-            if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
-            if (dir === -1 && replayIndex > 0) replayIndex--;
-            replayGame = new Chess(); 
-            for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
-            board.position(replayGame.fen());
-            document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
-            analyzePosition(replayGame.fen());
-        }
-
-        function removeHighlights() { 
-            document.querySelectorAll('.square-55d63').forEach(el => {
-                el.classList.remove('highlight-dot', 'highlight-capture', 'highlight-selected', 'highlight-premove-dot', 'highlight-premove-capture', 'highlight-premove-selected');
-            });
-        }
-
-        function updateTimers(timeLeft) {
-            localTimeLeft = timeLeft;
-            const m1 = Math.floor(localTimeLeft[myColor] / 60); const s1 = Math.floor(localTimeLeft[myColor] % 60);
-            const m2 = Math.floor(localTimeLeft[myColor === 'w' ? 'b' : 'w'] / 60); const s2 = Math.floor(localTimeLeft[myColor === 'w' ? 'b' : 'w'] % 60);
-            document.getElementById('my-timer').innerText = `${m1}:${s1 < 10 ? '0' : ''}${s1}`;
-            document.getElementById('opp-timer').innerText = `${m2}:${s2 < 10 ? '0' : ''}${s2}`;
-            document.getElementById('my-timer').classList.toggle('active', currentTurn === myColor);
-            document.getElementById('opp-timer').classList.toggle('active', currentTurn !== myColor);
-        }
-
-        function startLocalTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if (currentTurn && localTimeLeft[currentTurn] > 0) { localTimeLeft[currentTurn]--; updateTimers(localTimeLeft); }
-            }, 1000);
-        }
-
-        function renderLog(history) {
-            const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
-            for (let i = 0; i < history.length; i += 2) {
-                const div = document.createElement('div'); div.className = 'move-item';
-                div.innerHTML = `<span class="move-num">${Math.floor(i / 2) + 1}.</span> <span>${history[i]}</span> <span style="color:#aaa">${history[i+1] || ''}</span>`;
-                logDiv.appendChild(div);
-            }
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
-
+        // --- СОБЫТИЯ СЕРВЕРА ---
         socket.on('players_update', (data) => {
             const ids = Object.keys(data);
-            if (ids.length >= 2 && !isReplayMode) {
+            if (ids.length >= 2) {
                 const oppId = ids.find(id => id !== myUserId);
                 if (oppId) {
                     const opp = data[oppId];
@@ -529,7 +349,6 @@
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
             
-            // ЧАТ
             if (data.chat) { 
                 const chatMsgs = document.getElementById('chat-messages');
                 chatMsgs.innerHTML = '';
@@ -567,12 +386,6 @@
             document.getElementById('modal').classList.add('show');
         });
 
-        socket.on('invalid_move', (data) => {
-            showToast('Сервер отклонил ход: ' + data.msg, true);
-            if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
-            selectedSquare = null; removeHighlights();
-        });
-
         socket.on('chat_message', (msg) => {
             if (mySentMessages.includes(msg)) return;
             const div = document.createElement('div');
@@ -582,7 +395,13 @@
             document.getElementById('chat-messages').scrollTop = 99999;
         });
 
-        // Обработка клика по доске (нативно, без jQuery)
+        socket.on('invalid_move', (data) => {
+            showToast('Сервер отклонил ход: ' + data.msg, true);
+            if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
+            selectedSquare = null; removeHighlights();
+        });
+
+        // --- ДОСКА ---
         document.getElementById('board').addEventListener('click', function(e) {
             if (isReplayMode || game.game_over()) return; 
             let target = e.target;
@@ -590,30 +409,8 @@
             if (!target) return;
             const square = target.getAttribute('data-square');
 
-            if (isPremoveMode) {
-                if (currentTurn === myColor) { isPremoveMode = false; document.getElementById('premove-btn').innerText = "Включить премув"; document.getElementById('premove-btn').style.background = ""; } 
-                else {
-                    if (!premoveFrom) { 
-                        var piece = game.get(square); 
-                        if (piece && piece.color === myColor) { 
-                            premoveFrom = square; removeHighlights(); 
-                            document.querySelector('#board .square-' + square).classList.add('highlight-premove-selected'); 
-                        } 
-                    } else {
-                        if (premoveFrom === square) { premoveFrom = null; removeHighlights(); } 
-                        else { 
-                            premoveTo = square; 
-                            document.querySelector('#board .square-' + premoveTo).classList.add('highlight-premove-capture'); 
-                            isPremoveMode = false; 
-                            document.getElementById('premove-btn').innerText = "Включить премув"; 
-                            document.getElementById('premove-btn').style.background = ""; 
-                            document.getElementById('cancel-premove-btn').style.display = 'block'; 
-                        }
-                    }
-                    return; 
-                }
-            }
             if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
+            
             if (!selectedSquare) {
                 var piece = game.get(square);
                 if (piece && piece.color === game.turn()) { 
@@ -625,42 +422,63 @@
                         else document.querySelector('#board .square-' + targetSq).classList.add('highlight-dot'); 
                     }
                 }
-                            } else {
-                    if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
-                    var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
-                    if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } }); selectedSquare = null; removeHighlights(); } 
-                    else {
-                        var piece = game.get(square);
-                        if (piece && piece.color === game.turn()) { 
-                            selectedSquare = square; 
-                            removeHighlights(); 
-                            document.querySelector('#board .square-' + square).classList.add('highlight-selected');
-                            
-                            var moves = game.moves({ square: square, verbose: true });
-                            for (var i = 0; i < moves.length; i++) { 
-                                const targetSq = moves[i].to; 
-                                if (game.get(targetSq)) {
-                                    document.querySelector('#board .square-' + targetSq).classList.add('highlight-capture'); 
-                                } else {
-                                    document.querySelector('#board .square-' + targetSq).classList.add('highlight-dot'); 
-                                }
-                            }
-                        } else { 
-                            selectedSquare = null; 
-                            removeHighlights(); 
+            } else {
+                if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
+                var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+                if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } }); selectedSquare = null; removeHighlights(); } 
+                else {
+                    var piece = game.get(square);
+                    if (piece && piece.color === game.turn()) { 
+                        selectedSquare = square; removeHighlights(); document.querySelector('#board .square-' + square).classList.add('highlight-selected');
+                        var moves = game.moves({ square: square, verbose: true });
+                        for (var i = 0; i < moves.length; i++) { 
+                            const targetSq = moves[i].to; 
+                            if (game.get(targetSq)) document.querySelector('#board .square-' + targetSq).classList.add('highlight-capture'); 
+                            else document.querySelector('#board .square-' + targetSq).classList.add('highlight-dot'); 
                         }
-                    }
+                    } else { selectedSquare = null; removeHighlights(); }
                 }
             }
         });
 
-        // --- ДВИЖОК СТОКФИШ ---
+        function removeHighlights() { 
+            document.querySelectorAll('.square-55d63').forEach(el => {
+                el.classList.remove('highlight-dot', 'highlight-capture', 'highlight-selected');
+            });
+        }
+
+        function updateTimers(timeLeft) {
+            localTimeLeft = timeLeft;
+            const m1 = Math.floor(localTimeLeft[myColor] / 60); const s1 = Math.floor(localTimeLeft[myColor] % 60);
+            const m2 = Math.floor(localTimeLeft[myColor === 'w' ? 'b' : 'w'] / 60); const s2 = Math.floor(localTimeLeft[myColor === 'w' ? 'b' : 'w'] % 60);
+            document.getElementById('my-timer').innerText = `${m1}:${s1 < 10 ? '0' : ''}${s1}`;
+            document.getElementById('opp-timer').innerText = `${m2}:${s2 < 10 ? '0' : ''}${s2}`;
+            document.getElementById('my-timer').classList.toggle('active', currentTurn === myColor);
+            document.getElementById('opp-timer').classList.toggle('active', currentTurn !== myColor);
+        }
+
+        function startLocalTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (currentTurn && localTimeLeft[currentTurn] > 0) { localTimeLeft[currentTurn]--; updateTimers(localTimeLeft); }
+            }, 1000);
+        }
+
+        function renderLog(history) {
+            const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
+            for (let i = 0; i < history.length; i += 2) {
+                const div = document.createElement('div'); div.className = 'move-item';
+                div.innerHTML = `<span class="move-num">${Math.floor(i / 2) + 1}.</span> <span>${history[i]}</span> <span style="color:#aaa">${history[i+1] || ''}</span>`;
+                logDiv.appendChild(div);
+            }
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
         function initStockfish() {
             if (stockfish) return;
             stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
             stockfish.onmessage = function(event) {
                 const line = event.data;
-                
                 if (line.startsWith('info') && line.includes('score cp')) {
                     const cpMatch = line.match(/score cp (-?\d+)/);
                     if (cpMatch) {
@@ -672,7 +490,6 @@
                         document.getElementById('eval-fill').style.width = percentage + '%';
                     }
                 }
-                
                 if (isAutoMovePending && line.startsWith('bestmove')) {
                     const bestMove = line.split(' ')[1];
                     if (bestMove && bestMove !== '(none)') {
@@ -683,20 +500,9 @@
                     }
                     isAutoMovePending = false;
                     const btn = document.getElementById('engine-hint-btn');
-                    btn.innerText = "Анализ позиции"; 
-                    btn.disabled = false;
+                    btn.innerText = "Анализ позиции"; btn.disabled = false;
                 }
             };
-        }
-        
-        function analyzePosition(fen) {
-            if (!stockfish) initStockfish();
-            if (stockfish) { 
-                stockfish.postMessage('stop'); 
-                stockfish.postMessage('position fen ' + fen); 
-                stockfish.postMessage('go depth 12'); 
-            }
-            document.getElementById('analysis-panel').style.display = 'block';
         }
     </script>
 </body>
