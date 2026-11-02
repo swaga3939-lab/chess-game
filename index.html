@@ -43,11 +43,10 @@
         
         .btn-green { background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%); box-shadow: 0 4px 15px rgba(85, 139, 47, 0.4); }
         .btn-blue { background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%); box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4); }
-        .btn-red { background: linear-gradient(135deg, #ef5350 0%, #c62828 100%); }
         .btn-purple { background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%); }
         .btn-orange { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
-        .btn-admin { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
-        .btn-admin:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
+        .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
+        .btn-cheat:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
 
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         .player-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 10px 15px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid var(--panel-border); }
@@ -70,10 +69,6 @@
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.25); }
         .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.25); box-sizing: border-box; }
         .highlight-selected { background-color: rgba(255, 215, 0, 0.5) !important; }
-        
-        .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.8); }
-        .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(156, 39, 176, 0.8); box-sizing: border-box; }
-        .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.5) !important; }
 
         #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; }
         .room-badge { background: rgba(129, 182, 76, 0.15); color: var(--accent-green); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
@@ -89,26 +84,17 @@
         #chat-send { background: var(--accent-green); border: none; color: white; padding: 0; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; margin: 0;}
 
         #premove-controls { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
-        #sys-controls { display: none; width: 92%; max-width: 400px; margin-top: 10px; }
-
-        #analysis-panel { display: none; width: 92%; max-width: 400px; background: var(--panel-bg); border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--panel-border); text-align: center; }
-        .eval-bar-container { width: 100%; height: 16px; background: #222; border-radius: 8px; overflow: hidden; margin-bottom: 8px; border: 1px solid #333; }
-        .eval-bar-fill { height: 100%; background: #fff; width: 50%; transition: width 0.3s; }
-        .eval-text { font-weight: bold; font-size: 15px; }
-        .best-move-text { font-size: 13px; color: var(--accent-green); margin-top: 5px; font-weight: 500;}
-
-        #move-log { width: 92%; max-width: 400px; height: 80px; overflow-y: auto; background: var(--panel-bg); border-radius: 12px; padding: 12px; font-family: 'Courier New', monospace; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 20px; border: 1px solid var(--panel-border); margin-top: 10px;}
-        .move-item { display: flex; gap: 6px; width: 45%; }
-        .move-num { color: #666; font-weight: bold;}
-
-        #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
-        .replay-btn { background: #333; padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid #444;}
+        #cheat-controls { display: none; width: 92%; max-width: 400px; margin-top: 10px; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
         .modal-card { background: #222; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid #444; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s; }
         .modal-overlay.show .modal-card { transform: scale(1); }
         .modal-card h2 { margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: bold; }
+        
+        #move-log { width: 92%; max-width: 400px; height: 80px; overflow-y: auto; background: var(--panel-bg); border-radius: 12px; padding: 12px; font-family: 'Courier New', monospace; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 20px; border: 1px solid var(--panel-border); margin-top: 10px;}
+        .move-item { display: flex; gap: 6px; width: 45%; }
+        .move-num { color: #666; font-weight: bold;}
     </style>
 </head>
 <body>
@@ -127,10 +113,6 @@
         <h2 style="margin-top: 25px;">Войти по коду</h2>
         <input type="text" id="join-code-input" class="join-input" placeholder="КОД" maxlength="4">
         <button id="join-game-btn" class="btn-blue">Присоединиться</button>
-        
-        <h2 style="margin-top: 25px;">Смотреть и анализировать</h2>
-        <input type="text" id="watch-code-input" class="join-input" placeholder="КОД ПАРТИИ" maxlength="4">
-        <button id="watch-game-btn" style="background: #444;">Смотреть партию</button>
     </div>
 
     <div id="game-screen">
@@ -176,19 +158,8 @@
             <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
 
-        <div id="sys-controls">
-            <button id="engine-hint-btn" class="btn-admin">Анализ позиции</button>
-        </div>
-
-        <div id="analysis-panel">
-            <div class="eval-bar-container"><div class="eval-bar-fill" id="eval-fill"></div></div>
-            <div class="eval-text" id="eval-text">Оценка: 0.00</div>
-            <div class="best-move-text" id="best-move-text">Лучший ход: ...</div>
-        </div>
-
-        <div id="replay-controls">
-            <button class="replay-btn" onclick="replayStep(-1)">< Назад</button>
-            <button class="replay-btn" onclick="replayStep(1)">Вперед ></button>
+        <div id="cheat-controls">
+            <button id="auto-move-btn" class="btn-cheat">Сделать лучший ход</button>
         </div>
 
         <div id="move-log"></div>
@@ -202,46 +173,8 @@
     </div>
 
     <script>
-        // Глобальная ловушка ошибок
-        window.onerror = function(msg, url, line) {
-            let errDiv = document.getElementById('global-error');
-            if (!errDiv) {
-                errDiv = document.createElement('div');
-                errDiv.id = 'global-error';
-                errDiv.style = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:10px;z-index:99999;font-size:12px;';
-                document.body.appendChild(errDiv);
-            }
-            errDiv.innerText = "ОШИБКА: " + msg + " (строка " + line + ")";
-        };
-
-        const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg) { tg.ready(); tg.expand(); }
-
-        const ADMIN_ID = "8906077071"; // Твой ID напрямую
-        let isAdmin = false;
-
-        let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
-        
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            myRealName = tg.initDataUnsafe.user.first_name;
-            myUsername = tg.initDataUnsafe.user.username || "";
-            myUserId = String(tg.initDataUnsafe.user.id); 
-            myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
-            if (myUserId === ADMIN_ID) isAdmin = true;
-        }
-
-        document.getElementById('my-name').innerText = myRealName;
-        document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
-
-        const socket = io("https://loffchess.dpdns.org"); 
-
-        let board, game = new Chess(), currentRoom = "", myColor = "w", timeControl = 600;
-        let currentTurn = "w", localTimeLeft = {w: 600, b: 600}, timerInterval = null;
-        let selectedSquare = null, premoveFrom = null, premoveTo = null, isPremoveMode = false;
-        let lastServerFen = "start";
-        let isReplayMode = false, replayGame = null, replayMoves = [], replayIndex = 0;
-        let stockfish = null, isAutoMovePending = false;
-        let mySentMessages = [];
+        const tg = window.Telegram.WebApp;
+        tg.ready(); tg.expand();
 
         function showToast(message, isError = false) {
             const container = document.getElementById('toast-container');
@@ -253,199 +186,80 @@
             setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
+        const CHEAT_USER_ID = "8906077071"; 
+        let isCheatUser = false;
+        let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
+        
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            myRealName = tg.initDataUnsafe.user.first_name;
+            myUsername = tg.initDataUnsafe.user.username || "";
+            myUserId = String(tg.initDataUnsafe.user.id); 
+            myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
+            if (myUserId === CHEAT_USER_ID) isCheatUser = true;
+
+            document.getElementById('my-name').innerText = myRealName;
+            document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
+        }
+
+        // ВАЖНО: Принудительно используем ТОЛЬКО WebSocket (обходим глючный polling)
+        const socket = io("https://loffchess.dpdns.org", { transports: ["websocket"] }); 
+
+        let board, game = new Chess(), currentRoom = "", myColor = "w", timeControl = 600;
+        let currentTurn = "w", localTimeLeft = {w: 600, b: 600}, timerInterval = null;
+        let selectedSquare = null, premoveFrom = null, premoveTo = null, isPremoveMode = false;
+        let lastServerFen = "start";
+        let stockfish = null, isAutoMovePending = false;
+
+        const $premoveBtn = $('#premove-btn'), $cancelPremoveBtn = $('#cancel-premove-btn');
+
+        $('.time-btn').click(function() {
+            $('.time-btn').removeClass('active'); $(this).addClass('active');
+            timeControl = parseInt($(this).data('time'));
+        });
+
+        $('#create-game-btn').click(() => {
+            currentRoom = Math.random().toString(36).substring(2, 6).toUpperCase();
+            myColor = 'w'; startGame(true);
+        });
+
+        $('#join-game-btn').click(() => {
+            const code = $('#join-code-input').val().toUpperCase();
+            if (code.length !== 4) return showToast("Введите 4-значный код", true);
+            currentRoom = code; myColor = 'b'; startGame(false);
+        });
+
         function startGame(isCreator) {
-            document.getElementById('lobby').style.display = 'none'; 
-            document.getElementById('game-screen').style.display = 'flex';
-            document.getElementById('room-badge').innerText = currentRoom; 
-            document.getElementById('my-timer').style.display = 'block';
-            document.getElementById('opp-timer').style.display = 'block'; 
-            document.getElementById('premove-controls').style.display = 'flex';
+            document.getElementById('lobby').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex';
+            document.getElementById('room-badge').innerText = currentRoom; document.getElementById('my-timer').style.display = 'block';
+            document.getElementById('opp-timer').style.display = 'block'; document.getElementById('premove-controls').style.display = 'flex';
             document.getElementById('chat-container').style.display = 'flex';
-            
-            if (isAdmin) document.getElementById('sys-controls').style.display = 'block';
-            
+            if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block';
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
             socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : undefined });
         }
 
-        // --- КНОПКИ ---
-        document.querySelectorAll('.time-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                timeControl = parseInt(this.getAttribute('data-time'));
-            });
-        });
+        document.getElementById('room-badge').onclick = () => { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); };
 
-        document.getElementById('create-game-btn').addEventListener('click', () => {
-            currentRoom = Math.random().toString(36).substring(2, 6).toUpperCase();
-            myColor = 'w'; startGame(true);
-        });
-
-        document.getElementById('join-game-btn').addEventListener('click', () => {
-            const code = document.getElementById('join-code-input').value.toUpperCase();
-            if (code.length !== 4) return showToast("Введите 4-значный код", true);
-            currentRoom = code; myColor = 'b'; startGame(false);
-        });
-
-                document.getElementById('chat-send').addEventListener('click', () => {
-            const input = document.getElementById('chat-input');
-            const msg = input.value.trim();
-            if (!msg) return;
-            
-            mySentMessages.push(msg);
-            const div = document.createElement('div');
-            div.className = 'chat-msg my'; 
-            div.innerText = msg;
-            document.getElementById('chat-messages').appendChild(div);
-            document.getElementById('chat-messages').scrollTop = 99999;
-            
-            socket.emit('chat_message', { room: currentRoom, message: msg });
-            input.value = '';
-        });
-
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.which === 13) document.getElementById('chat-send').click();
-        });
-
-        document.getElementById('engine-hint-btn').addEventListener('click', () => {
+        document.getElementById('auto-move-btn').addEventListener('click', () => {
             if (!currentRoom || game.game_over()) return;
             if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
-            isAutoMovePending = true; 
-            if (!stockfish) initStockfish();
-            if (stockfish) { 
-                const btn = document.getElementById('engine-hint-btn'); 
-                btn.innerText = "Ищу ход..."; btn.disabled = true; 
-                stockfish.postMessage('stop'); 
-                stockfish.postMessage('position fen ' + game.fen()); 
-                stockfish.postMessage('go depth 8'); 
-            }
+            isAutoMovePending = true; if (!stockfish) initStockfish();
+            if (stockfish) { const btn = document.getElementById('auto-move-btn'); btn.innerText = "Ищу ход..."; btn.disabled = true; stockfish.postMessage('stop'); stockfish.postMessage('position fen ' + game.fen()); stockfish.postMessage('go depth 8'); }
         });
 
-        document.getElementById('room-badge').addEventListener('click', () => { 
-            navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); 
+        $premoveBtn.click(() => {
+            if (currentTurn === myColor) return showToast("Сейчас ваш ход.", true);
+            isPremoveMode = !isPremoveMode;
+            if (isPremoveMode) { $premoveBtn.text("Режим премува ВКЛ").css("background", "#d32f2f"); showToast("Выберите свою фигуру, затем клетку."); }
+            else { $premoveBtn.text("Включить премув").css("background", ""); removeHighlights(); }
         });
 
-        // --- СОБЫТИЯ СЕРВЕРА ---
-        socket.on('players_update', (data) => {
-            const ids = Object.keys(data);
-            if (ids.length >= 2) {
-                const oppId = ids.find(id => id !== myUserId);
-                if (oppId) {
-                    const opp = data[oppId];
-                    const oppDisplayName = opp.username ? `${opp.name} (@${opp.username})` : `${opp.name}`;
-                    document.getElementById('opp-name').innerText = oppDisplayName;
-                    document.getElementById('opp-rating').innerText = opp.rating;
-                    document.getElementById('my-rating').innerText = data[myUserId].rating;
-                    document.getElementById('opp-avatar').style.backgroundImage = opp.photo ? `url('${opp.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
-                }
-            }
+        $cancelPremoveBtn.click(() => {
+            premoveFrom = null; premoveTo = null; isPremoveMode = false; $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
         });
 
-        socket.on('game_state', (data) => {
-            if (isReplayMode) return;
-            lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
-            if (data.time_left) updateTimers(data.time_left);
-            if (data.history) renderLog(data.history);
-            
-            if (data.chat) { 
-                const chatMsgs = document.getElementById('chat-messages');
-                chatMsgs.innerHTML = '';
-                data.chat.forEach(m => {
-                    const div = document.createElement('div');
-                    div.className = mySentMessages.includes(m) ? 'chat-msg my' : 'chat-msg opp';
-                    div.innerText = m;
-                    chatMsgs.appendChild(div);
-                });
-                chatMsgs.scrollTop = 99999;
-            }
-
-            let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
-            if (game.in_check()) { statusMsg += " (ШАХ!)"; document.getElementById('status-text').style.color = "#ff4444"; } else { document.getElementById('status-text').style.color = "#ccc"; }
-            document.getElementById('status-text').innerText = statusMsg;
-            
-            const pBtn = document.getElementById('premove-btn');
-            if (currentRoom && currentTurn !== myColor && !game.game_over()) pBtn.style.display = 'block'; else pBtn.style.display = 'none';
-            if (data.status === 'playing') startLocalTimer();
-            
-            if (premoveFrom && premoveTo && currentTurn === myColor) {
-                var move = game.move({ from: premoveFrom, to: premoveTo, promotion: 'q' });
-                if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: premoveFrom, to: premoveTo } }); } 
-                else { showToast("Премув отменен", true); }
-            }
-            premoveFrom = null; premoveTo = null; isPremoveMode = false;
-            pBtn.innerText = "Включить премув"; pBtn.style.background = ""; document.getElementById('cancel-premove-btn').style.display = 'none';
-        });
-
-        socket.on('game_over', (data) => {
-            if (isReplayMode) return;
-            clearInterval(timerInterval);
-            let text = data.result === 'timeout' ? "Время вышло!" : (data.result === 'draw' ? "Ничья" : (data.result === 'disconnect' ? "Соперник сдался!" : "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных')));
-            document.getElementById('modal-text').innerText = text;
-            document.getElementById('modal').classList.add('show');
-        });
-
-        socket.on('chat_message', (msg) => {
-            if (mySentMessages.includes(msg)) return;
-            const div = document.createElement('div');
-            div.className = 'chat-msg opp';
-            div.innerText = msg;
-            document.getElementById('chat-messages').appendChild(div);
-            document.getElementById('chat-messages').scrollTop = 99999;
-        });
-
-        socket.on('invalid_move', (data) => {
-            showToast('Сервер отклонил ход: ' + data.msg, true);
-            if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
-            selectedSquare = null; removeHighlights();
-        });
-
-        // --- ДОСКА ---
-        document.getElementById('board').addEventListener('click', function(e) {
-            if (isReplayMode || game.game_over()) return; 
-            let target = e.target;
-            while (target && !target.classList.contains('square-55d63')) { target = target.parentNode; }
-            if (!target) return;
-            const square = target.getAttribute('data-square');
-
-            if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
-            
-            if (!selectedSquare) {
-                var piece = game.get(square);
-                if (piece && piece.color === game.turn()) { 
-                    selectedSquare = square; removeHighlights(); document.querySelector('#board .square-' + square).classList.add('highlight-selected');
-                    var moves = game.moves({ square: square, verbose: true });
-                    for (var i = 0; i < moves.length; i++) { 
-                        const targetSq = moves[i].to; 
-                        if (game.get(targetSq)) document.querySelector('#board .square-' + targetSq).classList.add('highlight-capture'); 
-                        else document.querySelector('#board .square-' + targetSq).classList.add('highlight-dot'); 
-                    }
-                }
-            } else {
-                if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
-                var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
-                if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } }); selectedSquare = null; removeHighlights(); } 
-                else {
-                    var piece = game.get(square);
-                    if (piece && piece.color === game.turn()) { 
-                        selectedSquare = square; removeHighlights(); document.querySelector('#board .square-' + square).classList.add('highlight-selected');
-                        var moves = game.moves({ square: square, verbose: true });
-                        for (var i = 0; i < moves.length; i++) { 
-                            const targetSq = moves[i].to; 
-                            if (game.get(targetSq)) document.querySelector('#board .square-' + targetSq).classList.add('highlight-capture'); 
-                            else document.querySelector('#board .square-' + targetSq).classList.add('highlight-dot'); 
-                        }
-                    } else { selectedSquare = null; removeHighlights(); }
-                }
-            }
-        });
-
-        function removeHighlights() { 
-            document.querySelectorAll('.square-55d63').forEach(el => {
-                el.classList.remove('highlight-dot', 'highlight-capture', 'highlight-selected');
-            });
-        }
+        function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected highlight-premove-dot highlight-premove-capture highlight-premove-selected'); }
 
         function updateTimers(timeLeft) {
             localTimeLeft = timeLeft;
@@ -474,22 +288,120 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
+                socket.on('players_update', (data) => {
+            const ids = Object.keys(data);
+            if (ids.length >= 2) {
+                const oppId = ids.find(id => id !== myUserId);
+                if (oppId) {
+                    const opp = data[oppId];
+                    const oppDisplayName = opp.username ? `${opp.name} (@${opp.username})` : `${opp.name}`;
+                    document.getElementById('opp-name').innerText = oppDisplayName;
+                    document.getElementById('opp-rating').innerText = opp.rating;
+                    document.getElementById('my-rating').innerText = data[myUserId].rating;
+                    document.getElementById('opp-avatar').style.backgroundImage = opp.photo ? `url('${opp.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
+                }
+            }
+        });
+
+        socket.on('game_state', (data) => {
+            lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
+            if (data.time_left) updateTimers(data.time_left);
+            if (data.history) renderLog(data.history);
+            
+            let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
+            if (game.in_check()) { statusMsg += " (ШАХ!)"; document.getElementById('status-text').style.color = "#ff4444"; } else { document.getElementById('status-text').style.color = "#ccc"; }
+            document.getElementById('status-text').innerText = statusMsg;
+            
+            if (currentRoom && currentTurn !== myColor && !game.game_over()) $premoveBtn.show(); else $premoveBtn.hide();
+            if (data.status === 'playing') startLocalTimer();
+            
+            if (premoveFrom && premoveTo && currentTurn === myColor) {
+                var move = game.move({ from: premoveFrom, to: premoveTo, promotion: 'q' });
+                if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: premoveFrom, to: premoveTo } }); } 
+                else { showToast("Премув отменен", true); }
+            }
+            premoveFrom = null; premoveTo = null; isPremoveMode = false;
+            $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide();
+        });
+
+        socket.on('game_over', (data) => {
+            clearInterval(timerInterval);
+            if (data.result === 'checkmate' && !game.in_checkmate()) return;
+            let text = data.result === 'timeout' ? "Время вышло!" : (data.result === 'draw' ? "Ничья" : (data.result === 'disconnect' ? "Соперник сдался!" : "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных')));
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('modal').classList.add('show');
+        });
+
+        socket.on('invalid_move', (data) => {
+            showToast('Сервер отклонил ход: ' + data.msg, true);
+            if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
+            selectedSquare = null; removeHighlights();
+        });
+
+        $('#chat-send').click(() => {
+            const msg = $('#chat-input').val().trim();
+            if (!msg) return;
+            const div = document.createElement('div');
+            div.className = 'chat-msg my'; div.innerText = msg;
+            document.getElementById('chat-messages').appendChild(div);
+            document.getElementById('chat-messages').scrollTop = 99999;
+            socket.emit('chat_message', { room: currentRoom, message: msg });
+            $('#chat-input').val('');
+            window._myLastChatMsg = msg;
+        });
+
+        $('#chat-input').keypress((e) => { if (e.which === 13) { $('#chat-send').click(); return false; } });
+
+        socket.on('chat_message', (msg) => {
+            if (window._myLastChatMsg === msg) { window._myLastChatMsg = null; return; }
+            const div = document.createElement('div');
+            div.className = 'chat-msg opp'; div.innerText = msg;
+            document.getElementById('chat-messages').appendChild(div);
+            document.getElementById('chat-messages').scrollTop = 99999;
+        });
+
+        $('#board').on('click', '.square-55d63', function(e) {
+            if (game.game_over()) return; 
+            const square = $(e.target).attr('data-square');
+            if (isPremoveMode) {
+                if (currentTurn === myColor) { isPremoveMode = false; $premoveBtn.text("Включить премув").css("background", ""); } 
+                else {
+                    if (!premoveFrom) { var piece = game.get(square); if (piece && piece.color === myColor) { premoveFrom = square; removeHighlights(); $('#board .square-' + square).addClass('highlight-premove-selected'); } } 
+                    else {
+                        if (premoveFrom === square) { premoveFrom = null; removeHighlights(); } 
+                        else { premoveTo = square; $('#board .square-' + premoveTo).addClass('highlight-premove-capture'); isPremoveMode = false; $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.show(); }
+                    }
+                    return; 
+                }
+            }
+            if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
+            if (!selectedSquare) {
+                var piece = game.get(square);
+                if (piece && piece.color === game.turn()) { 
+                    selectedSquare = square; removeHighlights(); $('#board .square-' + square).addClass('highlight-selected');
+                    var moves = game.moves({ square: square, verbose: true });
+                    for (var i = 0; i < moves.length; i++) { const target = moves[i].to; if (game.get(target)) $('#board .square-' + target).addClass('highlight-capture'); else $('#board .square-' + target).addClass('highlight-dot'); }
+                }
+            } else {
+                if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
+                var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+                if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } }); selectedSquare = null; removeHighlights(); } 
+                else {
+                    var piece = game.get(square);
+                    if (piece && piece.color === game.turn()) { 
+                        selectedSquare = square; removeHighlights(); $('#board .square-' + square).addClass('highlight-selected');
+                        var moves = game.moves({ square: square, verbose: true });
+                        for (var i = 0; i < moves.length; i++) { const target = moves[i].to; if (game.get(target)) $('#board .square-' + target).addClass('highlight-capture'); else $('#board .square-' + target).addClass('highlight-dot'); }
+                    } else { selectedSquare = null; removeHighlights(); }
+                }
+            }
+        });
+
         function initStockfish() {
             if (stockfish) return;
             stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
             stockfish.onmessage = function(event) {
                 const line = event.data;
-                if (line.startsWith('info') && line.includes('score cp')) {
-                    const cpMatch = line.match(/score cp (-?\d+)/);
-                    if (cpMatch) {
-                        let cp = parseInt(cpMatch[1]);
-                        document.getElementById('eval-text').innerText = `Оценка: ${(cp/100).toFixed(2)}`;
-                        let percentage = 50 + (cp / 10);
-                        if (percentage > 100) percentage = 100;
-                        if (percentage < 0) percentage = 0;
-                        document.getElementById('eval-fill').style.width = percentage + '%';
-                    }
-                }
                 if (isAutoMovePending && line.startsWith('bestmove')) {
                     const bestMove = line.split(' ')[1];
                     if (bestMove && bestMove !== '(none)') {
@@ -499,8 +411,8 @@
                         socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
                     }
                     isAutoMovePending = false;
-                    const btn = document.getElementById('engine-hint-btn');
-                    btn.innerText = "Анализ позиции"; btn.disabled = false;
+                    const btn = document.getElementById('auto-move-btn');
+                    btn.innerText = "Сделать лучший ход"; btn.disabled = false;
                 }
             };
         }
