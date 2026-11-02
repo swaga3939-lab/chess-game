@@ -278,10 +278,10 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
+                const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
 
-                function showToast(message, isError = false) {
+        function showToast(message, isError = false) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${isError ? 'error' : ''}`;
@@ -661,12 +661,23 @@
         socket.on('game_over', (data) => {
             if (isReplayMode) return;
             clearInterval(timerInterval);
+            
+            let isWinner = (data.winner === 'white' && myColor === 'w') || (data.winner === 'black' && myColor === 'b');
             let text = "";
-            if (data.result === 'timeout') text = "Время вышло!";
-            else if (data.result === 'draw') text = "Ничья";
-            else if (data.result === 'disconnect') text = "Соперник сдался!";
-            else if (data.result === 'resign') text = "Вы сдались!";
-            else text = "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных');
+            
+            if (data.result === 'timeout') {
+                text = isWinner ? "У соперника вышло время. Вы победили!" : "Ваше время вышло. Вы проиграли.";
+            } else if (data.result === 'draw') {
+                text = "Ничья";
+            } else if (data.result === 'disconnect') {
+                text = "Соперник отключился. Вы победили!";
+            } else if (data.result === 'resign') {
+                text = isWinner ? "Соперник сдался. Вы победили!" : "Вы сдались. Поражение.";
+            } else if (data.result === 'checkmate') {
+                text = isWinner ? "Мат! Вы победили!" : "Вам поставили мат. Поражение.";
+            } else {
+                text = "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных');
+            }
             
             document.getElementById('modal-text').innerText = text;
             document.getElementById('modal').classList.add('show');
