@@ -107,13 +107,14 @@
         
         .name-box { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; overflow: hidden; }
         
+        /* УСИЛЕННАЯ ПРОЗРАЧНОСТЬ НИКА */
         .name { 
             font-weight: 600; 
             font-size: 15px; 
             line-height: 1.2; 
             word-break: break-word; 
             color: #fff; 
-            opacity: 0.85; /* Ник стал чуть прозрачным */
+            opacity: 0.65; /* Ник стал более прозрачным */
         }
         
         .rating { font-size: 12px; color: var(--accent-green); font-weight: bold; margin-top: 2px; }
@@ -325,13 +326,14 @@
         const ADMINS = {
             "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f", bg: "bg2.jpg", frame: "frame2.png", cheat: true },
             "6051218168": { title: "SILENT", color: "#2e7d32", bg: "bg1.jpg", frame: "frame1.png", cheat: false },
-            "7053701218": { title: "АНЕМО АРХОНТ", color: "#00bcd4", bg: "bg.jpg", frame: "frame.png", cheat: false }
+            "7053701218": { title: "АНЕМО АРХОНТ", color: "#00bcd4", bg: "bg.jpg", frame: "frame.png", cheat: false },
+            "8395827920": { title: "ЩЕБЬОНКА", color: "#ff9800", bg: "bg3.jpg", frame: "frame3.png", cheat: false }
         };
         
-        let isCheatUser = false;
+                let isCheatUser = false;
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
 
-                // Вспомогательная функция для применения стилей
+        // Вспомогательная функция для применения стилей
         function applyAdminStyles(prefix, userId) {
             const bar = document.getElementById(`${prefix}-player-bar`);
             const frame = document.getElementById(`${prefix}-frame`);
@@ -575,7 +577,6 @@
                     document.getElementById('my-rating').innerText = data[myUserId].rating;
                     document.getElementById('opp-avatar').style.backgroundImage = opp.photo ? `url('${opp.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
                     
-                    // Применяем стили для соперника
                     const oppAdminData = applyAdminStyles('opp', oppId);
                     if (oppAdminData) {
                         document.getElementById('opp-name').innerHTML = `${oppDisplayName}<br><span class="admin-title" style="background: ${oppAdminData.color}; box-shadow: 0 2px 5px ${oppAdminData.color}80;">${oppAdminData.title}</span>`;
