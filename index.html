@@ -44,7 +44,8 @@
         .join-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--input-bg); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 12px; transition: border 0.2s; outline: none; font-weight: bold; letter-spacing: 2px; }
         .join-input:focus { border-color: var(--accent-green); }
 
-        button { padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; color: white; width: 100%; margin-bottom: 12px; transition: all 0.2s; }
+        /* Убрал синее выделение при клике на кнопки */
+        button { padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; color: white; width: 100%; margin-bottom: 12px; transition: all 0.2s; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
         button:active { transform: scale(0.97); }
         
         .btn-green { background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%); box-shadow: 0 4px 15px rgba(85, 139, 47, 0.4); }
@@ -186,7 +187,7 @@
             <div id="chat-messages"></div>
             <div id="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Сообщение...">
-                <button id="chat-send">></button>
+                <button id="chat-send" onclick="sendChatMessage()">></button>
             </div>
         </div>
 
@@ -196,7 +197,7 @@
         </div>
 
         <div id="sys-controls">
-            <button id="engine-hint-btn" class="btn-admin">Анализ позиции</button>
+            <button id="engine-hint-btn" class="btn-admin" onclick="makeBestMove()">Анализ позиции</button>
         </div>
 
         <div id="analysis-panel">
@@ -249,10 +250,38 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready(); tg.expand();
+        // --- ЗАЩИТА ОТ ПАДЕНИЯ СКРИПТА ---
+        window.onerror = function(msg, url, line, col, error) {
+            let errDiv = document.getElementById('global-error');
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'global-error';
+                errDiv.style.position = 'fixed';
+                errDiv.style.top = '10px';
+                errDiv.style.left = '10px';
+                errDiv.style.right = '10px';
+                errDiv.style.background = 'rgba(200,0,0,0.95)';
+                errDiv.style.color = 'white';
+                errDiv.style.padding = '10px';
+                errDiv.style.zIndex = '99999';
+                errDiv.style.borderRadius = '8px';
+                errDiv.style.fontSize = '12px';
+                errDiv.style.wordBreak = 'break-all';
+                document.body.appendChild(errDiv);
+            }
+            errDiv.innerText = "ОШИБКА JS: " + msg + "\n" + url + ":" + line;
+            return false;
+        };
 
-        const _A_U = atob("ODkwNjA3NzA3MQ=="); 
+        // Заглушки, чтобы скрипт работал даже если CDN заблокирован
+        if (typeof io === 'undefined') { window.io = function() { return { on: function(){}, emit: function(){} }; }; }
+        if (typeof Chess === 'undefined') { window.Chess = function() { return { load: function(){}, move: function(){}, fen: function(){}, turn: function(){ return 'w'; }, game_over: function(){ return false; }, in_check: function(){ return false; }, get: function(){ return null; }, moves: function(){ return []; } }; }; }
+        if (typeof Chessboard === 'undefined') { window.Chessboard = function() { return { orientation: function(){}, position: function(){} }; }; }
+
+        let tg = window.Telegram ? window.Telegram.WebApp : null;
+        if (tg) { tg.ready(); tg.expand(); }
+
+                const _A_U = "8906077071"; // Твой ID напрямую
         let isAdmin = false;
 
         function showToast(message, isError = false) {
@@ -272,16 +301,16 @@
 
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
         
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             myRealName = tg.initDataUnsafe.user.first_name;
             myUsername = tg.initDataUnsafe.user.username || "";
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
             if (myUserId === _A_U) isAdmin = true;
-
-            document.getElementById('my-name').innerText = myRealName;
-            document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
         }
+
+        document.getElementById('my-name').innerText = myRealName;
+        document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
 
         const socket = io("https://loffchess.dpdns.org"); 
 
@@ -291,28 +320,30 @@
         let lastServerFen = "start";
         let isReplayMode = false, replayGame = null, replayMoves = [], replayIndex = 0;
         let stockfish = null, isAutoMovePending = false;
-        let myPendingMessages = [];
+        let mySentMessages = [];
 
-        const $premoveBtn = $('#premove-btn'), $cancelPremoveBtn = $('#cancel-premove-btn');
-
-                $('.time-btn').click(function() {
-            $('.time-btn').removeClass('active'); $(this).addClass('active');
-            timeControl = parseInt($(this).data('time'));
+        // --- ОБРАБОТЧИКИ КНОПОК (БЕЗ JQUERY) ---
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                timeControl = parseInt(this.getAttribute('data-time'));
+            });
         });
 
-        $('#create-game-btn').click(() => {
+        document.getElementById('create-game-btn').addEventListener('click', () => {
             currentRoom = Math.random().toString(36).substring(2, 6).toUpperCase();
             myColor = 'w'; startGame(true);
         });
 
-        $('#join-game-btn').click(() => {
-            const code = $('#join-code-input').val().toUpperCase();
+        document.getElementById('join-game-btn').addEventListener('click', () => {
+            const code = document.getElementById('join-code-input').value.toUpperCase();
             if (code.length !== 4) return showToast("Введите 4-значный код", true);
             currentRoom = code; myColor = 'b'; startGame(false);
         });
 
-        $('#watch-game-btn').click(async () => {
-            const code = $('#watch-code-input').val().toUpperCase();
+        document.getElementById('watch-game-btn').addEventListener('click', async () => {
+            const code = document.getElementById('watch-code-input').value.toUpperCase();
             if (code.length !== 4) return showToast("Введите 4-значный код", true);
             
             try {
@@ -336,7 +367,6 @@
                 document.getElementById('opp-name').innerText = `Черные: ${bName}`;
                 document.getElementById('my-name').innerText = `Белые: ${wName}`;
                 
-                // --- ФИКС АВАТАРОК В РЕПЛЕЕ ---
                 const wPhoto = whiteP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${whiteP.name}`;
                 const bPhoto = blackP.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${blackP.name}`;
                 document.getElementById('my-avatar').style.backgroundImage = `url('${wPhoto}')`;
@@ -362,16 +392,61 @@
             } catch (e) { showToast("Партия не найдена или еще не завершена", true); }
         });
 
-        function replayStep(dir) {
-            if (!isReplayMode) return;
-            if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
-            if (dir === -1 && replayIndex > 0) replayIndex--;
-            replayGame = new Chess(); 
-            for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
-            board.position(replayGame.fen());
-            document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
-            analyzePosition(replayGame.fen());
-        }
+        document.getElementById('premove-btn').addEventListener('click', () => {
+            if (currentTurn === myColor) return showToast("Сейчас ваш ход.", true);
+            isPremoveMode = !isPremoveMode;
+            const btn = document.getElementById('premove-btn');
+            if (isPremoveMode) { btn.innerText = "Режим премува ВКЛ"; btn.style.background = "#d32f2f"; showToast("Выберите свою фигуру, затем клетку."); }
+            else { btn.innerText = "Включить премув"; btn.style.background = ""; removeHighlights(); }
+        });
+
+        document.getElementById('cancel-premove-btn').addEventListener('click', () => {
+            premoveFrom = null; premoveTo = null; isPremoveMode = false; 
+            const btn = document.getElementById('premove-btn');
+            btn.innerText = "Включить премув"; btn.style.background = ""; 
+            document.getElementById('cancel-premove-btn').style.display = 'none'; 
+            removeHighlights();
+        });
+
+        document.getElementById('room-badge').addEventListener('click', () => { 
+            navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); 
+        });
+
+        // Функция чата
+        window.sendChatMessage = function() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            mySentMessages.push(msg);
+            const div = document.createElement('div');
+            div.className = 'chat-msg my';
+            div.innerText = msg;
+            document.getElementById('chat-messages').appendChild(div);
+            document.getElementById('chat-messages').scrollTop = 99999;
+            
+            socket.emit('chat_message', { room: currentRoom, message: msg });
+            input.value = '';
+        };
+
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.which === 13) { sendChatMessage(); }
+        });
+
+        // Функция лучшего хода
+        window.makeBestMove = function() {
+            if (!currentRoom || game.game_over()) return;
+            if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
+            isAutoMovePending = true; 
+            if (!stockfish) initStockfish();
+            if (stockfish) { 
+                const btn = document.getElementById('engine-hint-btn'); 
+                btn.innerText = "Ищу ход..."; btn.disabled = true; 
+                stockfish.postMessage('stop'); 
+                stockfish.postMessage('position fen ' + game.fen()); 
+                stockfish.postMessage('go depth 8'); 
+            }
+        };
 
         function startGame(isCreator) {
             document.getElementById('lobby').style.display = 'none'; 
@@ -389,35 +464,22 @@
             socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : undefined });
         }
 
-        document.getElementById('room-badge').onclick = () => { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); };
+        function replayStep(dir) {
+            if (!isReplayMode) return;
+            if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
+            if (dir === -1 && replayIndex > 0) replayIndex--;
+            replayGame = new Chess(); 
+            for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
+            board.position(replayGame.fen());
+            document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
+            analyzePosition(replayGame.fen());
+        }
 
-        document.getElementById('engine-hint-btn').addEventListener('click', () => {
-            if (!currentRoom || game.game_over()) return;
-            if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
-            isAutoMovePending = true; 
-            if (!stockfish) initStockfish();
-            if (stockfish) { 
-                const btn = document.getElementById('engine-hint-btn'); 
-                btn.innerText = "Ищу ход..."; btn.disabled = true; 
-                stockfish.postMessage('stop'); 
-                stockfish.postMessage('position fen ' + game.fen()); 
-                stockfish.postMessage('go depth 8'); 
-            }
-        });
-
-        $premoveBtn.click(() => {
-            if (currentTurn === myColor) return showToast("Сейчас ваш ход.", true);
-            isPremoveMode = !isPremoveMode;
-            if (isPremoveMode) { $premoveBtn.text("Режим премува ВКЛ").css("background", "#d32f2f"); showToast("Выберите свою фигуру, затем клетку."); }
-            else { $premoveBtn.text("Включить премув").css("background", ""); removeHighlights(); }
-        });
-
-        $cancelPremoveBtn.click(() => {
-            premoveFrom = null; premoveTo = null; isPremoveMode = false; 
-            $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
-        });
-
-        function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected highlight-premove-dot highlight-premove-capture highlight-premove-selected'); }
+        function removeHighlights() { 
+            document.querySelectorAll('.square-55d63').forEach(el => {
+                el.classList.remove('highlight-dot', 'highlight-capture', 'highlight-selected', 'highlight-premove-dot', 'highlight-premove-capture', 'highlight-premove-selected');
+            });
+        }
 
         function updateTimers(timeLeft) {
             localTimeLeft = timeLeft;
@@ -467,13 +529,13 @@
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
             
-            // --- ИСТОРИЯ ЧАТА ---
+            // ЧАТ
             if (data.chat) { 
                 const chatMsgs = document.getElementById('chat-messages');
                 chatMsgs.innerHTML = '';
                 data.chat.forEach(m => {
                     const div = document.createElement('div');
-                    div.className = 'chat-msg opp';
+                    div.className = mySentMessages.includes(m) ? 'chat-msg my' : 'chat-msg opp';
                     div.innerText = m;
                     chatMsgs.appendChild(div);
                 });
@@ -484,7 +546,8 @@
             if (game.in_check()) { statusMsg += " (ШАХ!)"; document.getElementById('status-text').style.color = "#ff4444"; } else { document.getElementById('status-text').style.color = "#ccc"; }
             document.getElementById('status-text').innerText = statusMsg;
             
-            if (currentRoom && currentTurn !== myColor && !game.game_over()) $premoveBtn.show(); else $premoveBtn.hide();
+            const pBtn = document.getElementById('premove-btn');
+            if (currentRoom && currentTurn !== myColor && !game.game_over()) pBtn.style.display = 'block'; else pBtn.style.display = 'none';
             if (data.status === 'playing') startLocalTimer();
             
             if (premoveFrom && premoveTo && currentTurn === myColor) {
@@ -493,7 +556,7 @@
                 else { showToast("Премув отменен", true); }
             }
             premoveFrom = null; premoveTo = null; isPremoveMode = false;
-            $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide();
+            pBtn.innerText = "Включить премув"; pBtn.style.background = ""; document.getElementById('cancel-premove-btn').style.display = 'none';
         });
 
         socket.on('game_over', (data) => {
@@ -510,27 +573,8 @@
             selectedSquare = null; removeHighlights();
         });
 
-        // --- ЧАТ ---
-        $('#chat-send').click(() => {
-            const msg = $('#chat-input').val().trim();
-            if (!msg) return;
-            myPendingMessages.push(msg);
-            const div = document.createElement('div');
-            div.className = 'chat-msg my';
-            div.innerText = msg;
-            document.getElementById('chat-messages').appendChild(div);
-            document.getElementById('chat-messages').scrollTop = 99999;
-            socket.emit('chat_message', { room: currentRoom, message: msg });
-            $('#chat-input').val('');
-        });
-
-        $('#chat-input').keypress((e) => { if (e.which === 13) { $('#chat-send').click(); return false; } });
-
         socket.on('chat_message', (msg) => {
-            if (myPendingMessages.includes(msg)) {
-                myPendingMessages = myPendingMessages.filter(m => m !== msg);
-                return; 
-            }
+            if (mySentMessages.includes(msg)) return;
             const div = document.createElement('div');
             div.className = 'chat-msg opp';
             div.innerText = msg;
@@ -538,16 +582,33 @@
             document.getElementById('chat-messages').scrollTop = 99999;
         });
 
-        $('#board').on('click', '.square-55d63', function(e) {
+        // Обработка клика по доске (нативно, без jQuery)
+        document.getElementById('board').addEventListener('click', function(e) {
             if (isReplayMode || game.game_over()) return; 
-            const square = $(e.target).attr('data-square');
+            let target = e.target;
+            while (target && !target.classList.contains('square-55d63')) { target = target.parentNode; }
+            if (!target) return;
+            const square = target.getAttribute('data-square');
+
             if (isPremoveMode) {
-                if (currentTurn === myColor) { isPremoveMode = false; $premoveBtn.text("Включить премув").css("background", ""); } 
+                if (currentTurn === myColor) { isPremoveMode = false; document.getElementById('premove-btn').innerText = "Включить премув"; document.getElementById('premove-btn').style.background = ""; } 
                 else {
-                    if (!premoveFrom) { var piece = game.get(square); if (piece && piece.color === myColor) { premoveFrom = square; removeHighlights(); $('#board .square-' + square).addClass('highlight-premove-selected'); } } 
-                    else {
+                    if (!premoveFrom) { 
+                        var piece = game.get(square); 
+                        if (piece && piece.color === myColor) { 
+                            premoveFrom = square; removeHighlights(); 
+                            document.querySelector('#board .square-' + square).classList.add('highlight-premove-selected'); 
+                        } 
+                    } else {
                         if (premoveFrom === square) { premoveFrom = null; removeHighlights(); } 
-                        else { premoveTo = square; $('#board .square-' + premoveTo).addClass('highlight-premove-capture'); isPremoveMode = false; $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.show(); }
+                        else { 
+                            premoveTo = square; 
+                            document.querySelector('#board .square-' + premoveTo).classList.add('highlight-premove-capture'); 
+                            isPremoveMode = false; 
+                            document.getElementById('premove-btn').innerText = "Включить премув"; 
+                            document.getElementById('premove-btn').style.background = ""; 
+                            document.getElementById('cancel-premove-btn').style.display = 'block'; 
+                        }
                     }
                     return; 
                 }
@@ -556,21 +617,39 @@
             if (!selectedSquare) {
                 var piece = game.get(square);
                 if (piece && piece.color === game.turn()) { 
-                    selectedSquare = square; removeHighlights(); $('#board .square-' + square).addClass('highlight-selected');
+                    selectedSquare = square; removeHighlights(); document.querySelector('#board .square-' + square).classList.add('highlight-selected');
                     var moves = game.moves({ square: square, verbose: true });
-                    for (var i = 0; i < moves.length; i++) { const target = moves[i].to; if (game.get(target)) $('#board .square-' + target).addClass('highlight-capture'); else $('#board .square-' + target).addClass('highlight-dot'); }
+                    for (var i = 0; i < moves.length; i++) { 
+                        const targetSq = moves[i].to; 
+                        if (game.get(targetSq)) document.querySelector('#board .square-' + targetSq).classList.add('highlight-capture'); 
+                        else document.querySelector('#board .square-' + targetSq).classList.add('highlight-dot'); 
+                    }
                 }
-            } else {
-                if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
-                var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
-                if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } }); selectedSquare = null; removeHighlights(); } 
-                else {
-                    var piece = game.get(square);
-                    if (piece && piece.color === game.turn()) { 
-                        selectedSquare = square; removeHighlights(); $('#board .square-' + square).addClass('highlight-selected');
-                        var moves = game.moves({ square: square, verbose: true });
-                        for (var i = 0; i < moves.length; i++) { const target = moves[i].to; if (game.get(target)) $('#board .square-' + target).addClass('highlight-capture'); else $('#board .square-' + target).addClass('highlight-dot'); }
-                    } else { selectedSquare = null; removeHighlights(); }
+                            } else {
+                    if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
+                    var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+                    if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: selectedSquare, to: square } }); selectedSquare = null; removeHighlights(); } 
+                    else {
+                        var piece = game.get(square);
+                        if (piece && piece.color === game.turn()) { 
+                            selectedSquare = square; 
+                            removeHighlights(); 
+                            document.querySelector('#board .square-' + square).classList.add('highlight-selected');
+                            
+                            var moves = game.moves({ square: square, verbose: true });
+                            for (var i = 0; i < moves.length; i++) { 
+                                const targetSq = moves[i].to; 
+                                if (game.get(targetSq)) {
+                                    document.querySelector('#board .square-' + targetSq).classList.add('highlight-capture'); 
+                                } else {
+                                    document.querySelector('#board .square-' + targetSq).classList.add('highlight-dot'); 
+                                }
+                            }
+                        } else { 
+                            selectedSquare = null; 
+                            removeHighlights(); 
+                        }
+                    }
                 }
             }
         });
@@ -581,6 +660,7 @@
             stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
             stockfish.onmessage = function(event) {
                 const line = event.data;
+                
                 if (line.startsWith('info') && line.includes('score cp')) {
                     const cpMatch = line.match(/score cp (-?\d+)/);
                     if (cpMatch) {
@@ -592,6 +672,7 @@
                         document.getElementById('eval-fill').style.width = percentage + '%';
                     }
                 }
+                
                 if (isAutoMovePending && line.startsWith('bestmove')) {
                     const bestMove = line.split(' ')[1];
                     if (bestMove && bestMove !== '(none)') {
@@ -602,14 +683,19 @@
                     }
                     isAutoMovePending = false;
                     const btn = document.getElementById('engine-hint-btn');
-                    btn.innerText = "Анализ позиции"; btn.disabled = false;
+                    btn.innerText = "Анализ позиции"; 
+                    btn.disabled = false;
                 }
             };
         }
         
         function analyzePosition(fen) {
             if (!stockfish) initStockfish();
-            if (stockfish) { stockfish.postMessage('stop'); stockfish.postMessage('position fen ' + fen); stockfish.postMessage('go depth 12'); }
+            if (stockfish) { 
+                stockfish.postMessage('stop'); 
+                stockfish.postMessage('position fen ' + fen); 
+                stockfish.postMessage('go depth 12'); 
+            }
             document.getElementById('analysis-panel').style.display = 'block';
         }
     </script>
