@@ -68,36 +68,60 @@
         
         .player-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         
-        /* АВАТАРКА С РАМКОЙ */
+        /* АВАТАРКА С РАМКОЙ (УМЕНЬШЕННЫЙ РАЗМЕР) */
         .avatar-wrapper { 
             position: relative; 
-            width: 60px; height: 60px; 
+            width: 48px; /* Уменьшили с 60 до 48 */
+            height: 48px; 
             display: flex; align-items: center; justify-content: center; 
             flex-shrink: 0; 
-            margin: -5px 0; 
+            margin: 0;
         }
         
         .avatar { 
-            width: 36px; height: 36px; 
+            width: 32px; /* Уменьшили, чтобы влезла в рамку */
+            height: 32px; 
             border-radius: 50%; 
             background-color: #333; background-size: cover; background-position: center; 
-            position: absolute; top: 12px; left: 12px; 
+            
+            /* Идеальное центрирование */
+            position: absolute; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
             z-index: 1; 
+            
+            /* Стандартная обводка для обычных игроков */
+            border: 2px solid var(--accent-green);
+            box-shadow: 0 0 5px rgba(129, 182, 76, 0.4);
         }
         
         .avatar-frame { 
             position: absolute; top: 0; left: 0; 
             width: 100%; height: 100%; 
             pointer-events: none; z-index: 2; 
+            
+            /* По умолчанию рамка Венти СКРЫТА */
+            display: none;
             background-image: url('frame.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center; 
+        }
+        
+        /* Класс, который мы будем включать через JS для админов */
+        .avatar-frame.active-frame {
+            display: block;
+        }
+
+        /* Скрываем стандартную обводку аватарки, если включена кастомная рамка */
+        .avatar-wrapper.admin .avatar {
+            border: none;
+            box-shadow: none;
         }
         
         .name-box { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; overflow: hidden; }
         .name { font-weight: 600; font-size: 15px; line-height: 1.2; word-break: break-word; color: #fff; }
         .rating { font-size: 12px; color: var(--accent-green); font-weight: bold; margin-top: 2px; }
         
-        /* СТИЛЬ ТИТУЛА (Цвет будет задаваться через JS) */
+        /* СТИЛЬ ТИТУЛА */
         .admin-title { 
             color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; 
             line-height: 1; display: inline-block; margin-top: 4px; 
@@ -194,11 +218,12 @@
     </div>
 
     <div id="game-screen">
+        <!-- Плашка соперника -->
         <div class="player-bar">
             <div class="player-info">
-                <div class="avatar-wrapper">
+                <div class="avatar-wrapper" id="opp-avatar-wrapper">
                     <div class="avatar" id="opp-avatar"></div>
-                    <div class="avatar-frame"></div>
+                    <div class="avatar-frame" id="opp-frame"></div>
                 </div>
                 <div class="name-box">
                     <div class="name" id="opp-name">Ожидание...</div>
@@ -210,11 +235,12 @@
 
         <div id="board-container"><div id="board"></div></div>
 
+        <!-- Твоя плашка -->
         <div class="player-bar">
             <div class="player-info">
-                <div class="avatar-wrapper">
+                <div class="avatar-wrapper" id="my-avatar-wrapper">
                     <div class="avatar" id="my-avatar"></div>
-                    <div class="avatar-frame"></div>
+                    <div class="avatar-frame" id="my-frame"></div>
                 </div>
                 <div class="name-box">
                     <div class="name" id="my-name">Вы</div>
@@ -296,13 +322,13 @@
 
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        // СЛОВАРЬ АДМИНОВ: ID -> Название титула и цвет
+        // СЛОВАРЬ АДМИНОВ
         const ADMINS = {
-            "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f" },       // Ты (Красный)
-            "8327826623": { title: "АНЕМО АРХОНТ", color: "#00bcd4" }     // Он (Бирюзовый/Анемо)
+            "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f" },
+            "8327826623": { title: "АНЕМО АРХОНТ", color: "#00bcd4" }
         };
         
-        let isCheatUser = false;
+                let isCheatUser = false;
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
         
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -316,8 +342,12 @@
                 isCheatUser = true;
                 const adminData = ADMINS[myUserId];
                 
-                                // Применяем титул и его уникальный цвет
+                // 1. Применяем титул и цвет
                 document.getElementById('my-name').innerHTML = `${myRealName}<br><span class="admin-title" style="background: ${adminData.color}; box-shadow: 0 2px 5px ${adminData.color}80;">${adminData.title}</span>`;
+                
+                // 2. Включаем кастомную рамку Венти ТОЛЬКО для админа
+                document.getElementById('my-frame').classList.add('active-frame');
+                document.getElementById('my-avatar-wrapper').classList.add('admin');
             } else {
                 document.getElementById('my-name').innerText = myRealName;
             }
@@ -523,6 +553,15 @@
                     document.getElementById('opp-rating').innerText = opp.rating;
                     document.getElementById('my-rating').innerText = data[myUserId].rating;
                     document.getElementById('opp-avatar').style.backgroundImage = opp.photo ? `url('${opp.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
+                    
+                    // ПРОВЕРКА: Если у соперника есть ID в списке админов, даем ему рамку
+                    if (ADMINS[oppId]) {
+                        document.getElementById('opp-frame').classList.add('active-frame');
+                        document.getElementById('opp-avatar-wrapper').classList.add('admin');
+                    } else {
+                        document.getElementById('opp-frame').classList.remove('active-frame');
+                        document.getElementById('opp-avatar-wrapper').classList.remove('admin');
+                    }
                 }
             }
         });
@@ -621,7 +660,7 @@
                     return; 
                 }
             }
-            if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
+                        if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
             if (!selectedSquare) {
                 var piece = game.get(square);
                 if (piece && piece.color === game.turn()) { 
@@ -644,7 +683,7 @@
             }
         });
 
-                function initStockfish() {
+        function initStockfish() {
             if (stockfish) return;
             
             try {
