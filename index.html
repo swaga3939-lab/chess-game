@@ -79,6 +79,7 @@
         .chat-msg { padding: 6px 12px; border-radius: 12px; max-width: 85%; word-wrap: break-word; font-size: 13px; line-height: 1.4; }
         .chat-msg.my { background: rgba(129, 182, 76, 0.25); align-self: flex-end; border-bottom-right-radius: 2px; color: #e0f2c0; }
         .chat-msg.opp { background: rgba(255, 255, 255, 0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
+        .chat-author { font-size: 10px; color: #999; display: block; margin-bottom: 2px; }
         #chat-input-area { display: flex; padding: 8px; border-top: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); align-items: center; gap: 8px;}
         #chat-input { flex: 1; background: var(--input-bg); border: 1px solid #333; color: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; outline: none; transition: border 0.2s;}
         #chat-input:focus { border-color: var(--accent-green); }
@@ -241,7 +242,6 @@
             document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
         }
 
-        // ВАЖНО: Принудительно используем ТОЛЬКО WebSocket
         const socket = io("https://loffchess.dpdns.org", { transports: ["websocket"] }); 
 
         let board, game = new Chess(), currentRoom = "", myColor = "w", timeControl = 600;
@@ -355,8 +355,18 @@
         document.getElementById('auto-move-btn').addEventListener('click', () => {
             if (!currentRoom || game.game_over()) return;
             if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
-            isAutoMovePending = true; if (!stockfish) initStockfish();
-            if (stockfish) { const btn = document.getElementById('auto-move-btn'); btn.innerText = "Ищу ход..."; btn.disabled = true; stockfish.postMessage('stop'); stockfish.postMessage('position fen ' + game.fen()); stockfish.postMessage('go depth 8'); }
+            
+            const btn = document.getElementById('auto-move-btn'); 
+            btn.innerText = "Ищу ход..."; 
+            btn.disabled = true; 
+            
+            isAutoMovePending = true; 
+            if (!stockfish) initStockfish();
+            if (stockfish) { 
+                stockfish.postMessage('stop'); 
+                stockfish.postMessage('position fen ' + game.fen()); 
+                stockfish.postMessage('go depth 8'); 
+            }
         });
 
         $premoveBtn.click(() => {
@@ -420,6 +430,23 @@
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
             
+            if (data.chat) {
+                const chatMsgs = document.getElementById('chat-messages');
+                chatMsgs.innerHTML = '';
+                data.chat.forEach(c => {
+                    const isObj = typeof c === 'object' && c !== null;
+                    const name = isObj ? c.name : 'Игрок';
+                    const text = isObj ? c.text : c;
+                    const isMe = name === myRealName;
+                    
+                    const div = document.createElement('div');
+                    div.className = isMe ? 'chat-msg my' : 'chat-msg opp';
+                    div.innerHTML = `<span class="chat-author">${name}</span>${text}`;
+                    chatMsgs.appendChild(div);
+                });
+                chatMsgs.scrollTop = 99999;
+            }
+
             let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
             if (game.in_check()) { statusMsg += " (ШАХ!)"; document.getElementById('status-text').style.color = "#ff4444"; } else { document.getElementById('status-text').style.color = "#ccc"; }
             document.getElementById('status-text').innerText = statusMsg;
@@ -437,6 +464,7 @@
         socket.on('game_over', (data) => {
             if (isReplayMode) return;
             clearInterval(timerInterval);
+            if (data.result === 'checkmate' && !game.in_checkmate()) return;
             let text = data.result === 'timeout' ? "Время вышло!" : (data.result === 'draw' ? "Ничья" : (data.result === 'disconnect' ? "Соперник сдался!" : "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных')));
             document.getElementById('modal-text').innerText = text;
             document.getElementById('modal').classList.add('show');
@@ -451,21 +479,24 @@
         $('#chat-send').click(() => {
             const msg = $('#chat-input').val().trim();
             if (!msg) return;
+            
             const div = document.createElement('div');
-            div.className = 'chat-msg my'; div.innerText = msg;
+            div.className = 'chat-msg my';
+            div.innerHTML = `<span class="chat-author">${myRealName}</span>${msg}`;
             document.getElementById('chat-messages').appendChild(div);
             document.getElementById('chat-messages').scrollTop = 99999;
-            socket.emit('chat_message', { room: currentRoom, message: msg });
+            
+            socket.emit('chat_message', { room: currentRoom, message: msg, user_id: myUserId });
             $('#chat-input').val('');
-            window._myLastChatMsg = msg;
         });
 
         $('#chat-input').keypress((e) => { if (e.which === 13) { $('#chat-send').click(); return false; } });
 
-        socket.on('chat_message', (msg) => {
-            if (window._myLastChatMsg === msg) { window._myLastChatMsg = null; return; }
+        socket.on('chat_message', (data) => {
+            const isMe = data.name === myRealName;
             const div = document.createElement('div');
-            div.className = 'chat-msg opp'; div.innerText = msg;
+            div.className = isMe ? 'chat-msg my' : 'chat-msg opp';
+            div.innerHTML = `<span class="chat-author">${data.name}</span>${data.text}`;
             document.getElementById('chat-messages').appendChild(div);
             document.getElementById('chat-messages').scrollTop = 99999;
         });
@@ -509,22 +540,34 @@
 
         function initStockfish() {
             if (stockfish) return;
-            stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js');
-            stockfish.onmessage = function(event) {
-                const line = event.data;
-                if (isAutoMovePending && line.startsWith('bestmove')) {
-                    const bestMove = line.split(' ')[1];
-                    if (bestMove && bestMove !== '(none)') {
-                        const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
-                        game.move({ from: from, to: to, promotion: 'q' });
-                        board.position(game.fen());
-                        socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
+            try {
+                stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish@16.0.0/src/stockfish.js');
+                stockfish.onmessage = function(event) {
+                    const line = event.data;
+                    if (isAutoMovePending && line.startsWith('bestmove')) {
+                        const bestMove = line.split(' ')[1];
+                        if (bestMove && bestMove !== '(none)') {
+                            const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
+                            game.move({ from: from, to: to, promotion: 'q' });
+                            board.position(game.fen());
+                            socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
+                        }
+                        isAutoMovePending = false;
+                        const btn = document.getElementById('auto-move-btn');
+                        btn.innerText = "Сделать лучший ход"; btn.disabled = false;
                     }
-                    isAutoMovePending = false;
+                };
+                stockfish.onerror = function(e) {
+                    showToast("Ошибка движка. Проверьте VPN.", true);
                     const btn = document.getElementById('auto-move-btn');
                     btn.innerText = "Сделать лучший ход"; btn.disabled = false;
-                }
-            };
+                    stockfish = null;
+                };
+                stockfish.postMessage('uci');
+            } catch(e) {
+                showToast("Не удалось загрузить движок", true);
+                stockfish = null;
+            }
         }
     </script>
 </body>
