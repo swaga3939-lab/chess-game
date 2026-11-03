@@ -95,6 +95,14 @@
         #leaderboard-list { text-align: left; margin-bottom: 20px; max-height: 250px; overflow-y: auto; padding-right: 5px;}
         .lb-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #333; font-size: 15px;}
         .lb-item:last-child { border-bottom: none; }
+        
+        /* Стили для магазина */
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 300px; overflow-y: auto; padding-right: 5px; text-align: left; }
+        .shop-item { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .shop-item img { width: 100%; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #333; }
+        .shop-item-title { font-size: 12px; margin-bottom: 5px; color: #ccc; width: 100%; text-align: center; }
+        .shop-item button { padding: 6px; font-size: 12px; margin: 0; width: 100%; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -122,8 +130,9 @@
         <button id="watch-game-btn" style="background: #444;">Смотреть партию</button>
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button id="leaderboard-btn" class="btn-blue" style="flex: 1; margin-bottom: 0;">Топ</button>
-            <button id="settings-btn" class="btn-purple" style="flex: 1; margin-bottom: 0;">Настройки</button>
+            <button id="leaderboard-btn" class="btn-blue" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Топ</button>
+            <button id="shop-btn" class="btn-green" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px; background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">Магазин</button>
+            <button id="settings-btn" class="btn-purple" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Настройки</button>
         </div>
     </div>
 
@@ -203,7 +212,19 @@
         </div>
     </div>
 
-    <div id="modal" class="modal-overlay">
+    <div id="shop-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 400px; width: 90%;">
+            <span class="close-btn" onclick="closeModal('shop-modal')">&times;</span>
+            <h2>Магазин</h2>
+            <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px;">Баланс: <span id="shop-balance">0</span> 💰</div>
+            <div class="shop-grid" id="shop-items-container">
+                <!-- Сюда будут рендериться карточки -->
+            </div>
+            <button class="btn-blue" onclick="closeModal('shop-modal')" style="margin-top: 20px;">Закрыть</button>
+        </div>
+    </div>
+
+        <div id="modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('modal')">&times;</span>
             <h2 id="modal-text"></h2>
@@ -232,7 +253,7 @@
         </div>
     </div>
 
-        <div id="draw-modal" class="modal-overlay">
+    <div id="draw-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Соперник предлагает ничью</h2>
             <button class="btn-green" onclick="acceptDraw()">Принять</button>
@@ -288,6 +309,7 @@
             closeModal('draw-modal');
             closeModal('resign-modal');
             closeModal('search-overlay');
+            closeModal('shop-modal');
             
             clearInterval(timerInterval);
             clearInterval(searchInterval);
@@ -307,6 +329,9 @@
             document.getElementById('lobby').style.animation = 'none';
             document.getElementById('lobby').offsetHeight; 
             document.getElementById('lobby').style.animation = 'fadeIn 0.4s';
+            
+            // Обновляем профиль при возврате в лобби
+            fetchMyProfile();
         }
 
         const ADMINS = {
@@ -479,9 +504,123 @@
             document.getElementById('leaderboard-modal').classList.add('show');
         });
 
+        // --- ЛОГИКА МАГАЗИНА ---
+        const SHOP_CATALOG = [
+            { id: 'shop_bg_1.jpg', type: 'bg', name: 'Неоновый город', price: 100 },
+            { id: 'shop_bg_2.jpg', type: 'bg', name: 'Космос', price: 300 },
+            { id: 'shop_frame_1.png', type: 'frame', name: 'Золотая рамка', price: 150 },
+            { id: 'shop_frame_2.png', type: 'frame', name: 'Огненная рамка', price: 300 }
+        ];
+
+        let myCoins = 0;
+        let myInventory = [];
+        let myEquipped = { bg: 'default', frame: 'default' };
+
+        function renderShop() {
+            document.getElementById('shop-balance').innerText = myCoins;
+            const container = document.getElementById('shop-items-container');
+            container.innerHTML = '';
+            
+            SHOP_CATALOG.forEach(item => {
+                const isOwned = myInventory.includes(item.id);
+                const isEquipped = (item.type === 'bg' && myEquipped.bg === item.id) || (item.type === 'frame' && myEquipped.frame === item.id);
+                
+                let btnHtml = '';
+                if (isEquipped) {
+                    btnHtml = `<button class="btn-green" disabled>Надето</button>`;
+                } else if (isOwned) {
+                    btnHtml = `<button class="btn-blue" onclick="equipItem('${item.id}', '${item.type}')">Надеть</button>`;
+                } else {
+                    btnHtml = `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} 💰</button>`;
+                }
+                
+                const imgUrl = `https://swaga3939-lab.github.io/chess-game/${item.id}`;
+                
+                container.innerHTML += `
+                    <div class="shop-item">
+                        <img src="${imgUrl}" alt="${item.name}" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${item.id}'">
+                        <div class="shop-item-title">${item.name}</div>
+                        ${btnHtml}
+                    </div>
+                `;
+            });
+        }
+
+        window.buyItem = async function(itemId, price) {
+            if (myCoins < price) return showToast("Недостаточно монет!", true);
+            
+            try {
+                const res = await fetch('https://loffchess.dpdns.org/api/shop/buy', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: myUserId, item_id: itemId, price: price })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'ok') {
+                    myCoins = data.new_balance;
+                    myInventory.push(itemId);
+                    showToast("Покупка успешна!");
+                    renderShop();
+                } else {
+                    showToast(data.msg, true);
+                }
+            } catch (e) { showToast("Ошибка сети", true); }
+        };
+
+        window.equipItem = async function(itemId, type) {
+            try {
+                const res = await fetch('https://loffchess.dpdns.org/api/shop/equip', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: myUserId, item_id: itemId, type: type })
+                });
+                
+                if (type === 'bg') myEquipped.bg = itemId;
+                else myEquipped.frame = itemId;
+                
+                applyMyEquipped();
+                renderShop();
+                showToast("Скин надет!");
+            } catch (e) { showToast("Ошибка сети", true); }
+        };
+
+        async function fetchMyProfile() {
+            if (myUserId.startsWith('guest')) return;
+            try {
+                const res = await fetch(`https://loffchess.dpdns.org/api/user/${myUserId}`);
+                const data = await res.json();
+                myCoins = data.coins;
+                myInventory = data.inventory;
+                myEquipped = { bg: data.equipped_bg, frame: data.equipped_frame };
+                applyMyEquipped();
+            } catch (e) { console.log("Не удалось загрузить профиль", e); }
+        }
+
+        function applyMyEquipped() {
+            if (!ADMINS[myUserId]) {
+                if (myEquipped.bg !== 'default') {
+                    document.getElementById('my-player-bar').style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
+                }
+                if (myEquipped.frame !== 'default') {
+                    const frameEl = document.getElementById('my-frame');
+                    frameEl.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${myEquipped.frame}')`;
+                    frameEl.classList.add('active-frame');
+                }
+            }
+        }
+
+        $('#shop-btn').click(() => {
+            renderShop();
+            document.getElementById('shop-modal').classList.add('show');
+        });
+        
+        // Загружаем профиль при старте
+        fetchMyProfile();
+
         $('#settings-btn').click(() => { document.getElementById('settings-modal').classList.add('show'); });
 
-        function startGame(isCreator) {
+                function startGame(isCreator) {
             document.getElementById('lobby').style.display = 'none'; 
             document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('room-badge').innerText = currentRoom; 
@@ -622,7 +761,7 @@
                 if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
             }
             
-                        const btn = document.getElementById('auto-move-btn');
+            const btn = document.getElementById('auto-move-btn');
             btn.innerText = "Ищу ход...";
             btn.disabled = true;
             isAutoMovePending = true;
@@ -742,6 +881,15 @@
                         document.getElementById('opp-name').innerHTML = `${oppDisplayName}<br><span class="admin-title" style="background: ${oppAdminData.color}; box-shadow: 0 2px 5px ${oppAdminData.color}80;">${oppAdminData.title}</span>`;
                     } else {
                         document.getElementById('opp-name').innerText = oppDisplayName;
+                        // Применяем скины соперника, если они у него есть
+                        if (opp.equipped_bg && opp.equipped_bg !== 'default') {
+                            document.getElementById('opp-player-bar').style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_bg}')`;
+                        }
+                        if (opp.equipped_frame && opp.equipped_frame !== 'default') {
+                            const oppFrame = document.getElementById('opp-frame');
+                            oppFrame.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_frame}')`;
+                            oppFrame.classList.add('active-frame');
+                        }
                     }
                 }
             }
@@ -857,7 +1005,7 @@
 
         $('#chat-input').keypress((e) => { if (e.which === 13) { $('#chat-send').click(); return false; } });
 
-        $('#board').on('click', '.square-55d63', function(e) {
+                $('#board').on('click', '.square-55d63', function(e) {
             if (isReplayMode || game.game_over()) return; 
             const square = $(e.target).attr('data-square');
             if (isPremoveMode) {
