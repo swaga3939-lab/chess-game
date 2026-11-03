@@ -36,33 +36,9 @@
         .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
         .btn-cheat:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
         
-        /* Выравнивание иконки по тексту */
-        .coin-icon {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            background-image: url('https://swaga3939-lab.github.io/chess-game/money_pin.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            vertical-align: middle;
-            margin-left: 4px;
-            margin-bottom: 2px;
-            flex-shrink: 0;
-        }
-        .coin-icon-lg {
-            display: inline-block;
-            width: 22px;
-            height: 22px;
-            background-image: url('https://swaga3939-lab.github.io/chess-game/money_pin.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            vertical-align: middle;
-            margin-left: 6px;
-            margin-bottom: 3px;
-            flex-shrink: 0;
-        }
+        /* Иконка монеты */
+        .coin-icon { width: 16px !important; height: 16px !important; object-fit: contain; vertical-align: middle; margin-left: 4px; margin-bottom: 2px; flex-shrink: 0; display: inline-block; }
+        .coin-icon-lg { width: 22px !important; height: 22px !important; object-fit: contain; vertical-align: middle; margin-left: 6px; margin-bottom: 3px; flex-shrink: 0; display: inline-block; }
 
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; }
         #back-to-lobby-btn { position: absolute; top: 15px; left: 4%; width: auto; padding: 8px 15px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 8px; font-size: 14px; color: #ccc; z-index: 100; transition: all 0.2s; margin: 0; backdrop-filter: blur(5px); }
@@ -83,7 +59,8 @@
         .timer.active { background: rgba(255, 255, 255, 0.85); color: #000; border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
         #board-container { position: relative; width: 92vw; max-width: 400px; margin: 10px 0; border-radius: 12px; overflow: hidden; background-color: #f0d9b5; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
         #board { width: 100%; height: 100%; touch-action: none; }
-        .notation-322f9 { display: none; }
+        /* Координаты доски с обводкой */
+        .notation-322f9 { display: block; font-size: 10px; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000; font-weight: bold; } 
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); }
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.25); }
@@ -92,10 +69,18 @@
         .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.8); }
         .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(156, 39, 176, 0.8); box-sizing: border-box; }
         .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.5) !important; }
+        
+        /* Подсветка последнего хода */
+        .highlight-last-move { box-shadow: inset 0 0 0 4px rgba(255, 235, 59, 0.6); }
+
         #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; }
         .room-badge { background: rgba(129, 182, 76, 0.15); color: var(--accent-green); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
         #game-actions { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
         #game-actions button { margin-bottom: 0; padding: 10px; font-size: 14px; }
+        
+        /* Премув теперь над чатом */
+        #premove-controls { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
+
         #chat-container { width: 92%; max-width: 400px; height: 160px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; margin-top: 10px; display: none; flex-direction: column; border: 1px solid var(--panel-border); overflow: hidden; }
         #chat-messages { flex: 1; overflow-y: auto; padding: 12px; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
         .chat-msg { padding: 6px 12px; border-radius: 12px; max-width: 85%; word-wrap: break-word; font-size: 13px; line-height: 1.4; }
@@ -106,7 +91,7 @@
         #chat-input { flex: 1; background: var(--input-bg); border: 1px solid #333; color: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; outline: none; transition: border 0.2s;}
         #chat-input:focus { border-color: var(--accent-green); }
         #chat-send { background: var(--accent-green); border: none; color: white; padding: 0; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; margin: 0;}
-        #premove-controls { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
+        
         #cheat-controls { display: none; width: 92%; max-width: 400px; margin-top: 10px; }
         #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: #333; padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid #444; }
@@ -215,17 +200,17 @@
             <button id="resign-btn" class="btn-red">Сдаться</button>
         </div>
 
+        <div id="premove-controls">
+            <button id="premove-btn" class="btn-purple">Включить премув</button>
+            <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
+        </div>
+
         <div id="chat-container">
             <div id="chat-messages"></div>
             <div id="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Сообщение...">
                 <button id="chat-send">></button>
             </div>
-        </div>
-
-        <div id="premove-controls">
-            <button id="premove-btn" class="btn-purple">Включить премув</button>
-            <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
 
                 <div id="cheat-controls">
@@ -287,9 +272,24 @@
     <div id="bot-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Выберите сложность</h2>
-            <button class="btn-green" onclick="startBotGame(1)" style="margin-bottom: 10px;">Новичок</button>
-            <button class="btn-blue" onclick="startBotGame(5)" style="margin-bottom: 10px;">Знающий</button>
-            <button class="btn-purple" onclick="startBotGame(15)" style="margin-bottom: 10px;">Профи</button>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button class="btn-green" onclick="startBotGame(1, 'w')">Белые</button>
+                <button class="btn-blue" onclick="startBotGame(1, 'b')">Черные</button>
+            </div>
+            <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Новичок (~400 ЭЛО)</p>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button class="btn-green" onclick="startBotGame(5, 'w')">Белые</button>
+                <button class="btn-blue" onclick="startBotGame(5, 'b')">Черные</button>
+            </div>
+            <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Знающий (~800 ЭЛО)</p>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button class="btn-green" onclick="startBotGame(15, 'w')">Белые</button>
+                <button class="btn-blue" onclick="startBotGame(15, 'b')">Черные</button>
+            </div>
+            <p style="font-size:12px; color:#aaa; margin:0 0 20px 0;">Профи (~1200 ЭЛО)</p>
+            
             <button class="btn-red" onclick="closeModal('bot-modal')">Отмена</button>
         </div>
     </div>
@@ -400,6 +400,9 @@
         let myCoins = 0;
         let myInventory = [];
         let myEquipped = { bg: 'default', frame: 'default' };
+
+        // Кулдаун на ничью (10 полных ходов = 20 полуходов)
+        let drawCooldownMove = -20; 
 
         function applyAdminStyles(prefix, userId) {
             const bar = document.getElementById(`${prefix}-player-bar`);
@@ -599,7 +602,7 @@
                     </div>
                 `;
 
-                const isFrameEquipped = myEquipped.frame === admin.frame;
+                                const isFrameEquipped = myEquipped.frame === admin.frame;
                 const frameBtn = isFrameEquipped 
                     ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>`
                     : `<button class="btn-blue" onclick="equipItem('${admin.frame}', 'frame')">Надеть</button>`;
@@ -614,7 +617,7 @@
                 exSection.style.display = 'none';
             }
             
-                        SHOP_CATALOG.forEach(item => {
+            SHOP_CATALOG.forEach(item => {
                 const isOwned = myInventory.includes(item.id);
                 const isEquipped = (item.type === 'bg' && myEquipped.bg === item.id) || (item.type === 'frame' && myEquipped.frame === item.id);
                 
@@ -766,7 +769,10 @@
             document.getElementById('chat-container').style.display = 'flex';
             document.getElementById('game-actions').style.display = 'flex';
             document.getElementById('back-to-lobby-btn').style.display = 'block';
-
+            
+            document.getElementById('offer-draw-btn').disabled = false;
+            drawCooldownMove = -20;
+            
             if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block';
             else document.getElementById('cheat-controls').style.display = 'none';
 
@@ -775,9 +781,10 @@
             socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : timeControl });
         }
 
-        window.startBotGame = function(depth) {
+        window.startBotGame = function(depth, color) {
             isBotGame = true;
             botDifficulty = depth;
+            myColor = color;
             isBotThinking = false;
             closeModal('bot-modal');
             
@@ -787,7 +794,9 @@
             document.getElementById('chat-container').style.display = 'none'; 
             document.getElementById('premove-controls').style.display = 'none';
             document.getElementById('back-to-lobby-btn').style.display = 'block';
-            document.getElementById('opp-name').innerText = "Бот (" + (depth === 1 ? 'Новичок' : depth === 5 ? 'Знающий' : 'Профи') + ")";
+            
+            let botName = depth === 1 ? 'Новичок' : depth === 5 ? 'Знающий' : 'Профи';
+            document.getElementById('opp-name').innerText = "Бот (" + botName + ")";
             document.getElementById('opp-rating').innerText = "ИИ";
             document.getElementById('my-timer').style.display = 'none';
             document.getElementById('opp-timer').style.display = 'none';
@@ -799,10 +808,24 @@
             
             game = new Chess();
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
-            board.orientation('white');
-            document.getElementById('status-text').innerText = "Ваш ход";
+            board.orientation(color === 'w' ? 'white' : 'black');
             
             if (!stockfish) initStockfish();
+            
+            let skillLevel = depth === 1 ? 0 : depth === 5 ? 5 : 10;
+            stockfish.postMessage('setoption name Skill Level value ' + skillLevel);
+            
+            if (color === 'b') {
+                document.getElementById('status-text').innerText = "Бот думает...";
+                isBotThinking = true;
+                setTimeout(() => {
+                    stockfish.postMessage('stop');
+                    stockfish.postMessage('position fen ' + game.fen());
+                    stockfish.postMessage('go depth ' + depth);
+                }, 500);
+            } else {
+                document.getElementById('status-text').innerText = "Ваш ход";
+            }
         };
 
         document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
@@ -841,8 +864,17 @@
 
         document.getElementById('offer-draw-btn').addEventListener('click', () => {
             if (isBotGame) return;
+            
+            if (game.history().length < drawCooldownMove + 20) {
+                let movesLeft = 10 - Math.floor((game.history().length - drawCooldownMove) / 2);
+                return showToast(`Ничью можно предложить через ${movesLeft} ход(ов)`, true);
+            }
+            
             socket.emit('offer_draw', { room: currentRoom, user_id: myUserId });
             showToast("Предложение ничьей отправлено");
+            
+            drawCooldownMove = game.history().length;
+            document.getElementById('offer-draw-btn').disabled = true;
         });
 
         window.acceptDraw = function() {
@@ -852,7 +884,8 @@
 
         document.getElementById('rematch-btn').addEventListener('click', () => {
             if (isBotGame) {
-                startBotGame(botDifficulty);
+                let nextColor = myColor === 'w' ? 'b' : 'w';
+                startBotGame(botDifficulty, nextColor);
                 closeModal('modal');
                 return;
             }
@@ -877,6 +910,9 @@
             closeModal('rematch-modal');
             document.getElementById('chat-messages').innerHTML = '';
             showToast("Реванш начался!");
+            
+            document.getElementById('offer-draw-btn').disabled = false;
+            drawCooldownMove = -20;
         });
 
         function resetAutoMoveBtn() {
@@ -891,11 +927,17 @@
             if (!isBotGame && !currentRoom) return;
             
             if (isBotGame) {
-                if (game.turn() !== 'w') return showToast("Сейчас ход бота!", true);
+                if (game.turn() !== myColor) return showToast("Сейчас не ваш ход!", true);
                 if (isBotThinking) return showToast("Бот думает, подождите!", true);
             } else {
                 if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
             }
+            
+            selectedSquare = null;
+            premoveFrom = null;
+            premoveTo = null;
+            isPremoveMode = false;
+            removeHighlights();
             
             const btn = document.getElementById('auto-move-btn');
             btn.innerText = "Ищу ход...";
@@ -918,9 +960,10 @@
                 }
             }, 6000);
             
+            stockfish.postMessage('setoption name Skill Level value 20');
             stockfish.postMessage('stop');
             stockfish.postMessage('position fen ' + game.fen());
-            stockfish.postMessage('go depth 8');
+            stockfish.postMessage('go depth 15');
         });
 
         $premoveBtn.click(() => {
@@ -935,7 +978,7 @@
             premoveFrom = null; premoveTo = null; isPremoveMode = false; $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
         });
 
-        function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected highlight-premove-dot highlight-premove-capture highlight-premove-selected'); }
+        function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected highlight-premove-dot highlight-premove-capture highlight-premove-selected highlight-last-move'); }
 
         function updateTimers(timeLeft) {
             localTimeLeft = timeLeft;
@@ -965,7 +1008,7 @@
             }, 1000);
         }
 
-        function renderLog(history) {
+                function renderLog(history) {
             const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
             for (let i = 0; i < history.length; i += 2) {
                 const div = document.createElement('div'); div.className = 'move-item';
@@ -1015,7 +1058,7 @@
                     const oppAdminData = applyAdminStyles('opp', oppId);
                     if (oppAdminData) {
                         document.getElementById('opp-name').innerHTML = `${oppDisplayName}<br><span class="admin-title" style="background: ${oppAdminData.color}; box-shadow: 0 2px 5px ${oppAdminData.color}80;">${oppAdminData.title}</span>`;
-                                        } else {
+                    } else {
                         document.getElementById('opp-name').innerText = oppDisplayName;
                         if (opp.equipped_bg && opp.equipped_bg !== 'default') {
                             document.getElementById('opp-player-bar').style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_bg}')`;
@@ -1039,9 +1082,31 @@
 
         socket.on('game_state', (data) => {
             if (isReplayMode || isBotGame) return;
+            
+            selectedSquare = null;
+            premoveFrom = null; premoveTo = null;
+            isPremoveMode = false;
+            $premoveBtn.text("Включить премув").css("background", "");
+            $cancelPremoveBtn.hide();
+            removeHighlights();
+
             lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
             if (data.time_left) updateTimers(data.time_left);
-            if (data.history) renderLog(data.history);
+            if (data.history) {
+                renderLog(data.history);
+                
+                if (game.history().length >= drawCooldownMove + 20) {
+                    document.getElementById('offer-draw-btn').disabled = false;
+                }
+
+                if (game.history().length > 0) {
+                    const lastMove = game.history({ verbose: true })[game.history().length - 1];
+                    if (lastMove) {
+                        $('#board .square-' + lastMove.from).addClass('highlight-last-move');
+                        $('#board .square-' + lastMove.to).addClass('highlight-last-move');
+                    }
+                }
+            }
 
             if (data.status === 'playing') {
                 document.getElementById('back-to-lobby-btn').style.display = 'none';
@@ -1071,19 +1136,13 @@
             document.getElementById('status-text').innerText = statusMsg;
             if (currentRoom && currentTurn !== myColor && !game.game_over()) $premoveBtn.show(); else $premoveBtn.hide();
             if (data.status === 'playing') startLocalTimer();
-            if (premoveFrom && premoveTo && currentTurn === myColor) {
-                var move = game.move({ from: premoveFrom, to: premoveTo, promotion: 'q' });
-                if (move) { board.position(game.fen()); socket.emit('move', { room: currentRoom, move: { from: premoveFrom, to: premoveTo } }); } 
-                else { showToast("Премув отменен", true); }
-            }
-            premoveFrom = null; premoveTo = null; isPremoveMode = false;
-            $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide();
         });
 
         socket.on('game_over', (data) => {
             if (isReplayMode || isBotGame) return;
             clearInterval(timerInterval);
             document.getElementById('back-to-lobby-btn').style.display = 'block';
+            document.getElementById('offer-draw-btn').disabled = false;
             
             let isWinner = (data.winner === 'white' && myColor === 'w') || (data.winner === 'black' && myColor === 'b');
             let text = "";
@@ -1110,6 +1169,7 @@
             showToast('Сервер отклонил ход: ' + data.msg, true);
             if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
             selectedSquare = null; removeHighlights();
+            resetAutoMoveBtn(); 
         });
 
         socket.on('chat_message', (data) => {
@@ -1156,7 +1216,7 @@
             }
             
             if (isBotGame) {
-                if (game.turn() !== 'w' || isBotThinking) return;
+                if (game.turn() !== myColor || isBotThinking) return;
             } else {
                 if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
             }
@@ -1186,6 +1246,8 @@
                         } else {
                             isBotThinking = true;
                             document.getElementById('status-text').innerText = "Бот думает...";
+                            let skillLevel = botDifficulty === 1 ? 0 : botDifficulty === 5 ? 5 : 10;
+                            stockfish.postMessage('setoption name Skill Level value ' + skillLevel);
                             stockfish.postMessage('stop');
                             stockfish.postMessage('position fen ' + game.fen());
                             stockfish.postMessage('go depth ' + botDifficulty);
@@ -1255,6 +1317,8 @@
                                     } else {
                                         isBotThinking = true;
                                         document.getElementById('status-text').innerText = "Бот думает...";
+                                        let skillLevel = botDifficulty === 1 ? 0 : botDifficulty === 5 ? 5 : 10;
+                                        stockfish.postMessage('setoption name Skill Level value ' + skillLevel);
                                         stockfish.postMessage('stop');
                                         stockfish.postMessage('position fen ' + game.fen());
                                         stockfish.postMessage('go depth ' + botDifficulty);
