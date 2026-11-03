@@ -631,7 +631,7 @@
         async function fetchMyProfile() {
             if (myUserId.startsWith('guest')) return;
             try {
-                const res = await fetch(`https://loffchess.dpdns.org/api/user/${myUserId}`);
+                const res = await fetch(`https://loffchess.dpdns.org/api/user/${myUserId}?t=${Date.now()}`);
                 const data = await res.json();
                 myCoins = data.coins;
                 myInventory = data.inventory;
@@ -662,7 +662,8 @@
             }
         }
 
-        $('#shop-btn').click(() => {
+        $('#shop-btn').click(async () => {
+            await fetchMyProfile();
             renderShop();
             document.getElementById('shop-modal').classList.add('show');
         });
@@ -1017,11 +1018,11 @@
                 text = "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных');
             }
             
-            document.getElementById('modal-text').innerText = text;
+                        document.getElementById('modal-text').innerText = text;
             document.getElementById('modal').classList.add('show');
         });
 
-                socket.on('invalid_move', (data) => {
+        socket.on('invalid_move', (data) => {
             showToast('Сервер отклонил ход: ' + data.msg, true);
             if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
             selectedSquare = null; removeHighlights();
