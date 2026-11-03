@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-    
+
     <style>
         :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.06); --panel-border: rgba(255, 255, 255, 0.12); --accent-green: #81b64c; --accent-blue: #42a5f5; --input-bg: rgba(0, 0, 0, 0.4); }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -35,7 +35,11 @@
         .btn-orange { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
         .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
         .btn-cheat:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
-        #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; }
+        
+        #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; }
+        #back-to-lobby-btn { position: absolute; top: 15px; left: 4%; width: auto; padding: 8px 15px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 8px; font-size: 14px; color: #ccc; z-index: 100; transition: all 0.2s; margin: 0; backdrop-filter: blur(5px); }
+        #back-to-lobby-btn:active { background: rgba(255,255,255,0.2); }
+        
         .player-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 10px 15px; background-color: var(--panel-bg); background-size: cover; background-position: center; background-repeat: no-repeat; backdrop-filter: blur(5px); border-radius: 15px; border: 1px solid var(--panel-border); box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-shadow: 0 1px 3px rgba(0,0,0,0.8); transition: background 0.3s ease; }
         .player-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin: 0; }
@@ -106,16 +110,17 @@
             <button class="time-btn active" data-time="600">Рапид (10м)</button>
         </div>
         <button id="create-game-btn" class="btn-green">Создать</button>
-        <button id="play-bot-btn" class="btn-orange">Играть с ботом</button>
-        
+        <button id="find-match-btn" class="btn-green" style="margin-top: 5px; background: linear-gradient(135deg, #03a9f4 0%, #0277bd 100%); box-shadow: 0 4px 15px rgba(3, 169, 244, 0.4);">Найти соперника</button>
+        <button id="play-bot-btn" class="btn-orange" style="margin-top: 10px;">Играть с ботом</button>
+
         <h2 style="margin-top: 25px;">Войти по коду</h2>
         <input type="text" id="join-code-input" class="join-input" placeholder="КОД" maxlength="4">
         <button id="join-game-btn" class="btn-blue">Присоединиться</button>
-        
+
         <h2 style="margin-top: 25px;">Смотреть и анализировать</h2>
         <input type="text" id="watch-code-input" class="join-input" placeholder="КОД ПАРТИИ" maxlength="4">
         <button id="watch-game-btn" style="background: #444;">Смотреть партию</button>
-        
+
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button id="leaderboard-btn" class="btn-blue" style="flex: 1; margin-bottom: 0;">Топ</button>
             <button id="settings-btn" class="btn-purple" style="flex: 1; margin-bottom: 0;">Настройки</button>
@@ -123,6 +128,8 @@
     </div>
 
     <div id="game-screen">
+        <button id="back-to-lobby-btn">← В лобби</button>
+        
         <div class="player-bar" id="opp-player-bar">
             <div class="player-info">
                 <div class="avatar-wrapper" id="opp-avatar-wrapper">
@@ -188,12 +195,20 @@
         <div id="move-log"></div>
     </div>
 
+    <div id="search-overlay" class="modal-overlay">
+        <div class="modal-card">
+            <h2>Поиск соперника</h2>
+            <div id="search-timer" style="font-size: 24px; color: var(--accent-green); font-family: monospace; margin-bottom: 20px;">0 сек</div>
+            <button id="cancel-search-btn" class="btn-red">Отменить поиск</button>
+        </div>
+    </div>
+
     <div id="modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('modal')">&times;</span>
             <h2 id="modal-text"></h2>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-blue" onclick="location.reload()" style="margin: 0;">В лобби</button>
+                <button class="btn-blue" onclick="goToLobby()" style="margin: 0;">В лобби</button>
                 <button id="rematch-btn" class="btn-green" style="margin: 0;">Реванш</button>
             </div>
         </div>
@@ -217,7 +232,7 @@
         </div>
     </div>
 
-    <div id="draw-modal" class="modal-overlay">
+        <div id="draw-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Соперник предлагает ничью</h2>
             <button class="btn-green" onclick="acceptDraw()">Принять</button>
@@ -232,7 +247,7 @@
             <button class="btn-blue" onclick="closeModal('resign-modal')">Отмена</button>
         </div>
     </div>
-    
+
     <div id="leaderboard-modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('leaderboard-modal')">&times;</span>
@@ -242,7 +257,7 @@
         </div>
     </div>
 
-        <div id="settings-modal" class="modal-overlay">
+    <div id="settings-modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('settings-modal')">&times;</span>
             <h2>Настройки</h2>
@@ -267,19 +282,47 @@
 
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
+        function goToLobby() {
+            closeModal('modal');
+            closeModal('rematch-modal');
+            closeModal('draw-modal');
+            closeModal('resign-modal');
+            closeModal('search-overlay');
+            
+            clearInterval(timerInterval);
+            clearInterval(searchInterval);
+            
+            isBotGame = false;
+            isReplayMode = false;
+            currentRoom = "";
+            selectedSquare = null;
+            premoveFrom = null;
+            premoveTo = null;
+            isPremoveMode = false;
+            removeHighlights();
+            game = new Chess();
+            
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('lobby').style.display = 'flex';
+            document.getElementById('lobby').style.animation = 'none';
+            document.getElementById('lobby').offsetHeight; 
+            document.getElementById('lobby').style.animation = 'fadeIn 0.4s';
+        }
+
         const ADMINS = {
             "8906077071": { title: "СОЗДАТЕЛЬ", color: "#d32f2f", bg: "bg2.jpg", frame: "frame2.png", cheat: true },
             "6051218168": { title: "SILENT", color: "#2e7d32", bg: "bg1.jpg", frame: "frame1.png", cheat: false },
             "7053701218": { title: "АНЕМО АРХОНТ", color: "#00bcd4", bg: "bg.jpg", frame: "frame.png", cheat: false },
             "8395827920": { title: "ЩЕБЬОНКА", color: "#ff9800", bg: "bg3.jpg", frame: "frame3.png", cheat: false }
         };
-        
+
         let isCheatUser = false;
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
-        
+
         let isBotGame = false;
         let botDifficulty = 1;
         let isBotThinking = false;
+        let searchInterval = null;
 
         function applyAdminStyles(prefix, userId) {
             const bar = document.getElementById(`${prefix}-player-bar`);
@@ -304,13 +347,13 @@
                 return null;
             }
         }
-        
+
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             myRealName = tg.initDataUnsafe.user.first_name;
             myUsername = tg.initDataUnsafe.user.username || "";
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
-            
+
             const myAdminData = applyAdminStyles('my', myUserId);
             if (myAdminData) {
                 document.getElementById('my-name').innerHTML = `${myRealName}<br><span class="admin-title" style="background: ${myAdminData.color}; box-shadow: 0 2px 5px ${myAdminData.color}80;">${myAdminData.title}</span>`;
@@ -343,6 +386,23 @@
             myColor = 'w'; startGame(true);
         });
 
+        $('#find-match-btn').click(() => {
+            document.getElementById('search-overlay').classList.add('show');
+            let seconds = 0;
+            document.getElementById('search-timer').innerText = "0 сек";
+            searchInterval = setInterval(() => {
+                seconds++;
+                document.getElementById('search-timer').innerText = seconds + " сек";
+            }, 1000);
+            socket.emit('find_match', { name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: timeControl });
+        });
+
+        $('#cancel-search-btn').click(() => {
+            clearInterval(searchInterval);
+            document.getElementById('search-overlay').classList.remove('show');
+            socket.emit('cancel_match');
+        });
+
         $('#join-game-btn').click(() => {
             const code = $('#join-code-input').val().toUpperCase();
             if (code.length !== 4) return showToast("Введите 4-значный код", true);
@@ -365,25 +425,26 @@
                 document.getElementById('lobby').style.display = 'none'; 
                 document.getElementById('game-screen').style.display = 'flex';
                 document.getElementById('game-actions').style.display = 'none'; 
-                
+                document.getElementById('back-to-lobby-btn').style.display = 'none';
+
                 let whiteP = null, blackP = null, whiteId = null, blackId = null;
                 for (let id in data.players) {
                     if (data.players[id].color === 'w') { whiteP = data.players[id]; whiteId = id; }
                     if (data.players[id].color === 'b') { blackP = data.players[id]; blackId = id; }
                 }
-                
+
                 const whiteAdmin = applyAdminStyles('my', whiteId);
                 const blackAdmin = applyAdminStyles('opp', blackId);
 
                 const wName = whiteP.username ? `${whiteP.name} (@${whiteP.username})` : whiteP.name;
                 const bName = blackP.username ? `${blackP.name} (@${blackP.username})` : blackP.name;
-                
+
                 document.getElementById('opp-name').innerHTML = blackAdmin ? `Черные: ${bName}<br><span class="admin-title" style="background: ${blackAdmin.color};">${blackAdmin.title}</span>` : `Черные: ${bName}`;
                 document.getElementById('my-name').innerHTML = whiteAdmin ? `Белые: ${wName}<br><span class="admin-title" style="background: ${whiteAdmin.color};">${whiteAdmin.title}</span>` : `Белые: ${wName}`;
-                
+
                 document.getElementById('my-avatar').style.backgroundImage = whiteP.photo ? `url('${whiteP.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${wName}')`;
                 document.getElementById('opp-avatar').style.backgroundImage = blackP.photo ? `url('${blackP.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${bName}')`;
-                
+
                 document.getElementById('status-text').innerText = "Анализ партии";
                 document.getElementById('cheat-controls').style.display = 'none'; 
                 document.getElementById('chat-container').style.display = 'none';
@@ -391,7 +452,7 @@
                 document.getElementById('opp-timer').style.display = 'none'; 
                 document.getElementById('premove-controls').style.display = 'none';
                 document.getElementById('replay-controls').style.display = 'flex';
-                
+
                 board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
                 board.orientation('white');
                 renderLog(replayMoves); initStockfish(); replayStep(0); 
@@ -429,13 +490,14 @@
             document.getElementById('premove-controls').style.display = 'flex';
             document.getElementById('chat-container').style.display = 'flex';
             document.getElementById('game-actions').style.display = 'flex';
-            
+            document.getElementById('back-to-lobby-btn').style.display = 'block';
+
             if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block';
             else document.getElementById('cheat-controls').style.display = 'none';
 
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
-            socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : undefined });
+            socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : timeControl });
         }
 
         window.startBotGame = function(depth) {
@@ -449,6 +511,7 @@
             document.getElementById('game-actions').style.display = 'none'; 
             document.getElementById('chat-container').style.display = 'none'; 
             document.getElementById('premove-controls').style.display = 'none';
+            document.getElementById('back-to-lobby-btn').style.display = 'block';
             document.getElementById('opp-name').innerText = "Бот (" + (depth === 1 ? 'Новичок' : depth === 5 ? 'Знающий' : 'Профи') + ")";
             document.getElementById('opp-rating').innerText = "ИИ";
             document.getElementById('my-timer').style.display = 'none';
@@ -466,6 +529,21 @@
             
             if (!stockfish) initStockfish();
         };
+
+        document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
+            if (isBotGame) {
+                goToLobby();
+                return;
+            }
+            if (currentRoom) {
+                if (currentTurn && game.history().length > 0) {
+                     showToast("Нельзя выйти во время партии! Сдайтесь.", true);
+                     return;
+                }
+                socket.emit('leave_room', { room: currentRoom, user_id: myUserId });
+                goToLobby();
+            }
+        });
 
         document.getElementById('room-badge').onclick = () => { 
             if (!isBotGame) { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); }
@@ -533,7 +611,6 @@
             if (stockfishWatchdog) { clearTimeout(stockfishWatchdog); stockfishWatchdog = null; }
         }
 
-        // ИСПРАВЛЕНО: кнопка работает и в игре с ботом
         document.getElementById('auto-move-btn').addEventListener('click', () => {
             if (game.game_over()) return;
             if (!isBotGame && !currentRoom) return;
@@ -545,7 +622,7 @@
                 if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
             }
             
-            const btn = document.getElementById('auto-move-btn');
+                        const btn = document.getElementById('auto-move-btn');
             btn.innerText = "Ищу ход...";
             btn.disabled = true;
             isAutoMovePending = true;
@@ -597,7 +674,7 @@
             document.getElementById('opp-timer').classList.toggle('active', currentTurn !== myColor);
         }
 
-                function startLocalTimer() {
+        function startLocalTimer() {
             if (isBotGame) return;
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -622,6 +699,25 @@
             }
             logDiv.scrollTop = logDiv.scrollHeight;
         }
+
+        socket.on('match_found', (data) => {
+            clearInterval(searchInterval);
+            document.getElementById('search-overlay').classList.remove('show');
+            
+            currentRoom = data.room_id;
+            timeControl = data.time_control;
+            myColor = 'w';
+            isBotGame = false;
+            isReplayMode = false;
+            
+            startGame(false);
+        });
+
+        socket.on('match_error', (data) => {
+            clearInterval(searchInterval);
+            document.getElementById('search-overlay').classList.remove('show');
+            showToast(data.msg, true);
+        });
 
         socket.on('players_update', (data) => {
             if (isBotGame) return;
@@ -663,6 +759,12 @@
             lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) renderLog(data.history);
+
+            if (data.status === 'playing') {
+                document.getElementById('back-to-lobby-btn').style.display = 'none';
+            } else {
+                document.getElementById('back-to-lobby-btn').style.display = 'block';
+            }
             
             if (data.chat) {
                 const chatMsgs = document.getElementById('chat-messages');
@@ -698,6 +800,7 @@
         socket.on('game_over', (data) => {
             if (isReplayMode || isBotGame) return;
             clearInterval(timerInterval);
+            document.getElementById('back-to-lobby-btn').style.display = 'block';
             
             let isWinner = (data.winner === 'white' && myColor === 'w') || (data.winner === 'black' && myColor === 'b');
             let text = "";
@@ -785,7 +888,6 @@
             } else {
                 if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
                 
-                // ИСПРАВЛЕНО: fromSq сохраняется ДО обнуления selectedSquare
                 var fromSq = selectedSquare;
                 var move = game.move({ from: fromSq, to: square, promotion: 'q' });
                 if (move) { 
@@ -863,7 +965,6 @@
                                 resetAutoMoveBtn();
                                 
                                 if (isBotGame) {
-                                    // После хода за игрока - бот отвечает
                                     if (game.game_over()) {
                                         let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
                                         document.getElementById('modal-text').innerText = txt;
