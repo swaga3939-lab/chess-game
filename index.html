@@ -36,6 +36,10 @@
         .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
         .btn-cheat:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
         
+        /* Иконка монеты */
+        .coin-icon { width: 18px; height: 18px; vertical-align: middle; margin-left: 4px; margin-top: -2px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+        .coin-icon-lg { width: 22px; height: 22px; vertical-align: middle; margin-left: 6px; margin-top: -3px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; }
         #back-to-lobby-btn { position: absolute; top: 15px; left: 4%; width: auto; padding: 8px 15px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 8px; font-size: 14px; color: #ccc; z-index: 100; transition: all 0.2s; margin: 0; backdrop-filter: blur(5px); }
         #back-to-lobby-btn:active { background: rgba(255,255,255,0.2); }
@@ -103,7 +107,7 @@
         
         .shop-item { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
         .shop-item-title { font-size: 12px; margin-bottom: 5px; color: #ccc; width: 100%; text-align: center; word-wrap: break-word; }
-        .shop-item button { padding: 8px; font-size: 13px; margin: 0; width: 100%; }
+        .shop-item button { padding: 8px; font-size: 13px; margin: 0; width: 100%; display: flex; justify-content: center; align-items: center; gap: 2px; }
         
         /* Стили для ФОНОВ (широкие) */
         .shop-item-bg img { width: 100%; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #333; }
@@ -212,7 +216,7 @@
         <div id="move-log"></div>
     </div>
 
-    <div id="search-overlay" class="modal-overlay">
+        <div id="search-overlay" class="modal-overlay">
         <div class="modal-card">
             <h2>Поиск соперника</h2>
             <div id="search-timer" style="font-size: 24px; color: var(--accent-green); font-family: monospace; margin-bottom: 20px;">0 сек</div>
@@ -220,13 +224,17 @@
         </div>
     </div>
 
-        <div id="shop-modal" class="modal-overlay">
+    <div id="shop-modal" class="modal-overlay">
         <div class="modal-card" style="max-width: 400px; width: 90%;">
             <span class="close-btn" onclick="closeModal('shop-modal')">&times;</span>
             <h2>Магазин</h2>
-            <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px;">Баланс: <span id="shop-balance">0</span> 💰</div>
+            <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px;">Баланс: <span id="shop-balance">0</span> <img src="https://swaga3939-lab.github.io/chess-game/money_pin.png" class="coin-icon-lg" alt="coin"></div>
             
             <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                <div class="shop-section" id="shop-exclusive-section" style="display: none;">
+                    <h3>Эксклюзив</h3>
+                    <div class="shop-grid" id="shop-exclusive-container"></div>
+                </div>
                 <div class="shop-section">
                     <h3>Фоны</h3>
                     <div class="shop-grid" id="shop-bg-container"></div>
@@ -372,12 +380,15 @@
 
             if (ADMINS[userId]) {
                 const admin = ADMINS[userId];
-                bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
-                bar.style.backgroundSize = 'cover';
-                bar.style.backgroundPosition = 'center';
-                frame.style.backgroundImage = `url('${admin.frame}')`;
-                frame.classList.add('active-frame');
-                wrapper.classList.add('admin');
+                // Если в БД надет default, ставим админский скин
+                if (userId !== myUserId || (myEquipped.bg === 'default' && myEquipped.frame === 'default')) {
+                    bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
+                    bar.style.backgroundSize = 'cover';
+                    bar.style.backgroundPosition = 'center';
+                    frame.style.backgroundImage = `url('${admin.frame}')`;
+                    frame.classList.add('active-frame');
+                    wrapper.classList.add('admin');
+                }
                 return admin;
             } else {
                 bar.style.backgroundImage = 'none';
@@ -534,23 +545,62 @@
 
         function renderShop() {
             document.getElementById('shop-balance').innerText = myCoins;
+            
+            const exContainer = document.getElementById('shop-exclusive-container');
+            const exSection = document.getElementById('shop-exclusive-section');
             const bgContainer = document.getElementById('shop-bg-container');
             const frameContainer = document.getElementById('shop-frame-container');
             
+            exContainer.innerHTML = '';
             bgContainer.innerHTML = '';
             frameContainer.innerHTML = '';
             
+            // Рендер эксклюзива для админов
+            if (ADMINS[myUserId]) {
+                exSection.style.display = 'block';
+                const admin = ADMINS[myUserId];
+                
+                // Фон админа
+                const isBgEquipped = myEquipped.bg === admin.bg;
+                const bgBtn = isBgEquipped 
+                    ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>`
+                    : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
+                exContainer.innerHTML += `
+                    <div class="shop-item shop-item-bg">
+                        <img src="https://swaga3939-lab.github.io/chess-game/${admin.bg}" alt="Эксклюзивный фон">
+                        <div class="shop-item-title">Твой Фон</div>
+                        ${bgBtn}
+                    </div>
+                `;
+
+                // Рамка админа
+                const isFrameEquipped = myEquipped.frame === admin.frame;
+                const frameBtn = isFrameEquipped 
+                    ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>`
+                    : `<button class="btn-blue" onclick="equipItem('${admin.frame}', 'frame')">Надеть</button>`;
+                exContainer.innerHTML += `
+                    <div class="shop-item shop-item-frame">
+                        <img src="https://swaga3939-lab.github.io/chess-game/${admin.frame}" alt="Эксклюзивная рамка">
+                        <div class="shop-item-title">Твоя Рамка</div>
+                        ${frameBtn}
+                    </div>
+                `;
+            } else {
+                exSection.style.display = 'none';
+            }
+            
+            // Рендер обычных товаров
             SHOP_CATALOG.forEach(item => {
                 const isOwned = myInventory.includes(item.id);
                 const isEquipped = (item.type === 'bg' && myEquipped.bg === item.id) || (item.type === 'frame' && myEquipped.frame === item.id);
                 
-                let btnHtml = '';
+                                let btnHtml = '';
                 if (isEquipped) {
                     btnHtml = `<button class="btn-red" onclick="unequipItem('${item.type}')">Снять</button>`;
                 } else if (isOwned) {
                     btnHtml = `<button class="btn-blue" onclick="equipItem('${item.id}', '${item.type}')">Надеть</button>`;
                 } else {
-                    btnHtml = `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} 💰</button>`;
+                    btnHtml = `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} <img src="https://swaga3939-lab.github.io/chess-game/money_pin.png" class="coin-icon" alt="coin"></button>`;
                 }
                 
                 const imgUrl = `https://swaga3939-lab.github.io/chess-game/${item.id}`;
@@ -564,11 +614,8 @@
                     </div>
                 `;
                 
-                if (item.type === 'bg') {
-                    bgContainer.innerHTML += itemHtml;
-                } else {
-                    frameContainer.innerHTML += itemHtml;
-                }
+                if (item.type === 'bg') bgContainer.innerHTML += itemHtml;
+                else frameContainer.innerHTML += itemHtml;
             });
         }
 
@@ -619,7 +666,7 @@
                     body: JSON.stringify({ user_id: myUserId, item_id: 'default', type: type })
                 });
                 
-                                if (type === 'bg') myEquipped.bg = 'default';
+                if (type === 'bg') myEquipped.bg = 'default';
                 else myEquipped.frame = 'default';
                 
                 applyMyEquipped();
@@ -641,9 +688,18 @@
         }
 
         function applyMyEquipped() {
-            if (!ADMINS[myUserId]) {
-                const bar = document.getElementById('my-player-bar');
-                const frameEl = document.getElementById('my-frame');
+            const bar = document.getElementById('my-player-bar');
+            const frameEl = document.getElementById('my-frame');
+            
+            // Если это админ и у него стоит default, применяем его кастомный стиль
+            if (ADMINS[myUserId] && myEquipped.bg === 'default' && myEquipped.frame === 'default') {
+                const admin = ADMINS[myUserId];
+                bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
+                frameEl.style.backgroundImage = `url('${admin.frame}')`;
+                frameEl.classList.add('active-frame');
+                document.getElementById('my-avatar-wrapper').classList.add('admin');
+            } else {
+                document.getElementById('my-avatar-wrapper').classList.remove('admin');
                 
                 if (myEquipped.bg !== 'default') {
                     bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
@@ -946,7 +1002,7 @@
             }
         });
 
-        socket.on('draw_offered', (data) => {
+                socket.on('draw_offered', (data) => {
             if (isBotGame) return;
             if (data.from_user !== myUserId) {
                 document.getElementById('draw-modal').classList.add('show');
@@ -1018,7 +1074,7 @@
                 text = "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных');
             }
             
-                        document.getElementById('modal-text').innerText = text;
+            document.getElementById('modal-text').innerText = text;
             document.getElementById('modal').classList.add('show');
         });
 
