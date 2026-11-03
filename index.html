@@ -97,11 +97,19 @@
         .lb-item:last-child { border-bottom: none; }
         
         /* Стили для магазина */
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 300px; overflow-y: auto; padding-right: 5px; text-align: left; }
-        .shop-item { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .shop-item img { width: 100%; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #333; }
-        .shop-item-title { font-size: 12px; margin-bottom: 5px; color: #ccc; width: 100%; text-align: center; }
-        .shop-item button { padding: 6px; font-size: 12px; margin: 0; width: 100%; }
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .shop-section { text-align: left; margin-bottom: 20px; }
+        .shop-section h3 { font-size: 16px; margin-bottom: 10px; color: #ddd; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        
+        .shop-item { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .shop-item-title { font-size: 12px; margin-bottom: 5px; color: #ccc; width: 100%; text-align: center; word-wrap: break-word; }
+        .shop-item button { padding: 8px; font-size: 13px; margin: 0; width: 100%; }
+        
+        /* Стили для ФОНОВ (широкие) */
+        .shop-item-bg img { width: 100%; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #333; }
+        
+        /* Стили для РАМОК (квадратные, вписываются целиком) */
+        .shop-item-frame img { width: 64px; height: 64px; object-fit: contain; margin-bottom: 8px; background: rgba(255,255,255,0.1); border-radius: 50%; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -212,19 +220,28 @@
         </div>
     </div>
 
-    <div id="shop-modal" class="modal-overlay">
+        <div id="shop-modal" class="modal-overlay">
         <div class="modal-card" style="max-width: 400px; width: 90%;">
             <span class="close-btn" onclick="closeModal('shop-modal')">&times;</span>
             <h2>Магазин</h2>
             <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px;">Баланс: <span id="shop-balance">0</span> 💰</div>
-            <div class="shop-grid" id="shop-items-container">
-                <!-- Сюда будут рендериться карточки -->
+            
+            <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                <div class="shop-section">
+                    <h3>Фоны</h3>
+                    <div class="shop-grid" id="shop-bg-container"></div>
+                </div>
+                <div class="shop-section">
+                    <h3>Рамки</h3>
+                    <div class="shop-grid" id="shop-frame-container"></div>
+                </div>
             </div>
+            
             <button class="btn-blue" onclick="closeModal('shop-modal')" style="margin-top: 20px;">Закрыть</button>
         </div>
     </div>
 
-        <div id="modal" class="modal-overlay">
+    <div id="modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('modal')">&times;</span>
             <h2 id="modal-text"></h2>
@@ -330,7 +347,6 @@
             document.getElementById('lobby').offsetHeight; 
             document.getElementById('lobby').style.animation = 'fadeIn 0.4s';
             
-            // Обновляем профиль при возврате в лобби
             fetchMyProfile();
         }
 
@@ -506,10 +522,10 @@
 
         // --- ЛОГИКА МАГАЗИНА ---
         const SHOP_CATALOG = [
-            { id: 'shop_bg_1.jpg', type: 'bg', name: 'Неоновый город', price: 100 },
-            { id: 'shop_bg_2.jpg', type: 'bg', name: 'Космос', price: 300 },
-            { id: 'shop_frame_1.png', type: 'frame', name: 'Золотая рамка', price: 150 },
-            { id: 'shop_frame_2.png', type: 'frame', name: 'Огненная рамка', price: 300 }
+            { id: 'shop_bg_1.jpg', type: 'bg', name: 'Apostle of Darkness', price: 100 },
+            { id: 'shop_bg_2.jpg', type: 'bg', name: 'Naoya Zenin', price: 100 },
+            { id: 'shop_frame_1.png', type: 'frame', name: 'Apostle of Darkness', price: 200 },
+            { id: 'shop_frame_2.png', type: 'frame', name: 'Naoya Zenin', price: 200 }
         ];
 
         let myCoins = 0;
@@ -518,8 +534,11 @@
 
         function renderShop() {
             document.getElementById('shop-balance').innerText = myCoins;
-            const container = document.getElementById('shop-items-container');
-            container.innerHTML = '';
+            const bgContainer = document.getElementById('shop-bg-container');
+            const frameContainer = document.getElementById('shop-frame-container');
+            
+            bgContainer.innerHTML = '';
+            frameContainer.innerHTML = '';
             
             SHOP_CATALOG.forEach(item => {
                 const isOwned = myInventory.includes(item.id);
@@ -527,7 +546,7 @@
                 
                 let btnHtml = '';
                 if (isEquipped) {
-                    btnHtml = `<button class="btn-green" disabled>Надето</button>`;
+                    btnHtml = `<button class="btn-red" onclick="unequipItem('${item.type}')">Снять</button>`;
                 } else if (isOwned) {
                     btnHtml = `<button class="btn-blue" onclick="equipItem('${item.id}', '${item.type}')">Надеть</button>`;
                 } else {
@@ -535,14 +554,21 @@
                 }
                 
                 const imgUrl = `https://swaga3939-lab.github.io/chess-game/${item.id}`;
+                const typeClass = item.type === 'bg' ? 'shop-item-bg' : 'shop-item-frame';
                 
-                container.innerHTML += `
-                    <div class="shop-item">
+                const itemHtml = `
+                    <div class="shop-item ${typeClass}">
                         <img src="${imgUrl}" alt="${item.name}" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${item.id}'">
                         <div class="shop-item-title">${item.name}</div>
                         ${btnHtml}
                     </div>
                 `;
+                
+                if (item.type === 'bg') {
+                    bgContainer.innerHTML += itemHtml;
+                } else {
+                    frameContainer.innerHTML += itemHtml;
+                }
             });
         }
 
@@ -570,7 +596,7 @@
 
         window.equipItem = async function(itemId, type) {
             try {
-                const res = await fetch('https://loffchess.dpdns.org/api/shop/equip', {
+                await fetch('https://loffchess.dpdns.org/api/shop/equip', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ user_id: myUserId, item_id: itemId, type: type })
@@ -582,6 +608,23 @@
                 applyMyEquipped();
                 renderShop();
                 showToast("Скин надет!");
+            } catch (e) { showToast("Ошибка сети", true); }
+        };
+
+        window.unequipItem = async function(type) {
+            try {
+                await fetch('https://loffchess.dpdns.org/api/shop/equip', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: myUserId, item_id: 'default', type: type })
+                });
+                
+                                if (type === 'bg') myEquipped.bg = 'default';
+                else myEquipped.frame = 'default';
+                
+                applyMyEquipped();
+                renderShop();
+                showToast("Скин снят!");
             } catch (e) { showToast("Ошибка сети", true); }
         };
 
@@ -599,13 +642,22 @@
 
         function applyMyEquipped() {
             if (!ADMINS[myUserId]) {
+                const bar = document.getElementById('my-player-bar');
+                const frameEl = document.getElementById('my-frame');
+                
                 if (myEquipped.bg !== 'default') {
-                    document.getElementById('my-player-bar').style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
+                    bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
+                } else {
+                    bar.style.backgroundImage = 'none';
+                    bar.style.backgroundColor = 'var(--panel-bg)';
                 }
+                
                 if (myEquipped.frame !== 'default') {
-                    const frameEl = document.getElementById('my-frame');
                     frameEl.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${myEquipped.frame}')`;
                     frameEl.classList.add('active-frame');
+                } else {
+                    frameEl.style.backgroundImage = 'none';
+                    frameEl.classList.remove('active-frame');
                 }
             }
         }
@@ -615,12 +667,11 @@
             document.getElementById('shop-modal').classList.add('show');
         });
         
-        // Загружаем профиль при старте
         fetchMyProfile();
 
         $('#settings-btn').click(() => { document.getElementById('settings-modal').classList.add('show'); });
 
-                function startGame(isCreator) {
+        function startGame(isCreator) {
             document.getElementById('lobby').style.display = 'none'; 
             document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('room-badge').innerText = currentRoom; 
@@ -881,7 +932,6 @@
                         document.getElementById('opp-name').innerHTML = `${oppDisplayName}<br><span class="admin-title" style="background: ${oppAdminData.color}; box-shadow: 0 2px 5px ${oppAdminData.color}80;">${oppAdminData.title}</span>`;
                     } else {
                         document.getElementById('opp-name').innerText = oppDisplayName;
-                        // Применяем скины соперника, если они у него есть
                         if (opp.equipped_bg && opp.equipped_bg !== 'default') {
                             document.getElementById('opp-player-bar').style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_bg}')`;
                         }
@@ -971,7 +1021,7 @@
             document.getElementById('modal').classList.add('show');
         });
 
-        socket.on('invalid_move', (data) => {
+                socket.on('invalid_move', (data) => {
             showToast('Сервер отклонил ход: ' + data.msg, true);
             if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
             selectedSquare = null; removeHighlights();
@@ -1005,7 +1055,7 @@
 
         $('#chat-input').keypress((e) => { if (e.which === 13) { $('#chat-send').click(); return false; } });
 
-                $('#board').on('click', '.square-55d63', function(e) {
+        $('#board').on('click', '.square-55d63', function(e) {
             if (isReplayMode || game.game_over()) return; 
             const square = $(e.target).attr('data-square');
             if (isPremoveMode) {
