@@ -36,13 +36,10 @@
         .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
         .btn-cheat:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
         
-        /* Иконка монеты */
         .coin-icon { width: 16px !important; height: 16px !important; object-fit: contain; vertical-align: middle; margin-left: 4px; margin-bottom: 2px; flex-shrink: 0; display: inline-block; }
         .coin-icon-lg { width: 22px !important; height: 22px !important; object-fit: contain; vertical-align: middle; margin-left: 6px; margin-bottom: 3px; flex-shrink: 0; display: inline-block; }
 
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; }
-        #back-to-lobby-btn { position: absolute; top: 15px; left: 4%; width: auto; padding: 8px 15px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 8px; font-size: 14px; color: #ccc; z-index: 100; transition: all 0.2s; margin: 0; backdrop-filter: blur(5px); }
-        #back-to-lobby-btn:active { background: rgba(255,255,255,0.2); }
         
         .player-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 10px 15px; background-color: var(--panel-bg); background-size: cover; background-position: center; background-repeat: no-repeat; backdrop-filter: blur(5px); border-radius: 15px; border: 1px solid var(--panel-border); box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-shadow: 0 1px 3px rgba(0,0,0,0.8); transition: background 0.3s ease; }
         .player-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
@@ -57,9 +54,13 @@
         .admin-title { color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; line-height: 1; display: inline-block; margin-top: 4px; text-shadow: none; }
         .timer { font-size: 22px; font-weight: bold; font-family: 'Courier New', monospace; padding: 6px 14px; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(4px); border-radius: 8px; color: #ccc; transition: all 0.3s; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0; margin-left: 10px; }
         .timer.active { background: rgba(255, 255, 255, 0.85); color: #000; border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
-        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 10px 0; border-radius: 12px; overflow: hidden; background-color: #f0d9b5; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        
+        /* Кнопка в лобби */
+        #back-to-lobby-btn { width: 92%; max-width: 400px; margin: 5px 0 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 10px; font-size: 14px; color: #ccc; display: none; cursor: pointer; text-align: center; transition: all 0.2s; }
+        #back-to-lobby-btn:active { background: rgba(255,255,255,0.2); }
+
+        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 0 0 10px 0; border-radius: 12px; overflow: hidden; background-color: #f0d9b5; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
         #board { width: 100%; height: 100%; touch-action: none; }
-        /* Координаты доски с обводкой */
         .notation-322f9 { display: block; font-size: 10px; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000; font-weight: bold; } 
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); }
@@ -69,29 +70,32 @@
         .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.8); }
         .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(156, 39, 176, 0.8); box-sizing: border-box; }
         .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.5) !important; }
-        
-        /* Подсветка последнего хода */
         .highlight-last-move { box-shadow: inset 0 0 0 4px rgba(255, 235, 59, 0.6); }
 
         #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; }
         .room-badge { background: rgba(129, 182, 76, 0.15); color: var(--accent-green); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
         #game-actions { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
         #game-actions button { margin-bottom: 0; padding: 10px; font-size: 14px; }
-        
-        /* Премув теперь над чатом */
         #premove-controls { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
 
-        #chat-container { width: 92%; max-width: 400px; height: 160px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; margin-top: 10px; display: none; flex-direction: column; border: 1px solid var(--panel-border); overflow: hidden; }
+        /* Чат и стикеры */
+        #chat-container { width: 92%; max-width: 400px; height: 200px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; margin-top: 10px; display: none; flex-direction: column; border: 1px solid var(--panel-border); overflow: hidden; }
         #chat-messages { flex: 1; overflow-y: auto; padding: 12px; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
         .chat-msg { padding: 6px 12px; border-radius: 12px; max-width: 85%; word-wrap: break-word; font-size: 13px; line-height: 1.4; }
         .chat-msg.my { background: rgba(129, 182, 76, 0.25); align-self: flex-end; border-bottom-right-radius: 2px; color: #e0f2c0; }
         .chat-msg.opp { background: rgba(255, 255, 255, 0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
         .chat-author { font-size: 10px; color: #999; display: block; margin-bottom: 2px; }
+        .chat-sticker { max-width: 140px; max-height: 140px; object-fit: contain; display: block; margin: 5px 0; border-radius: 8px; }
+        
         #chat-input-area { display: flex; padding: 8px; border-top: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); align-items: center; gap: 8px;}
         #chat-input { flex: 1; background: var(--input-bg); border: 1px solid #333; color: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; outline: none; transition: border 0.2s;}
         #chat-input:focus { border-color: var(--accent-green); }
         #chat-send { background: var(--accent-green); border: none; color: white; padding: 0; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; margin: 0;}
+        #sticker-btn { background: transparent; border: none; color: #ccc; font-size: 24px; cursor: pointer; padding: 0 5px; margin: 0; display: flex; justify-content: center; align-items: center; width: auto; }
         
+        #sticker-panel { display: none; height: 150px; overflow-y: auto; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: var(--panel-bg); border-top: 1px solid var(--panel-border); }
+        .sticker-item { width: 100%; aspect-ratio: 1/1; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 8px; cursor: pointer; padding: 2px; }
+
         #cheat-controls { display: none; width: 92%; max-width: 400px; margin-top: 10px; }
         #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: #333; padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid #444; }
@@ -109,19 +113,13 @@
         .lb-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #333; font-size: 15px;}
         .lb-item:last-child { border-bottom: none; }
         
-        /* Стили для магазина */
         .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .shop-section { text-align: left; margin-bottom: 20px; }
         .shop-section h3 { font-size: 16px; margin-bottom: 10px; color: #ddd; border-bottom: 1px solid #444; padding-bottom: 5px; }
-        
         .shop-item { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
         .shop-item-title { font-size: 12px; margin-bottom: 5px; color: #ccc; width: 100%; text-align: center; word-wrap: break-word; }
         .shop-item button { padding: 8px; font-size: 13px; margin: 0; width: 100%; display: flex; justify-content: center; align-items: center; gap: 2px; }
-        
-        /* Стили для ФОНОВ (широкие) */
         .shop-item-bg img { width: 100%; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #333; }
-        
-        /* Стили для РАМОК (квадратные, вписываются целиком) */
         .shop-item-frame img { width: 64px; height: 64px; object-fit: contain; margin-bottom: 8px; background: rgba(255,255,255,0.1); border-radius: 50%; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -158,8 +156,6 @@
     </div>
 
     <div id="game-screen">
-        <button id="back-to-lobby-btn">← В лобби</button>
-        
         <div class="player-bar" id="opp-player-bar">
             <div class="player-info">
                 <div class="avatar-wrapper" id="opp-avatar-wrapper">
@@ -173,6 +169,9 @@
             </div>
             <div class="timer" id="opp-timer">--:--</div>
         </div>
+
+        <!-- Кнопка в лобби теперь тут -->
+        <button id="back-to-lobby-btn">← Выйти в лобби</button>
 
         <div id="board-container"><div id="board"></div></div>
 
@@ -205,15 +204,17 @@
             <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
 
-        <div id="chat-container">
+                <div id="chat-container">
             <div id="chat-messages"></div>
+            <div id="sticker-panel"></div>
             <div id="chat-input-area">
+                <button id="sticker-btn">😀</button>
                 <input type="text" id="chat-input" placeholder="Сообщение...">
                 <button id="chat-send">></button>
             </div>
         </div>
 
-                <div id="cheat-controls">
+        <div id="cheat-controls">
             <button id="auto-move-btn" class="btn-cheat">Сделать лучший ход</button>
         </div>
 
@@ -225,6 +226,7 @@
         <div id="move-log"></div>
     </div>
 
+    <!-- Модалки -->
     <div id="search-overlay" class="modal-overlay">
         <div class="modal-card">
             <h2>Поиск соперника</h2>
@@ -238,22 +240,14 @@
             <span class="close-btn" onclick="closeModal('shop-modal')">&times;</span>
             <h2>Магазин</h2>
             <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px;">Баланс: <span id="shop-balance">0</span> <span class="coin-icon-lg"></span></div>
-            
             <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
                 <div class="shop-section" id="shop-exclusive-section" style="display: none;">
                     <h3>Эксклюзив</h3>
                     <div class="shop-grid" id="shop-exclusive-container"></div>
                 </div>
-                <div class="shop-section">
-                    <h3>Фоны</h3>
-                    <div class="shop-grid" id="shop-bg-container"></div>
-                </div>
-                <div class="shop-section">
-                    <h3>Рамки</h3>
-                    <div class="shop-grid" id="shop-frame-container"></div>
-                </div>
+                <div class="shop-section"><h3>Фоны</h3><div class="shop-grid" id="shop-bg-container"></div></div>
+                <div class="shop-section"><h3>Рамки</h3><div class="shop-grid" id="shop-frame-container"></div></div>
             </div>
-            
             <button class="btn-blue" onclick="closeModal('shop-modal')" style="margin-top: 20px;">Закрыть</button>
         </div>
     </div>
@@ -276,20 +270,22 @@
                 <button class="btn-green" onclick="startBotGame(1, 'w')">Белые</button>
                 <button class="btn-blue" onclick="startBotGame(1, 'b')">Черные</button>
             </div>
-            <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Новичок (~400 ЭЛО)</p>
-            
+            <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Новичок (Туповатый)</p>
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                 <button class="btn-green" onclick="startBotGame(5, 'w')">Белые</button>
                 <button class="btn-blue" onclick="startBotGame(5, 'b')">Черные</button>
             </div>
-            <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Знающий (~800 ЭЛО)</p>
-
+            <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Знающий (~800)</p>
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <button class="btn-green" onclick="startBotGame(15, 'w')">Белые</button>
-                <button class="btn-blue" onclick="startBotGame(15, 'b')">Черные</button>
+                <button class="btn-green" onclick="startBotGame(12, 'w')">Белые</button>
+                <button class="btn-blue" onclick="startBotGame(12, 'b')">Черные</button>
             </div>
-            <p style="font-size:12px; color:#aaa; margin:0 0 20px 0;">Профи (~1200 ЭЛО)</p>
-            
+            <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Профи (~1200)</p>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button class="btn-green" onclick="startBotGame(20, 'w')">Белые</button>
+                <button class="btn-blue" onclick="startBotGame(20, 'b')">Черные</button>
+            </div>
+            <p style="font-size:12px; color:#ff4444; margin:0 0 20px 0;">ГРОССМЕЙСТЕР (Босс)</p>
             <button class="btn-red" onclick="closeModal('bot-modal')">Отмена</button>
         </div>
     </div>
@@ -298,15 +294,15 @@
         <div class="modal-card">
             <h2>Соперник предлагает реванш</h2>
             <button class="btn-green" onclick="acceptRematch()" style="margin-bottom: 10px;">Принять</button>
-            <button class="btn-red" onclick="closeModal('rematch-modal')">Отклонить</button>
+            <button class="btn-red" onclick="declineRematch()">Отклонить</button>
         </div>
     </div>
 
     <div id="draw-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Соперник предлагает ничью</h2>
-            <button class="btn-green" onclick="acceptDraw()">Принять</button>
-            <button class="btn-red" onclick="closeModal('draw-modal')">Отклонить</button>
+            <button class="btn-green" onclick="acceptDraw()" style="margin-bottom: 10px;">Принять</button>
+            <button class="btn-red" onclick="declineDraw()">Отклонить</button>
         </div>
     </div>
 
@@ -353,32 +349,15 @@
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         function goToLobby() {
-            closeModal('modal');
-            closeModal('rematch-modal');
-            closeModal('draw-modal');
-            closeModal('resign-modal');
-            closeModal('search-overlay');
-            closeModal('shop-modal');
-            
-            clearInterval(timerInterval);
-            clearInterval(searchInterval);
-            
-            isBotGame = false;
-            isReplayMode = false;
-            currentRoom = "";
-            selectedSquare = null;
-            premoveFrom = null;
-            premoveTo = null;
-            isPremoveMode = false;
-            removeHighlights();
-            game = new Chess();
-            
+            closeModal('modal'); closeModal('rematch-modal'); closeModal('draw-modal'); closeModal('resign-modal'); closeModal('search-overlay'); closeModal('shop-modal');
+            clearInterval(timerInterval); clearInterval(searchInterval);
+            isBotGame = false; isReplayMode = false; currentRoom = ""; selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
+            removeHighlights(); game = new Chess();
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('lobby').style.display = 'flex';
             document.getElementById('lobby').style.animation = 'none';
             document.getElementById('lobby').offsetHeight; 
             document.getElementById('lobby').style.animation = 'fadeIn 0.4s';
-            
             fetchMyProfile();
         }
 
@@ -391,41 +370,25 @@
 
         let isCheatUser = false;
         let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
-
-        let isBotGame = false;
-        let botDifficulty = 1;
-        let isBotThinking = false;
-        let searchInterval = null;
-        
-        let myCoins = 0;
-        let myInventory = [];
-        let myEquipped = { bg: 'default', frame: 'default' };
-
-        // Кулдаун на ничью (10 полных ходов = 20 полуходов)
+        let isBotGame = false, botDifficulty = 1, isBotThinking = false, searchInterval = null;
+        let myCoins = 0, myInventory = [], myEquipped = { bg: 'default', frame: 'default' };
         let drawCooldownMove = -20; 
 
         function applyAdminStyles(prefix, userId) {
             const bar = document.getElementById(`${prefix}-player-bar`);
             const frame = document.getElementById(`${prefix}-frame`);
             const wrapper = document.getElementById(`${prefix}-avatar-wrapper`);
-
             if (ADMINS[userId]) {
                 const admin = ADMINS[userId];
                 if (userId !== myUserId || (myEquipped.bg === 'default' && myEquipped.frame === 'default')) {
                     bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
-                    bar.style.backgroundSize = 'cover';
-                    bar.style.backgroundPosition = 'center';
-                    frame.style.backgroundImage = `url('${admin.frame}')`;
-                    frame.classList.add('active-frame');
-                    wrapper.classList.add('admin');
+                    bar.style.backgroundSize = 'cover'; bar.style.backgroundPosition = 'center';
+                    frame.style.backgroundImage = `url('${admin.frame}')`; frame.classList.add('active-frame'); wrapper.classList.add('admin');
                 }
                 return admin;
             } else {
-                bar.style.backgroundImage = 'none';
-                bar.style.backgroundColor = 'var(--panel-bg)';
-                frame.style.backgroundImage = 'none';
-                frame.classList.remove('active-frame');
-                wrapper.classList.remove('admin');
+                bar.style.backgroundImage = 'none'; bar.style.backgroundColor = 'var(--panel-bg)';
+                frame.style.backgroundImage = 'none'; frame.classList.remove('active-frame'); wrapper.classList.remove('admin');
                 return null;
             }
         }
@@ -435,15 +398,11 @@
             myUsername = tg.initDataUnsafe.user.username || "";
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
-
             const myAdminData = applyAdminStyles('my', myUserId);
             if (myAdminData) {
                 document.getElementById('my-name').innerHTML = `${myRealName}<br><span class="admin-title" style="background: ${myAdminData.color}; box-shadow: 0 2px 5px ${myAdminData.color}80;">${myAdminData.title}</span>`;
                 if (myAdminData.cheat) isCheatUser = true;
-            } else {
-                document.getElementById('my-name').innerText = myRealName;
-            }
-
+            } else { document.getElementById('my-name').innerText = myRealName; }
             document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
         }
 
@@ -452,8 +411,7 @@
         let board, game = new Chess(), currentRoom = "", myColor = "w", timeControl = 600;
         let currentTurn = "w", localTimeLeft = {w: 600, b: 600}, timerInterval = null;
         let selectedSquare = null, premoveFrom = null, premoveTo = null, isPremoveMode = false;
-        let lastServerFen = "start";
-        let isReplayMode = false, replayGame = null, replayMoves = [], replayIndex = 0;
+        let lastServerFen = "start", isReplayMode = false, replayGame = null, replayMoves = [], replayIndex = 0;
         let stockfish = null, isAutoMovePending = false, stockfishWatchdog = null;
 
         const $premoveBtn = $('#premove-btn'), $cancelPremoveBtn = $('#cancel-premove-btn');
@@ -470,20 +428,12 @@
 
         $('#find-match-btn').click(() => {
             document.getElementById('search-overlay').classList.add('show');
-            let seconds = 0;
-            document.getElementById('search-timer').innerText = "0 сек";
-            searchInterval = setInterval(() => {
-                seconds++;
-                document.getElementById('search-timer').innerText = seconds + " сек";
-            }, 1000);
+            let seconds = 0; document.getElementById('search-timer').innerText = "0 сек";
+            searchInterval = setInterval(() => { seconds++; document.getElementById('search-timer').innerText = seconds + " сек"; }, 1000);
             socket.emit('find_match', { name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: timeControl });
         });
 
-        $('#cancel-search-btn').click(() => {
-            clearInterval(searchInterval);
-            document.getElementById('search-overlay').classList.remove('show');
-            socket.emit('cancel_match');
-        });
+        $('#cancel-search-btn').click(() => { clearInterval(searchInterval); document.getElementById('search-overlay').classList.remove('show'); socket.emit('cancel_match'); });
 
         $('#join-game-btn').click(() => {
             const code = $('#join-code-input').val().toUpperCase();
@@ -491,9 +441,7 @@
             currentRoom = code; myColor = 'b'; startGame(false);
         });
 
-        $('#play-bot-btn').click(() => {
-            document.getElementById('bot-modal').classList.add('show');
-        });
+        $('#play-bot-btn').click(() => { document.getElementById('bot-modal').classList.add('show'); });
 
         $('#watch-game-btn').click(async () => {
             const code = $('#watch-code-input').val().toUpperCase();
@@ -502,42 +450,27 @@
                 const res = await fetch(`https://loffchess.dpdns.org/get_game/${code}`);
                 const data = await res.json();
                 if (data.error) return showToast(data.error, true);
-
                 isReplayMode = true; replayMoves = data.history; replayIndex = 0;
-                document.getElementById('lobby').style.display = 'none'; 
-                document.getElementById('game-screen').style.display = 'flex';
-                document.getElementById('game-actions').style.display = 'none'; 
-                document.getElementById('back-to-lobby-btn').style.display = 'none';
-
+                document.getElementById('lobby').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex';
+                document.getElementById('game-actions').style.display = 'none'; document.getElementById('back-to-lobby-btn').style.display = 'none';
                 let whiteP = null, blackP = null, whiteId = null, blackId = null;
                 for (let id in data.players) {
                     if (data.players[id].color === 'w') { whiteP = data.players[id]; whiteId = id; }
                     if (data.players[id].color === 'b') { blackP = data.players[id]; blackId = id; }
                 }
-
-                const whiteAdmin = applyAdminStyles('my', whiteId);
-                const blackAdmin = applyAdminStyles('opp', blackId);
-
+                const whiteAdmin = applyAdminStyles('my', whiteId); const blackAdmin = applyAdminStyles('opp', blackId);
                 const wName = whiteP.username ? `${whiteP.name} (@${whiteP.username})` : whiteP.name;
                 const bName = blackP.username ? `${blackP.name} (@${blackP.username})` : blackP.name;
-
                 document.getElementById('opp-name').innerHTML = blackAdmin ? `Черные: ${bName}<br><span class="admin-title" style="background: ${blackAdmin.color};">${blackAdmin.title}</span>` : `Черные: ${bName}`;
                 document.getElementById('my-name').innerHTML = whiteAdmin ? `Белые: ${wName}<br><span class="admin-title" style="background: ${whiteAdmin.color};">${whiteAdmin.title}</span>` : `Белые: ${wName}`;
-
                 document.getElementById('my-avatar').style.backgroundImage = whiteP.photo ? `url('${whiteP.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${wName}')`;
                 document.getElementById('opp-avatar').style.backgroundImage = blackP.photo ? `url('${blackP.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${bName}')`;
-
                 document.getElementById('status-text').innerText = "Анализ партии";
-                document.getElementById('cheat-controls').style.display = 'none'; 
-                document.getElementById('chat-container').style.display = 'none';
-                document.getElementById('my-timer').style.display = 'none'; 
-                document.getElementById('opp-timer').style.display = 'none'; 
-                document.getElementById('premove-controls').style.display = 'none';
-                document.getElementById('replay-controls').style.display = 'flex';
-
+                document.getElementById('cheat-controls').style.display = 'none'; document.getElementById('chat-container').style.display = 'none';
+                document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; 
+                document.getElementById('premove-controls').style.display = 'none'; document.getElementById('replay-controls').style.display = 'flex';
                 board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
-                board.orientation('white');
-                renderLog(replayMoves); initStockfish(); replayStep(0); 
+                board.orientation('white'); renderLog(replayMoves); initStockfish(); replayStep(0); 
             } catch (e) { showToast("Партия не найдена или еще не завершена", true); }
         });
 
@@ -546,27 +479,20 @@
             if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
             if (dir === -1 && replayIndex > 0) replayIndex--;
             replayGame = new Chess(); for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
-            board.position(replayGame.fen());
-            document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
+            board.position(replayGame.fen()); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
         }
 
         $('#leaderboard-btn').click(async () => {
             document.getElementById('leaderboard-list').innerHTML = '<div style="text-align: center; padding: 20px; color: #aaa;">Загрузка...</div>';
             document.getElementById('leaderboard-modal').classList.add('show');
             try {
-                const res = await fetch(`https://loffchess.dpdns.org/leaderboard`);
-                const players = await res.json();
-                let html = '';
-                players.forEach((p, i) => {
-                    html += `<div class="lb-item"><span>${i+1}. ${p.name}</span> <span style="color:var(--accent-green); font-weight:bold;">${p.rating}</span></div>`;
-                });
+                const res = await fetch(`https://loffchess.dpdns.org/leaderboard`); const players = await res.json();
+                let html = ''; players.forEach((p, i) => { html += `<div class="lb-item"><span>${i+1}. ${p.name}</span> <span style="color:var(--accent-green); font-weight:bold;">${p.rating}</span></div>`; });
                 document.getElementById('leaderboard-list').innerHTML = html;
-            } catch (e) { 
-                document.getElementById('leaderboard-list').innerHTML = '<div style="text-align: center; padding: 20px; color: #ef5350;">Ошибка загрузки</div>';
-            }
+            } catch (e) { document.getElementById('leaderboard-list').innerHTML = '<div style="text-align: center; padding: 20px; color: #ef5350;">Ошибка загрузки</div>'; }
         });
 
-        // --- ЛОГИКА МАГАЗИНА ---
+        // --- МАГАЗИН ---
         const SHOP_CATALOG = [
             { id: 'shop_bg_1.jpg', type: 'bg', name: 'Apostle of Darkness', price: 100 },
             { id: 'shop_bg_2.jpg', type: 'bg', name: 'Naoya Zenin', price: 100 },
@@ -576,129 +502,50 @@
 
         function renderShop() {
             document.getElementById('shop-balance').innerText = myCoins;
-            
-            const exContainer = document.getElementById('shop-exclusive-container');
-            const exSection = document.getElementById('shop-exclusive-section');
-            const bgContainer = document.getElementById('shop-bg-container');
-            const frameContainer = document.getElementById('shop-frame-container');
-            
-            exContainer.innerHTML = '';
-            bgContainer.innerHTML = '';
-            frameContainer.innerHTML = '';
-            
+            const exContainer = document.getElementById('shop-exclusive-container'), exSection = document.getElementById('shop-exclusive-section');
+            const bgContainer = document.getElementById('shop-bg-container'), frameContainer = document.getElementById('shop-frame-container');
+            exContainer.innerHTML = ''; bgContainer.innerHTML = ''; frameContainer.innerHTML = '';
             if (ADMINS[myUserId]) {
-                exSection.style.display = 'block';
-                const admin = ADMINS[myUserId];
-                
+                exSection.style.display = 'block'; const admin = ADMINS[myUserId];
                 const isBgEquipped = myEquipped.bg === admin.bg;
-                const bgBtn = isBgEquipped 
-                    ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>`
-                    : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
-                exContainer.innerHTML += `
-                    <div class="shop-item shop-item-bg">
-                        <img src="https://swaga3939-lab.github.io/chess-game/${admin.bg}" alt="Эксклюзивный фон">
-                        <div class="shop-item-title">Твой Фон</div>
-                        ${bgBtn}
-                    </div>
-                `;
-
-                                const isFrameEquipped = myEquipped.frame === admin.frame;
-                const frameBtn = isFrameEquipped 
-                    ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>`
-                    : `<button class="btn-blue" onclick="equipItem('${admin.frame}', 'frame')">Надеть</button>`;
-                exContainer.innerHTML += `
-                    <div class="shop-item shop-item-frame">
-                        <img src="https://swaga3939-lab.github.io/chess-game/${admin.frame}" alt="Эксклюзивная рамка">
-                        <div class="shop-item-title">Твоя Рамка</div>
-                        ${frameBtn}
-                    </div>
-                `;
-            } else {
-                exSection.style.display = 'none';
-            }
-            
+                const bgBtn = isBgEquipped ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
+                exContainer.innerHTML += `<div class="shop-item shop-item-bg"><img src="https://swaga3939-lab.github.io/chess-game/${admin.bg}"><div class="shop-item-title">Твой Фон</div>${bgBtn}</div>`;
+                const isFrameEquipped = myEquipped.frame === admin.frame;
+                const frameBtn = isFrameEquipped ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.frame}', 'frame')">Надеть</button>`;
+                exContainer.innerHTML += `<div class="shop-item shop-item-frame"><img src="https://swaga3939-lab.github.io/chess-game/${admin.frame}"><div class="shop-item-title">Твоя Рамка</div>${frameBtn}</div>`;
+                        } else { exSection.style.display = 'none'; }
             SHOP_CATALOG.forEach(item => {
                 const isOwned = myInventory.includes(item.id);
                 const isEquipped = (item.type === 'bg' && myEquipped.bg === item.id) || (item.type === 'frame' && myEquipped.frame === item.id);
-                
-                let btnHtml = '';
-                if (isEquipped) {
-                    btnHtml = `<button class="btn-red" onclick="unequipItem('${item.type}')">Снять</button>`;
-                } else if (isOwned) {
-                    btnHtml = `<button class="btn-blue" onclick="equipItem('${item.id}', '${item.type}')">Надеть</button>`;
-                } else {
-                    btnHtml = `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} <span class="coin-icon"></span></button>`;
-                }
-                
-                const imgUrl = `https://swaga3939-lab.github.io/chess-game/${item.id}`;
-                const typeClass = item.type === 'bg' ? 'shop-item-bg' : 'shop-item-frame';
-                
-                const itemHtml = `
-                    <div class="shop-item ${typeClass}">
-                        <img src="${imgUrl}" alt="${item.name}" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${item.id}'">
-                        <div class="shop-item-title">${item.name}</div>
-                        ${btnHtml}
-                    </div>
-                `;
-                
-                if (item.type === 'bg') bgContainer.innerHTML += itemHtml;
-                else frameContainer.innerHTML += itemHtml;
+                let btnHtml = isEquipped ? `<button class="btn-red" onclick="unequipItem('${item.type}')">Снять</button>` : (isOwned ? `<button class="btn-blue" onclick="equipItem('${item.id}', '${item.type}')">Надеть</button>` : `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} <span class="coin-icon"></span></button>`);
+                const imgUrl = `https://swaga3939-lab.github.io/chess-game/${item.id}`; const typeClass = item.type === 'bg' ? 'shop-item-bg' : 'shop-item-frame';
+                const itemHtml = `<div class="shop-item ${typeClass}"><img src="${imgUrl}" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${item.id}'"><div class="shop-item-title">${item.name}</div>${btnHtml}</div>`;
+                if (item.type === 'bg') bgContainer.innerHTML += itemHtml; else frameContainer.innerHTML += itemHtml;
             });
         }
 
         window.buyItem = async function(itemId, price) {
             if (myCoins < price) return showToast("Недостаточно монет!", true);
-            
             try {
-                const res = await fetch('https://loffchess.dpdns.org/api/shop/buy', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: myUserId, item_id: itemId, price: price })
-                });
+                const res = await fetch('https://loffchess.dpdns.org/api/shop/buy', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: myUserId, item_id: itemId, price: price }) });
                 const data = await res.json();
-                
-                if (data.status === 'ok') {
-                    myCoins = data.new_balance;
-                    myInventory.push(itemId);
-                    showToast("Покупка успешна!");
-                    renderShop();
-                } else {
-                    showToast(data.msg, true);
-                }
+                if (data.status === 'ok') { myCoins = data.new_balance; myInventory.push(itemId); showToast("Покупка успешна!"); renderShop(); } else { showToast(data.msg, true); }
             } catch (e) { showToast("Ошибка сети", true); }
         };
 
         window.equipItem = async function(itemId, type) {
             try {
-                await fetch('https://loffchess.dpdns.org/api/shop/equip', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: myUserId, item_id: itemId, type: type })
-                });
-                
-                if (type === 'bg') myEquipped.bg = itemId;
-                else myEquipped.frame = itemId;
-                
-                applyMyEquipped();
-                renderShop();
-                showToast("Скин надет!");
+                await fetch('https://loffchess.dpdns.org/api/shop/equip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: myUserId, item_id: itemId, type: type }) });
+                if (type === 'bg') myEquipped.bg = itemId; else myEquipped.frame = itemId;
+                applyMyEquipped(); renderShop(); showToast("Скин надет!");
             } catch (e) { showToast("Ошибка сети", true); }
         };
 
         window.unequipItem = async function(type) {
             try {
-                await fetch('https://loffchess.dpdns.org/api/shop/equip', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: myUserId, item_id: 'default', type: type })
-                });
-                
-                if (type === 'bg') myEquipped.bg = 'default';
-                else myEquipped.frame = 'default';
-                
-                applyMyEquipped();
-                renderShop();
-                showToast("Скин снят!");
+                await fetch('https://loffchess.dpdns.org/api/shop/equip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: myUserId, item_id: 'default', type: type }) });
+                if (type === 'bg') myEquipped.bg = 'default'; else myEquipped.frame = 'default';
+                applyMyEquipped(); renderShop(); showToast("Скин снят!");
             } catch (e) { showToast("Ошибка сети", true); }
         };
 
@@ -707,289 +554,173 @@
             try {
                 const res = await fetch(`https://loffchess.dpdns.org/api/user/${myUserId}?t=${Date.now()}`);
                 const data = await res.json();
-                myCoins = data.coins;
-                myInventory = data.inventory;
-                myEquipped = { bg: data.equipped_bg, frame: data.equipped_frame };
+                myCoins = data.coins; myInventory = data.inventory; myEquipped = { bg: data.equipped_bg, frame: data.equipped_frame };
                 applyMyEquipped();
             } catch (e) { console.log("Не удалось загрузить профиль", e); }
         }
 
         function applyMyEquipped() {
-            const bar = document.getElementById('my-player-bar');
-            const frameEl = document.getElementById('my-frame');
-            
+            const bar = document.getElementById('my-player-bar'), frameEl = document.getElementById('my-frame');
             if (ADMINS[myUserId] && myEquipped.bg === 'default' && myEquipped.frame === 'default') {
                 const admin = ADMINS[myUserId];
                 bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
-                frameEl.style.backgroundImage = `url('${admin.frame}')`;
-                frameEl.classList.add('active-frame');
-                document.getElementById('my-avatar-wrapper').classList.add('admin');
+                frameEl.style.backgroundImage = `url('${admin.frame}')`; frameEl.classList.add('active-frame'); document.getElementById('my-avatar-wrapper').classList.add('admin');
             } else {
                 document.getElementById('my-avatar-wrapper').classList.remove('admin');
-                
-                if (myEquipped.bg !== 'default') {
-                    bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
-                } else {
-                    bar.style.backgroundImage = 'none';
-                    bar.style.backgroundColor = 'var(--panel-bg)';
-                }
-                
-                if (myEquipped.frame !== 'default') {
-                    frameEl.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${myEquipped.frame}')`;
-                    frameEl.classList.add('active-frame');
-                } else {
-                    frameEl.style.backgroundImage = 'none';
-                    frameEl.classList.remove('active-frame');
-                }
+                if (myEquipped.bg !== 'default') bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
+                else { bar.style.backgroundImage = 'none'; bar.style.backgroundColor = 'var(--panel-bg)'; }
+                if (myEquipped.frame !== 'default') { frameEl.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${myEquipped.frame}')`; frameEl.classList.add('active-frame'); }
+                else { frameEl.style.backgroundImage = 'none'; frameEl.classList.remove('active-frame'); }
             }
         }
 
         $('#shop-btn').click(async () => {
-            document.getElementById('shop-balance').innerText = "...";
-            document.getElementById('shop-bg-container').innerHTML = '<div style="text-align:center; padding:20px; color:#aaa; grid-column: span 2;">Загрузка...</div>';
-            document.getElementById('shop-frame-container').innerHTML = '';
-            document.getElementById('shop-exclusive-section').style.display = 'none';
-            document.getElementById('shop-modal').classList.add('show');
-            
-            await fetchMyProfile();
-            renderShop();
+            document.getElementById('shop-balance').innerText = "..."; document.getElementById('shop-bg-container').innerHTML = '<div style="text-align:center; padding:20px; color:#aaa; grid-column: span 2;">Загрузка...</div>';
+            document.getElementById('shop-frame-container').innerHTML = ''; document.getElementById('shop-exclusive-section').style.display = 'none';
+            document.getElementById('shop-modal').classList.add('show'); await fetchMyProfile(); renderShop();
         });
-        
         fetchMyProfile();
-
         $('#settings-btn').click(() => { document.getElementById('settings-modal').classList.add('show'); });
 
         function startGame(isCreator) {
-            document.getElementById('lobby').style.display = 'none'; 
-            document.getElementById('game-screen').style.display = 'flex';
-            document.getElementById('room-badge').innerText = currentRoom; 
-            document.getElementById('my-timer').style.display = 'block';
-            document.getElementById('opp-timer').style.display = 'block'; 
-            document.getElementById('premove-controls').style.display = 'flex';
-            document.getElementById('chat-container').style.display = 'flex';
-            document.getElementById('game-actions').style.display = 'flex';
-            document.getElementById('back-to-lobby-btn').style.display = 'block';
-            
-            document.getElementById('offer-draw-btn').disabled = false;
-            drawCooldownMove = -20;
-            
-            if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block';
-            else document.getElementById('cheat-controls').style.display = 'none';
-
+            document.getElementById('lobby').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex';
+            document.getElementById('room-badge').innerText = currentRoom; document.getElementById('my-timer').style.display = 'block';
+            document.getElementById('opp-timer').style.display = 'block'; document.getElementById('premove-controls').style.display = 'flex';
+            document.getElementById('chat-container').style.display = 'flex'; document.getElementById('game-actions').style.display = 'flex';
+            document.getElementById('back-to-lobby-btn').style.display = 'block'; document.getElementById('rematch-btn').style.display = 'block'; 
+            document.getElementById('offer-draw-btn').disabled = false; drawCooldownMove = -20;
+            if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block'; else document.getElementById('cheat-controls').style.display = 'none';
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
             socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : timeControl });
         }
 
         window.startBotGame = function(depth, color) {
-            isBotGame = true;
-            botDifficulty = depth;
-            myColor = color;
-            isBotThinking = false;
-            closeModal('bot-modal');
-            
-            document.getElementById('lobby').style.display = 'none'; 
-            document.getElementById('game-screen').style.display = 'flex';
-            document.getElementById('game-actions').style.display = 'none'; 
-            document.getElementById('chat-container').style.display = 'none'; 
-            document.getElementById('premove-controls').style.display = 'none';
-            document.getElementById('back-to-lobby-btn').style.display = 'block';
-            
-            let botName = depth === 1 ? 'Новичок' : depth === 5 ? 'Знающий' : 'Профи';
-            document.getElementById('opp-name').innerText = "Бот (" + botName + ")";
-            document.getElementById('opp-rating').innerText = "ИИ";
-            document.getElementById('my-timer').style.display = 'none';
-            document.getElementById('opp-timer').style.display = 'none';
-            document.getElementById('room-badge').innerText = "BOT";
+            isBotGame = true; botDifficulty = depth; myColor = color; isBotThinking = false; closeModal('bot-modal');
+            document.getElementById('lobby').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex';
+            document.getElementById('game-actions').style.display = 'none'; document.getElementById('chat-container').style.display = 'none'; 
+            document.getElementById('premove-controls').style.display = 'none'; document.getElementById('back-to-lobby-btn').style.display = 'block';
+            let botName = depth === 1 ? 'Новичок' : depth === 5 ? 'Знающий' : depth === 12 ? 'Профи' : 'Гроссмейстер';
+            document.getElementById('opp-name').innerText = "Бот (" + botName + ")"; document.getElementById('opp-rating').innerText = "ИИ";
+            document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; document.getElementById('room-badge').innerText = "BOT";
             document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=stockfish')`;
-            
-            if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block';
-            else document.getElementById('cheat-controls').style.display = 'none';
-            
+            if (isCheatUser) document.getElementById('cheat-controls').style.display = 'block'; else document.getElementById('cheat-controls').style.display = 'none';
             game = new Chess();
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(color === 'w' ? 'white' : 'black');
-            
             if (!stockfish) initStockfish();
             
-            let skillLevel = depth === 1 ? 0 : depth === 5 ? 5 : 10;
+            let skillLevel = depth === 1 ? 0 : depth === 5 ? 5 : depth === 12 ? 12 : 20;
             stockfish.postMessage('setoption name Skill Level value ' + skillLevel);
             
             if (color === 'b') {
-                document.getElementById('status-text').innerText = "Бот думает...";
-                isBotThinking = true;
-                setTimeout(() => {
-                    stockfish.postMessage('stop');
-                    stockfish.postMessage('position fen ' + game.fen());
-                    stockfish.postMessage('go depth ' + depth);
-                }, 500);
+                document.getElementById('status-text').innerText = "Бот думает..."; isBotThinking = true;
+                setTimeout(() => { botMakeMove(); }, 500);
             } else {
                 document.getElementById('status-text').innerText = "Ваш ход";
             }
         };
 
-        document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
-            if (isBotGame) {
-                goToLobby();
-                return;
-            }
-            if (currentRoom) {
-                if (currentTurn && game.history().length > 0) {
-                     showToast("Нельзя выйти во время партии! Сдайтесь.", true);
-                     return;
+        function botMakeMove() {
+            if (!isBotThinking) return;
+            if (botDifficulty === 1 && Math.random() < 0.3) {
+                let moves = game.moves({ verbose: true });
+                if (moves.length > 0) {
+                    let randomMove = moves[Math.floor(Math.random() * moves.length)];
+                    game.move(randomMove);
+                    board.position(game.fen());
+                    isBotThinking = false;
+                    if (game.game_over()) {
+                        let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
+                        document.getElementById('modal-text').innerText = txt; document.getElementById('modal').classList.add('show');
+                    } else { document.getElementById('status-text').innerText = "Ваш ход"; }
                 }
-                socket.emit('leave_room', { room: currentRoom, user_id: myUserId });
-                goToLobby();
+            } else {
+                let movetime = botDifficulty === 1 ? 100 : botDifficulty === 5 ? 500 : botDifficulty === 12 ? 1000 : 2500;
+                stockfish.postMessage('stop');
+                stockfish.postMessage('position fen ' + game.fen());
+                stockfish.postMessage('go movetime ' + movetime);
+            }
+        }
+
+        document.getElementById('back-to-lobby-btn').addEventListener('click', () => {
+            if (isBotGame) { goToLobby(); return; }
+            if (currentRoom) {
+                if (currentTurn && game.history().length > 0) { showToast("Нельзя выйти во время партии! Сдайтесь.", true); return; }
+                socket.emit('leave_room', { room: currentRoom, user_id: myUserId }); goToLobby();
             }
         });
 
-        document.getElementById('room-badge').onclick = () => { 
-            if (!isBotGame) { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); }
-        };
-
-        document.getElementById('resign-btn').addEventListener('click', () => {
-            document.getElementById('resign-modal').classList.add('show');
-        });
+        document.getElementById('room-badge').onclick = () => { if (!isBotGame) { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); } };
+        document.getElementById('resign-btn').addEventListener('click', () => { document.getElementById('resign-modal').classList.add('show'); });
 
         window.confirmResign = function() {
-            if (isBotGame) {
-                document.getElementById('modal-text').innerText = "Вы сдались. Поражение.";
-                document.getElementById('modal').classList.add('show');
-                closeModal('resign-modal');
-                return;
-            }
-            socket.emit('resign', { room: currentRoom, user_id: myUserId });
-            closeModal('resign-modal');
+            if (isBotGame) { document.getElementById('modal-text').innerText = "Вы сдались. Поражение."; document.getElementById('modal').classList.add('show'); closeModal('resign-modal'); return; }
+            socket.emit('resign', { room: currentRoom, user_id: myUserId }); closeModal('resign-modal');
         };
 
         document.getElementById('offer-draw-btn').addEventListener('click', () => {
             if (isBotGame) return;
-            
             if (game.history().length < drawCooldownMove + 20) {
                 let movesLeft = 10 - Math.floor((game.history().length - drawCooldownMove) / 2);
                 return showToast(`Ничью можно предложить через ${movesLeft} ход(ов)`, true);
             }
-            
-            socket.emit('offer_draw', { room: currentRoom, user_id: myUserId });
-            showToast("Предложение ничьей отправлено");
-            
-            drawCooldownMove = game.history().length;
-            document.getElementById('offer-draw-btn').disabled = true;
+            socket.emit('offer_draw', { room: currentRoom, user_id: myUserId }); showToast("Предложение ничьей отправлено");
+            drawCooldownMove = game.history().length; document.getElementById('offer-draw-btn').disabled = true;
         });
 
-        window.acceptDraw = function() {
-            socket.emit('accept_draw', { room: currentRoom });
-            closeModal('draw-modal');
-        };
+        window.acceptDraw = function() { socket.emit('accept_draw', { room: currentRoom }); closeModal('draw-modal'); };
+        window.declineDraw = function() { socket.emit('decline_draw', { room: currentRoom }); closeModal('draw-modal'); };
 
         document.getElementById('rematch-btn').addEventListener('click', () => {
-            if (isBotGame) {
-                let nextColor = myColor === 'w' ? 'b' : 'w';
-                startBotGame(botDifficulty, nextColor);
-                closeModal('modal');
-                return;
-            }
-            socket.emit('offer_rematch', { room: currentRoom, user_id: myUserId });
-            closeModal('modal');
-            showToast("Предложение реванша отправлено");
+            if (isBotGame) { let nextColor = myColor === 'w' ? 'b' : 'w'; startBotGame(botDifficulty, nextColor); closeModal('modal'); return; }
+            socket.emit('offer_rematch', { room: currentRoom, user_id: myUserId }); closeModal('modal'); showToast("Предложение реванша отправлено");
         });
 
-        window.acceptRematch = function() {
-            socket.emit('accept_rematch', { room: currentRoom });
-            closeModal('rematch-modal');
-        };
+        window.acceptRematch = function() { socket.emit('accept_rematch', { room: currentRoom }); closeModal('rematch-modal'); };
+        window.declineRematch = function() { socket.emit('decline_rematch', { room: currentRoom }); closeModal('rematch-modal'); };
 
-        socket.on('rematch_offered', (data) => {
-            if (data.from_user !== myUserId) {
-                document.getElementById('rematch-modal').classList.add('show');
-            }
-        });
-
-        socket.on('rematch_started', () => {
-            closeModal('modal');
-            closeModal('rematch-modal');
-            document.getElementById('chat-messages').innerHTML = '';
-            showToast("Реванш начался!");
-            
-            document.getElementById('offer-draw-btn').disabled = false;
-            drawCooldownMove = -20;
-        });
+        socket.on('rematch_offered', (data) => { if (data.from_user !== myUserId) document.getElementById('rematch-modal').classList.add('show'); });
+        socket.on('rematch_started', () => { closeModal('modal'); closeModal('rematch-modal'); document.getElementById('chat-messages').innerHTML = ''; showToast("Реванш начался!"); document.getElementById('offer-draw-btn').disabled = false; drawCooldownMove = -20; });
 
         function resetAutoMoveBtn() {
-            isAutoMovePending = false;
-            const btn = document.getElementById('auto-move-btn');
+            isAutoMovePending = false; const btn = document.getElementById('auto-move-btn');
             if (btn) { btn.innerText = "Сделать лучший ход"; btn.disabled = false; }
             if (stockfishWatchdog) { clearTimeout(stockfishWatchdog); stockfishWatchdog = null; }
         }
 
         document.getElementById('auto-move-btn').addEventListener('click', () => {
-            if (game.game_over()) return;
-            if (!isBotGame && !currentRoom) return;
-            
-            if (isBotGame) {
-                if (game.turn() !== myColor) return showToast("Сейчас не ваш ход!", true);
-                if (isBotThinking) return showToast("Бот думает, подождите!", true);
-            } else {
-                if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
-            }
-            
-            selectedSquare = null;
-            premoveFrom = null;
-            premoveTo = null;
-            isPremoveMode = false;
-            removeHighlights();
-            
-            const btn = document.getElementById('auto-move-btn');
-            btn.innerText = "Ищу ход...";
-            btn.disabled = true;
-            isAutoMovePending = true;
-            
+            if (game.game_over() || (!isBotGame && !currentRoom)) return;
+            if (isBotGame) { if (game.turn() !== myColor || isBotThinking) return; }
+            else { if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true); }
+            selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false; removeHighlights();
+            const btn = document.getElementById('auto-move-btn'); btn.innerText = "Ищу ход..."; btn.disabled = true; isAutoMovePending = true;
             if (!stockfish) initStockfish();
-            
-            if (!stockfish) {
-                showToast("Движок не загрузился", true);
-                resetAutoMoveBtn();
-                return;
-            }
-            
+            if (!stockfish) { showToast("Движок не загрузился", true); resetAutoMoveBtn(); return; }
             if (stockfishWatchdog) clearTimeout(stockfishWatchdog);
-            stockfishWatchdog = setTimeout(() => {
-                if (isAutoMovePending) {
-                    showToast("Движок не ответил за 6 сек.", true);
-                    resetAutoMoveBtn();
-                }
-            }, 6000);
-            
+            stockfishWatchdog = setTimeout(() => { if (isAutoMovePending) { showToast("Движок не ответил за 6 сек.", true); resetAutoMoveBtn(); } }, 6000);
             stockfish.postMessage('setoption name Skill Level value 20');
             stockfish.postMessage('stop');
             stockfish.postMessage('position fen ' + game.fen());
-            stockfish.postMessage('go depth 15');
+            stockfish.postMessage('go movetime 1500'); 
         });
 
         $premoveBtn.click(() => {
-            if (isBotGame) return;
-            if (currentTurn === myColor) return showToast("Сейчас ваш ход.", true);
+            if (isBotGame || currentTurn === myColor) return;
             isPremoveMode = !isPremoveMode;
             if (isPremoveMode) { $premoveBtn.text("Режим премува ВКЛ").css("background", "#d32f2f"); showToast("Выберите свою фигуру, затем клетку."); }
             else { $premoveBtn.text("Включить премув").css("background", ""); removeHighlights(); }
         });
 
-        $cancelPremoveBtn.click(() => {
-            premoveFrom = null; premoveTo = null; isPremoveMode = false; $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
-        });
-
+        $cancelPremoveBtn.click(() => { premoveFrom = null; premoveTo = null; isPremoveMode = false; $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights(); });
         function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected highlight-premove-dot highlight-premove-capture highlight-premove-selected highlight-last-move'); }
 
         function updateTimers(timeLeft) {
             localTimeLeft = timeLeft;
-            const m1 = Math.floor(Math.max(0, localTimeLeft[myColor]) / 60); 
-            const s1 = Math.floor(Math.max(0, localTimeLeft[myColor]) % 60);
-            const m2 = Math.floor(Math.max(0, localTimeLeft[myColor === 'w' ? 'b' : 'w']) / 60); 
-            const s2 = Math.floor(Math.max(0, localTimeLeft[myColor === 'w' ? 'b' : 'w']) % 60);
-            document.getElementById('my-timer').innerText = `${m1}:${s1 < 10 ? '0' : ''}${s1}`;
-            document.getElementById('opp-timer').innerText = `${m2}:${s2 < 10 ? '0' : ''}${s2}`;
-            document.getElementById('my-timer').classList.toggle('active', currentTurn === myColor);
-            document.getElementById('opp-timer').classList.toggle('active', currentTurn !== myColor);
+            const m1 = Math.floor(Math.max(0, localTimeLeft[myColor]) / 60), s1 = Math.floor(Math.max(0, localTimeLeft[myColor]) % 60);
+            const m2 = Math.floor(Math.max(0, localTimeLeft[myColor === 'w' ? 'b' : 'w']) / 60), s2 = Math.floor(Math.max(0, localTimeLeft[myColor === 'w' ? 'b' : 'w']) % 60);
+            document.getElementById('my-timer').innerText = `${m1}:${s1 < 10 ? '0' : ''}${s1}`; document.getElementById('opp-timer').innerText = `${m2}:${s2 < 10 ? '0' : ''}${s2}`;
+            document.getElementById('my-timer').classList.toggle('active', currentTurn === myColor); document.getElementById('opp-timer').classList.toggle('active', currentTurn !== myColor);
         }
 
         function startLocalTimer() {
@@ -997,18 +728,13 @@
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 if (currentTurn && localTimeLeft[currentTurn] > 0) { 
-                    localTimeLeft[currentTurn]--; 
-                    updateTimers(localTimeLeft); 
-                    
-                    if (localTimeLeft[currentTurn] === 0) {
-                        clearInterval(timerInterval);
-                        socket.emit('timeout', { room: currentRoom, loser_color: currentTurn });
-                    }
+                    localTimeLeft[currentTurn]--; updateTimers(localTimeLeft); 
+                    if (localTimeLeft[currentTurn] === 0) { clearInterval(timerInterval); socket.emit('timeout', { room: currentRoom, loser_color: currentTurn }); }
                 }
             }, 1000);
         }
 
-                function renderLog(history) {
+        function renderLog(history) {
             const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
             for (let i = 0; i < history.length; i += 2) {
                 const div = document.createElement('div'); div.className = 'move-item';
@@ -1018,119 +744,97 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
+        // --- СТИКЕРЫ ---
+        function renderStickers() {
+            const panel = document.getElementById('sticker-panel');
+            panel.innerHTML = '';
+            for (let i = 1; i <= 19; i++) {
+                let img = document.createElement('img');
+                img.src = `https://swaga3939-lab.github.io/chess-game/sticker_${i}.jpg`;
+                img.className = 'sticker-item';
+                img.onclick = () => sendSticker(`sticker_${i}.jpg`);
+                panel.appendChild(img);
+            }
+        }
+
+        function sendSticker(stickerName) {
+            socket.emit('chat_message', { room: currentRoom, message: stickerName, name: myRealName });
+            document.getElementById('sticker-panel').style.display = 'none';
+        }
+
+        $('#sticker-btn').click(() => {
+            const panel = document.getElementById('sticker-panel');
+            if (panel.style.display === 'grid') { panel.style.display = 'none'; }
+            else { renderStickers(); panel.style.display = 'grid'; }
+        });
+
         socket.on('match_found', (data) => {
-            clearInterval(searchInterval);
-            document.getElementById('search-overlay').classList.remove('show');
-            
-            currentRoom = data.room_id;
-            timeControl = data.time_control;
-            myColor = 'w';
-            isBotGame = false;
-            isReplayMode = false;
-            
+            clearInterval(searchInterval); document.getElementById('search-overlay').classList.remove('show');
+            currentRoom = data.room_id; timeControl = data.time_control; myColor = 'w'; isBotGame = false; isReplayMode = false;
             startGame(false);
         });
 
-        socket.on('match_error', (data) => {
-            clearInterval(searchInterval);
-            document.getElementById('search-overlay').classList.remove('show');
-            showToast(data.msg, true);
-        });
+        socket.on('match_error', (data) => { clearInterval(searchInterval); document.getElementById('search-overlay').classList.remove('show'); showToast(data.msg, true); });
 
-        socket.on('players_update', (data) => {
+                socket.on('players_update', (data) => {
             if (isBotGame) return;
-            if (data[myUserId]) {
-                myColor = data[myUserId].color;
-                if (board) board.orientation(myColor === 'w' ? 'white' : 'black');
-            }
-
+            if (data[myUserId]) { myColor = data[myUserId].color; if (board) board.orientation(myColor === 'w' ? 'white' : 'black'); }
             const ids = Object.keys(data);
             if (ids.length >= 2) {
                 const oppId = ids.find(id => id !== myUserId);
                 if (oppId) {
-                    const opp = data[oppId];
-                    const oppDisplayName = opp.username ? `${opp.name} (@${opp.username})` : `${opp.name}`;
-                    
-                    document.getElementById('opp-rating').innerText = opp.rating;
-                    document.getElementById('my-rating').innerText = data[myUserId].rating;
+                    const opp = data[oppId]; const oppDisplayName = opp.username ? `${opp.name} (@${opp.username})` : `${opp.name}`;
+                    document.getElementById('opp-rating').innerText = opp.rating; document.getElementById('my-rating').innerText = data[myUserId].rating;
                     document.getElementById('opp-avatar').style.backgroundImage = opp.photo ? `url('${opp.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${oppId}')`;
-                    
                     const oppAdminData = applyAdminStyles('opp', oppId);
-                    if (oppAdminData) {
-                        document.getElementById('opp-name').innerHTML = `${oppDisplayName}<br><span class="admin-title" style="background: ${oppAdminData.color}; box-shadow: 0 2px 5px ${oppAdminData.color}80;">${oppAdminData.title}</span>`;
-                    } else {
+                    if (oppAdminData) document.getElementById('opp-name').innerHTML = `${oppDisplayName}<br><span class="admin-title" style="background: ${oppAdminData.color}; box-shadow: 0 2px 5px ${oppAdminData.color}80;">${oppAdminData.title}</span>`;
+                    else {
                         document.getElementById('opp-name').innerText = oppDisplayName;
-                        if (opp.equipped_bg && opp.equipped_bg !== 'default') {
-                            document.getElementById('opp-player-bar').style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_bg}')`;
-                        }
-                        if (opp.equipped_frame && opp.equipped_frame !== 'default') {
-                            const oppFrame = document.getElementById('opp-frame');
-                            oppFrame.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_frame}')`;
-                            oppFrame.classList.add('active-frame');
-                        }
+                        if (opp.equipped_bg && opp.equipped_bg !== 'default') document.getElementById('opp-player-bar').style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_bg}')`;
+                        if (opp.equipped_frame && opp.equipped_frame !== 'default') { const oppFrame = document.getElementById('opp-frame'); oppFrame.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_frame}')`; oppFrame.classList.add('active-frame'); }
                     }
                 }
             }
         });
 
-        socket.on('draw_offered', (data) => {
-            if (isBotGame) return;
-            if (data.from_user !== myUserId) {
-                document.getElementById('draw-modal').classList.add('show');
-            }
+        socket.on('draw_offered', (data) => { if (!isBotGame && data.from_user !== myUserId) document.getElementById('draw-modal').classList.add('show'); });
+        socket.on('draw_declined', () => { showToast("Соперник отклонил ничью"); });
+        socket.on('rematch_declined', () => { showToast("Соперник отклонил реванш"); document.getElementById('rematch-btn').style.display = 'none'; });
+        
+        socket.on('opponent_left_lobby', () => {
+            showToast("Соперник вышел в лобби");
+            document.getElementById('rematch-btn').style.display = 'none';
+            closeModal('rematch-modal');
         });
 
         socket.on('game_state', (data) => {
             if (isReplayMode || isBotGame) return;
-            
-            selectedSquare = null;
-            premoveFrom = null; premoveTo = null;
-            isPremoveMode = false;
-            $premoveBtn.text("Включить премув").css("background", "");
-            $cancelPremoveBtn.hide();
-            removeHighlights();
-
+            selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
+            $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
             lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
             if (data.time_left) updateTimers(data.time_left);
             if (data.history) {
                 renderLog(data.history);
-                
-                if (game.history().length >= drawCooldownMove + 20) {
-                    document.getElementById('offer-draw-btn').disabled = false;
-                }
-
+                if (game.history().length >= drawCooldownMove + 20) document.getElementById('offer-draw-btn').disabled = false;
                 if (game.history().length > 0) {
                     const lastMove = game.history({ verbose: true })[game.history().length - 1];
-                    if (lastMove) {
-                        $('#board .square-' + lastMove.from).addClass('highlight-last-move');
-                        $('#board .square-' + lastMove.to).addClass('highlight-last-move');
-                    }
+                    if (lastMove) { $('#board .square-' + lastMove.from).addClass('highlight-last-move'); $('#board .square-' + lastMove.to).addClass('highlight-last-move'); }
                 }
             }
-
-            if (data.status === 'playing') {
-                document.getElementById('back-to-lobby-btn').style.display = 'none';
-            } else {
-                document.getElementById('back-to-lobby-btn').style.display = 'block';
-            }
-            
+            if (data.status === 'playing') document.getElementById('back-to-lobby-btn').style.display = 'block'; 
             if (data.chat) {
-                const chatMsgs = document.getElementById('chat-messages');
-                chatMsgs.innerHTML = '';
+                const chatMsgs = document.getElementById('chat-messages'); chatMsgs.innerHTML = '';
                 data.chat.forEach(c => {
                     const isObj = typeof c === 'object' && c !== null;
-                    const name = isObj ? c.name : 'Игрок';
-                    const text = isObj ? c.text : c;
+                    const name = isObj ? c.name : 'Игрок'; const text = isObj ? c.text : c;
                     const isMe = name === myRealName;
-                    
-                    const div = document.createElement('div');
-                    div.className = isMe ? 'chat-msg my' : 'chat-msg opp';
-                    div.innerHTML = `<span class="chat-author">${name}</span>${text}`;
+                    const div = document.createElement('div'); div.className = isMe ? 'chat-msg my' : 'chat-msg opp';
+                    if (text.startsWith('sticker_')) div.innerHTML = `<img src="https://swaga3939-lab.github.io/chess-game/${text}" class="chat-sticker">`;
+                    else div.innerHTML = `<span class="chat-author">${name}</span>${text}`;
                     chatMsgs.appendChild(div);
                 });
                 chatMsgs.scrollTop = 99999;
             }
-
             let statusMsg = data.status === 'waiting' ? "Ожидание..." : (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
             if (game.in_check()) { statusMsg += " (ШАХ!)"; document.getElementById('status-text').style.color = "#ff4444"; } else { document.getElementById('status-text').style.color = "#ccc"; }
             document.getElementById('status-text').innerText = statusMsg;
@@ -1140,60 +844,31 @@
 
         socket.on('game_over', (data) => {
             if (isReplayMode || isBotGame) return;
-            clearInterval(timerInterval);
-            document.getElementById('back-to-lobby-btn').style.display = 'block';
-            document.getElementById('offer-draw-btn').disabled = false;
-            
+            clearInterval(timerInterval); document.getElementById('back-to-lobby-btn').style.display = 'block'; document.getElementById('offer-draw-btn').disabled = false;
             let isWinner = (data.winner === 'white' && myColor === 'w') || (data.winner === 'black' && myColor === 'b');
             let text = "";
-            
-            if (data.result === 'timeout') {
-                text = isWinner ? "У соперника вышло время. Вы победили!" : "Ваше время вышло. Вы проиграли.";
-            } else if (data.result === 'draw') {
-                text = "Ничья";
-            } else if (data.result === 'disconnect') {
-                text = "Соперник отключился. Вы победили!";
-            } else if (data.result === 'resign') {
-                text = isWinner ? "Соперник сдался. Вы победили!" : "Вы сдались. Поражение.";
-            } else if (data.result === 'checkmate') {
-                text = isWinner ? "Мат! Вы победили!" : "Вам поставили мат. Поражение.";
-            } else {
-                text = "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных');
-            }
-            
-            document.getElementById('modal-text').innerText = text;
-            document.getElementById('modal').classList.add('show');
+            if (data.result === 'timeout') text = isWinner ? "У соперника вышло время. Вы победили!" : "Ваше время вышло. Вы проиграли.";
+            else if (data.result === 'draw') text = "Ничья";
+            else if (data.result === 'disconnect' || data.result === 'leave') { text = "Соперник покинул игру. Вы победили!"; document.getElementById('rematch-btn').style.display = 'none'; }
+            else if (data.result === 'resign') text = isWinner ? "Соперник сдался. Вы победили!" : "Вы сдались. Поражение.";
+            else if (data.result === 'checkmate') text = isWinner ? "Мат! Вы победили!" : "Вам поставили мат. Поражение.";
+            else text = "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных');
+            document.getElementById('modal-text').innerText = text; document.getElementById('modal').classList.add('show');
         });
 
-        socket.on('invalid_move', (data) => {
-            showToast('Сервер отклонил ход: ' + data.msg, true);
-            if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); }
-            selectedSquare = null; removeHighlights();
-            resetAutoMoveBtn(); 
-        });
+        socket.on('invalid_move', (data) => { showToast('Сервер отклонил ход: ' + data.msg, true); if (lastServerFen) { game.load(lastServerFen); board.position(lastServerFen); } selectedSquare = null; removeHighlights(); resetAutoMoveBtn(); });
 
         socket.on('chat_message', (data) => {
-            const name = data.name || "Игрок";
-            const text = data.text || "";
-            const isMe = name === myRealName;
-            
-            const div = document.createElement('div');
-            div.className = isMe ? 'chat-msg my' : 'chat-msg opp';
-            div.innerHTML = `<span class="chat-author">${name}</span>${text}`;
+            const name = data.name || "Игрок"; const text = data.text || ""; const isMe = name === myRealName;
+            const div = document.createElement('div'); div.className = isMe ? 'chat-msg my' : 'chat-msg opp';
+            if (text.startsWith('sticker_')) div.innerHTML = `<img src="https://swaga3939-lab.github.io/chess-game/${text}" class="chat-sticker">`;
+            else div.innerHTML = `<span class="chat-author">${name}</span>${text}`;
             document.getElementById('chat-messages').appendChild(div);
             document.getElementById('chat-messages').scrollTop = 99999;
         });
 
         $('#chat-send').click(() => {
-            const msg = $('#chat-input').val().trim();
-            if (!msg) return;
-            
-            const div = document.createElement('div');
-            div.className = 'chat-msg my';
-            div.innerHTML = `<span class="chat-author">${myRealName}</span>${msg}`;
-            document.getElementById('chat-messages').appendChild(div);
-            document.getElementById('chat-messages').scrollTop = 99999;
-            
+            const msg = $('#chat-input').val().trim(); if (!msg) return;
             socket.emit('chat_message', { room: currentRoom, message: msg, name: myRealName });
             $('#chat-input').val('');
         });
@@ -1214,12 +889,8 @@
                     return; 
                 }
             }
-            
-            if (isBotGame) {
-                if (game.turn() !== myColor || isBotThinking) return;
-            } else {
-                if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; }
-            }
+            if (isBotGame) { if (game.turn() !== myColor || isBotThinking) return; } 
+            else { if (currentTurn !== myColor) { showToast("Сейчас ход соперника", true); return; } }
             
             if (!selectedSquare) {
                 var piece = game.get(square);
@@ -1230,33 +901,22 @@
                 }
             } else {
                 if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
-                
                 var fromSq = selectedSquare;
                 var move = game.move({ from: fromSq, to: square, promotion: 'q' });
                 if (move) { 
-                    board.position(game.fen()); 
-                    selectedSquare = null; 
-                    removeHighlights(); 
-                    
+                    board.position(game.fen()); selectedSquare = null; removeHighlights(); 
                     if (isBotGame) {
-                        if (game.game_over()) {
-                            let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
-                            document.getElementById('modal-text').innerText = txt;
-                            document.getElementById('modal').classList.add('show');
-                        } else {
-                            isBotThinking = true;
-                            document.getElementById('status-text').innerText = "Бот думает...";
-                            let skillLevel = botDifficulty === 1 ? 0 : botDifficulty === 5 ? 5 : 10;
+                        if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal').classList.add('show'); } 
+                        else {
+                            isBotThinking = true; document.getElementById('status-text').innerText = "Бот думает...";
+                            let skillLevel = botDifficulty === 1 ? 0 : botDifficulty === 5 ? 5 : botDifficulty === 12 ? 12 : 20;
                             stockfish.postMessage('setoption name Skill Level value ' + skillLevel);
-                            stockfish.postMessage('stop');
-                            stockfish.postMessage('position fen ' + game.fen());
-                            stockfish.postMessage('go depth ' + botDifficulty);
+                            setTimeout(() => { botMakeMove(); }, 100); 
                         }
                     } else {
                         socket.emit('move', { room: currentRoom, move: { from: fromSq, to: square } }); 
                     }
-                } 
-                else {
+                } else {
                     var piece = game.get(square);
                     if (piece && piece.color === game.turn()) { 
                         selectedSquare = square; removeHighlights(); $('#board .square-' + square).addClass('highlight-selected');
@@ -1280,11 +940,7 @@
                     const line = event.data;
                     if (line.startsWith('info') && line.includes('score cp')) {
                         const cpMatch = line.match(/score cp (-?\d+)/);
-                        if (cpMatch) {
-                            let cp = parseInt(cpMatch[1]);
-                            const evalText = document.getElementById('eval-text');
-                            if (evalText) evalText.innerText = `Оценка: ${(cp/100).toFixed(2)}`;
-                        }
+                        if (cpMatch) { let cp = parseInt(cpMatch[1]); const evalText = document.getElementById('eval-text'); if (evalText) evalText.innerText = `Оценка: ${(cp/100).toFixed(2)}`; }
                     }
                     
                     if (line.startsWith('bestmove')) {
@@ -1294,47 +950,27 @@
                             
                             if (isBotThinking) {
                                 game.move({ from: from, to: to, promotion: 'q' });
-                                board.position(game.fen());
-                                isBotThinking = false;
-                                
-                                if (game.game_over()) {
-                                    let txt = game.in_checkmate() ? "Мат! Вы проиграли." : "Ничья!";
-                                    document.getElementById('modal-text').innerText = txt;
-                                    document.getElementById('modal').classList.add('show');
-                                } else {
-                                    document.getElementById('status-text').innerText = "Ваш ход";
-                                }
+                                board.position(game.fen()); isBotThinking = false;
+                                if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы проиграли." : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal').classList.add('show'); } 
+                                else { document.getElementById('status-text').innerText = "Ваш ход"; }
                             } else if (isAutoMovePending) {
                                 game.move({ from: from, to: to, promotion: 'q' });
-                                board.position(game.fen());
-                                resetAutoMoveBtn();
-                                
+                                board.position(game.fen()); resetAutoMoveBtn();
                                 if (isBotGame) {
-                                    if (game.game_over()) {
-                                        let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
-                                        document.getElementById('modal-text').innerText = txt;
-                                        document.getElementById('modal').classList.add('show');
-                                    } else {
-                                        isBotThinking = true;
-                                        document.getElementById('status-text').innerText = "Бот думает...";
-                                        let skillLevel = botDifficulty === 1 ? 0 : botDifficulty === 5 ? 5 : 10;
+                                    if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal').classList.add('show'); } 
+                                    else {
+                                        isBotThinking = true; document.getElementById('status-text').innerText = "Бот думает...";
+                                        let skillLevel = botDifficulty === 1 ? 0 : botDifficulty === 5 ? 5 : botDifficulty === 12 ? 12 : 20;
                                         stockfish.postMessage('setoption name Skill Level value ' + skillLevel);
-                                        stockfish.postMessage('stop');
-                                        stockfish.postMessage('position fen ' + game.fen());
-                                        stockfish.postMessage('go depth ' + botDifficulty);
+                                        setTimeout(() => { botMakeMove(); }, 100);
                                     }
-                                } else {
-                                    socket.emit('move', { room: currentRoom, move: { from: from, to: to } });
-                                }
+                                } else { socket.emit('move', { room: currentRoom, move: { from: from, to: to } }); }
                             }
                         }
                     }
                 };
                 stockfish.postMessage('uci');
-            } catch (e) {
-                stockfish = null;
-                showToast("Браузер заблокировал Worker: " + e.message, true);
-            }
+            } catch (e) { stockfish = null; showToast("Браузер заблокировал Worker: " + e.message, true); }
         }
     </script>
 </body>
