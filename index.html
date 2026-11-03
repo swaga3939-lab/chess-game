@@ -372,6 +372,11 @@
         let botDifficulty = 1;
         let isBotThinking = false;
         let searchInterval = null;
+        
+        // ПЕРЕМЕЩЕНО СЮДА (ВЫШЕ), ЧТОБЫ applyAdminStyles НЕ ПАДАЛ
+        let myCoins = 0;
+        let myInventory = [];
+        let myEquipped = { bg: 'default', frame: 'default' };
 
         function applyAdminStyles(prefix, userId) {
             const bar = document.getElementById(`${prefix}-player-bar`);
@@ -380,7 +385,7 @@
 
             if (ADMINS[userId]) {
                 const admin = ADMINS[userId];
-                // Если в БД надет default, ставим админский скин
+                // Теперь myEquipped доступна здесь
                 if (userId !== myUserId || (myEquipped.bg === 'default' && myEquipped.frame === 'default')) {
                     bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
                     bar.style.backgroundSize = 'cover';
@@ -539,10 +544,6 @@
             { id: 'shop_frame_2.png', type: 'frame', name: 'Naoya Zenin', price: 200 }
         ];
 
-        let myCoins = 0;
-        let myInventory = [];
-        let myEquipped = { bg: 'default', frame: 'default' };
-
         function renderShop() {
             document.getElementById('shop-balance').innerText = myCoins;
             
@@ -691,7 +692,6 @@
             const bar = document.getElementById('my-player-bar');
             const frameEl = document.getElementById('my-frame');
             
-            // Если это админ и у него стоит default, применяем его кастомный стиль
             if (ADMINS[myUserId] && myEquipped.bg === 'default' && myEquipped.frame === 'default') {
                 const admin = ADMINS[myUserId];
                 bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
