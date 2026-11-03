@@ -36,9 +36,33 @@
         .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
         .btn-cheat:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
         
-        /* Иконка монеты (жестко задан размер, убран blend-mode) */
-        .coin-icon { width: 16px !important; height: 16px !important; object-fit: contain; vertical-align: middle; margin-left: 4px; margin-top: -2px; flex-shrink: 0; display: inline-block; }
-        .coin-icon-lg { width: 22px !important; height: 22px !important; object-fit: contain; vertical-align: middle; margin-left: 6px; margin-top: -2px; flex-shrink: 0; display: inline-block; }
+        /* Выравнивание иконки по тексту */
+        .coin-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-image: url('https://swaga3939-lab.github.io/chess-game/money_pin.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            vertical-align: middle;
+            margin-left: 4px;
+            margin-bottom: 2px;
+            flex-shrink: 0;
+        }
+        .coin-icon-lg {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            background-image: url('https://swaga3939-lab.github.io/chess-game/money_pin.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            vertical-align: middle;
+            margin-left: 6px;
+            margin-bottom: 3px;
+            flex-shrink: 0;
+        }
 
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; }
         #back-to-lobby-btn { position: absolute; top: 15px; left: 4%; width: auto; padding: 8px 15px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 8px; font-size: 14px; color: #ccc; z-index: 100; transition: all 0.2s; margin: 0; backdrop-filter: blur(5px); }
@@ -204,7 +228,7 @@
             <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
 
-        <div id="cheat-controls">
+                <div id="cheat-controls">
             <button id="auto-move-btn" class="btn-cheat">Сделать лучший ход</button>
         </div>
 
@@ -216,7 +240,7 @@
         <div id="move-log"></div>
     </div>
 
-        <div id="search-overlay" class="modal-overlay">
+    <div id="search-overlay" class="modal-overlay">
         <div class="modal-card">
             <h2>Поиск соперника</h2>
             <div id="search-timer" style="font-size: 24px; color: var(--accent-green); font-family: monospace; margin-bottom: 20px;">0 сек</div>
@@ -228,7 +252,7 @@
         <div class="modal-card" style="max-width: 400px; width: 90%;">
             <span class="close-btn" onclick="closeModal('shop-modal')">&times;</span>
             <h2>Магазин</h2>
-            <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px;">Баланс: <span id="shop-balance">0</span> <img src="https://swaga3939-lab.github.io/chess-game/money_pin.png" class="coin-icon-lg" alt="coin"></div>
+            <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px;">Баланс: <span id="shop-balance">0</span> <span class="coin-icon-lg"></span></div>
             
             <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
                 <div class="shop-section" id="shop-exclusive-section" style="display: none;">
@@ -373,7 +397,6 @@
         let isBotThinking = false;
         let searchInterval = null;
         
-        // ПЕРЕМЕЩЕНО СЮДА (ВЫШЕ), ЧТОБЫ applyAdminStyles НЕ ПАДАЛ
         let myCoins = 0;
         let myInventory = [];
         let myEquipped = { bg: 'default', frame: 'default' };
@@ -525,14 +548,19 @@
         }
 
         $('#leaderboard-btn').click(async () => {
-            const res = await fetch(`https://loffchess.dpdns.org/leaderboard`);
-            const players = await res.json();
-            let html = '';
-            players.forEach((p, i) => {
-                html += `<div class="lb-item"><span>${i+1}. ${p.name}</span> <span style="color:var(--accent-green); font-weight:bold;">${p.rating}</span></div>`;
-            });
-            document.getElementById('leaderboard-list').innerHTML = html;
+            document.getElementById('leaderboard-list').innerHTML = '<div style="text-align: center; padding: 20px; color: #aaa;">Загрузка...</div>';
             document.getElementById('leaderboard-modal').classList.add('show');
+            try {
+                const res = await fetch(`https://loffchess.dpdns.org/leaderboard`);
+                const players = await res.json();
+                let html = '';
+                players.forEach((p, i) => {
+                    html += `<div class="lb-item"><span>${i+1}. ${p.name}</span> <span style="color:var(--accent-green); font-weight:bold;">${p.rating}</span></div>`;
+                });
+                document.getElementById('leaderboard-list').innerHTML = html;
+            } catch (e) { 
+                document.getElementById('leaderboard-list').innerHTML = '<div style="text-align: center; padding: 20px; color: #ef5350;">Ошибка загрузки</div>';
+            }
         });
 
         // --- ЛОГИКА МАГАЗИНА ---
@@ -555,12 +583,10 @@
             bgContainer.innerHTML = '';
             frameContainer.innerHTML = '';
             
-            // Рендер эксклюзива для админов
             if (ADMINS[myUserId]) {
                 exSection.style.display = 'block';
                 const admin = ADMINS[myUserId];
                 
-                // Фон админа
                 const isBgEquipped = myEquipped.bg === admin.bg;
                 const bgBtn = isBgEquipped 
                     ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>`
@@ -573,7 +599,6 @@
                     </div>
                 `;
 
-                // Рамка админа
                 const isFrameEquipped = myEquipped.frame === admin.frame;
                 const frameBtn = isFrameEquipped 
                     ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>`
@@ -589,18 +614,17 @@
                 exSection.style.display = 'none';
             }
             
-            // Рендер обычных товаров
-            SHOP_CATALOG.forEach(item => {
+                        SHOP_CATALOG.forEach(item => {
                 const isOwned = myInventory.includes(item.id);
                 const isEquipped = (item.type === 'bg' && myEquipped.bg === item.id) || (item.type === 'frame' && myEquipped.frame === item.id);
                 
-                                let btnHtml = '';
+                let btnHtml = '';
                 if (isEquipped) {
                     btnHtml = `<button class="btn-red" onclick="unequipItem('${item.type}')">Снять</button>`;
                 } else if (isOwned) {
                     btnHtml = `<button class="btn-blue" onclick="equipItem('${item.id}', '${item.type}')">Надеть</button>`;
                 } else {
-                    btnHtml = `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} <img src="https://swaga3939-lab.github.io/chess-game/money_pin.png" class="coin-icon" alt="coin"></button>`;
+                    btnHtml = `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} <span class="coin-icon"></span></button>`;
                 }
                 
                 const imgUrl = `https://swaga3939-lab.github.io/chess-game/${item.id}`;
@@ -718,9 +742,14 @@
         }
 
         $('#shop-btn').click(async () => {
+            document.getElementById('shop-balance').innerText = "...";
+            document.getElementById('shop-bg-container').innerHTML = '<div style="text-align:center; padding:20px; color:#aaa; grid-column: span 2;">Загрузка...</div>';
+            document.getElementById('shop-frame-container').innerHTML = '';
+            document.getElementById('shop-exclusive-section').style.display = 'none';
+            document.getElementById('shop-modal').classList.add('show');
+            
             await fetchMyProfile();
             renderShop();
-            document.getElementById('shop-modal').classList.add('show');
         });
         
         fetchMyProfile();
@@ -986,7 +1015,7 @@
                     const oppAdminData = applyAdminStyles('opp', oppId);
                     if (oppAdminData) {
                         document.getElementById('opp-name').innerHTML = `${oppDisplayName}<br><span class="admin-title" style="background: ${oppAdminData.color}; box-shadow: 0 2px 5px ${oppAdminData.color}80;">${oppAdminData.title}</span>`;
-                    } else {
+                                        } else {
                         document.getElementById('opp-name').innerText = oppDisplayName;
                         if (opp.equipped_bg && opp.equipped_bg !== 'default') {
                             document.getElementById('opp-player-bar').style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${opp.equipped_bg}')`;
@@ -1001,7 +1030,7 @@
             }
         });
 
-                socket.on('draw_offered', (data) => {
+        socket.on('draw_offered', (data) => {
             if (isBotGame) return;
             if (data.from_user !== myUserId) {
                 document.getElementById('draw-modal').classList.add('show');
