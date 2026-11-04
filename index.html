@@ -174,12 +174,12 @@
         <div id="game-actions">
             <button id="offer-draw-btn" class="btn-orange">Ничья</button>
             <button id="resign-btn" class="btn-red">Сдаться</button>
-                </div>
+        </div>
         <div id="premove-controls">
             <button id="premove-btn" class="btn-purple">Включить премув</button>
             <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
-        <div id="chat-container">
+                <div id="chat-container">
             <div id="chat-messages"></div>
             <div id="sticker-panel"></div>
             <div id="chat-input-area">
@@ -598,7 +598,7 @@
 
         function botMakeMove() {
             if (!isBotThinking) return;
-            if (botDifficulty === 1 && Math.random() < 0.3) {
+            if (botDifficulty === 1 && Math.random() < 0.7) {
                 let moves = game.moves({ verbose: true });
                 if (moves.length > 0) {
                     let randomMove = moves[Math.floor(Math.random() * moves.length)];
@@ -611,7 +611,7 @@
                     } else { document.getElementById('status-text').innerText = "Ваш ход"; }
                 }
             } else {
-                let movetime = botDifficulty === 1 ? 100 : botDifficulty === 5 ? 500 : botDifficulty === 12 ? 1000 : 2500;
+                let movetime = botDifficulty === 1 ? 50 : botDifficulty === 5 ? 500 : botDifficulty === 12 ? 1000 : 5000;
                 stockfish.postMessage('stop');
                 stockfish.postMessage('position fen ' + game.fen());
                 stockfish.postMessage('go movetime ' + movetime);
@@ -782,6 +782,8 @@
         });
 
         socket.on('match_error', (data) => { clearInterval(searchInterval); document.getElementById('search-overlay').classList.remove('show'); showToast(data.msg, true); });
+        
+        socket.on('join_error', (data) => { showToast(data.msg || "Ошибка входа в комнату", true); goToLobby(); });
 
         socket.on('players_update', (data) => {
             if (isBotGame) return;
