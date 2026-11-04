@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
     <style>
         :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.06); --panel-border: rgba(255, 255, 255, 0.12); --accent-green: #81b64c; --accent-blue: #42a5f5; --input-bg: rgba(0, 0, 0, 0.4); }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -755,12 +756,12 @@
             }
         }
 
-                function sendSticker(stickerName) {
+        function sendSticker(stickerName) {
             socket.emit('chat_message', { room: currentRoom, message: stickerName, name: myRealName });
             document.getElementById('sticker-panel').style.display = 'none';
         }
 
-        $('#sticker-btn').click(() => {
+                $('#sticker-btn').click(() => {
             const panel = document.getElementById('sticker-panel');
             if (panel.style.display === 'grid') { panel.style.display = 'none'; }
             else { renderStickers(); panel.style.display = 'grid'; }
@@ -786,6 +787,14 @@
         socket.on('match_error', (data) => { clearInterval(searchInterval); document.getElementById('search-overlay').classList.remove('show'); showToast(data.msg, true); });
         
         socket.on('join_error', (data) => { showToast(data.msg || "Ошибка входа в комнату", true); goToLobby(); });
+
+        socket.on('your_color', (data) => {
+            myColor = data.color;
+            if (board) board.orientation(myColor === 'w' ? 'white' : 'black');
+            currentTurn = game.turn();
+            let statusMsg = (currentTurn === myColor ? "Ваш ход" : "Ход соперника");
+            document.getElementById('status-text').innerText = statusMsg;
+        });
 
         socket.on('players_update', (data) => {
             if (isBotGame) return;
