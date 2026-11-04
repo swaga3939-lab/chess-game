@@ -35,15 +35,11 @@
         .btn-orange { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
         .btn-cheat { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); border: 1px solid #ff4081; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
         .btn-cheat:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
-        
         .coin-icon { width: 16px !important; height: 16px !important; object-fit: contain; vertical-align: middle; margin-left: 4px; margin-bottom: 2px; flex-shrink: 0; display: inline-block; }
         .coin-icon-lg { width: 22px !important; height: 22px !important; object-fit: contain; vertical-align: middle; margin-left: 6px; margin-bottom: 3px; flex-shrink: 0; display: inline-block; }
-
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; }
-        
         #back-to-lobby-btn { width: 92%; max-width: 400px; margin: 5px 0 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 10px; font-size: 14px; color: #ccc; display: none; cursor: pointer; text-align: center; transition: all 0.2s; }
         #back-to-lobby-btn:active { background: rgba(255,255,255,0.2); }
-
         .player-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 10px 15px; background-color: var(--panel-bg); background-size: cover; background-position: center; background-repeat: no-repeat; backdrop-filter: blur(5px); border-radius: 15px; border: 1px solid var(--panel-border); box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-shadow: 0 1px 3px rgba(0,0,0,0.8); transition: background 0.3s ease; }
         .player-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin: 0; }
@@ -116,9 +112,7 @@
     </style>
 </head>
 <body>
-
     <div id="toast-container"></div>
-
     <div id="lobby">
         <h2>Создать игру</h2>
         <div class="time-options">
@@ -129,22 +123,18 @@
         <button id="create-game-btn" class="btn-green">Создать</button>
         <button id="find-match-btn" class="btn-green" style="margin-top: 5px; background: linear-gradient(135deg, #03a9f4 0%, #0277bd 100%); box-shadow: 0 4px 15px rgba(3, 169, 244, 0.4);">Найти соперника</button>
         <button id="play-bot-btn" class="btn-orange" style="margin-top: 10px;">Играть с ботом</button>
-
         <h2 style="margin-top: 25px;">Войти по коду</h2>
         <input type="text" id="join-code-input" class="join-input" placeholder="КОД" maxlength="4">
         <button id="join-game-btn" class="btn-blue">Присоединиться</button>
-
         <h2 style="margin-top: 25px;">Смотреть и анализировать</h2>
         <input type="text" id="watch-code-input" class="join-input" placeholder="КОД ПАРТИИ" maxlength="4">
         <button id="watch-game-btn" style="background: #444;">Смотреть партию</button>
-
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button id="leaderboard-btn" class="btn-blue" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Топ</button>
             <button id="shop-btn" class="btn-green" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px; background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">Магазин</button>
             <button id="settings-btn" class="btn-purple" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Настройки</button>
         </div>
     </div>
-
     <div id="game-screen">
         <div class="player-bar" id="opp-player-bar">
             <div class="player-info">
@@ -159,11 +149,8 @@
             </div>
             <div class="timer" id="opp-timer">--:--</div>
         </div>
-
         <button id="back-to-lobby-btn">← Выйти в лобби</button>
-
         <div id="board-container"><div id="board"></div></div>
-
         <div class="player-bar" id="my-player-bar">
             <div class="player-info">
                 <div class="avatar-wrapper" id="my-avatar-wrapper">
@@ -177,23 +164,22 @@
             </div>
             <div class="timer" id="my-timer">--:--</div>
         </div>
-
         <div id="status-bar">
             <div id="status-text">...</div>
-            <div class="room-badge" id="room-badge">----</div>
+            <div style="display:flex; gap:5px; align-items:center;">
+                <div class="room-badge" id="room-badge">----</div>
+                <div class="room-badge" id="share-btn" style="background: rgba(33,150,243,0.2); color: #2196F3; border-color: rgba(33,150,243,0.4);">🔗</div>
+            </div>
         </div>
-
         <div id="game-actions">
             <button id="offer-draw-btn" class="btn-orange">Ничья</button>
             <button id="resign-btn" class="btn-red">Сдаться</button>
-        </div>
-
+                </div>
         <div id="premove-controls">
             <button id="premove-btn" class="btn-purple">Включить премув</button>
             <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
-
-                <div id="chat-container">
+        <div id="chat-container">
             <div id="chat-messages"></div>
             <div id="sticker-panel"></div>
             <div id="chat-input-area">
@@ -202,19 +188,15 @@
                 <button id="chat-send">></button>
             </div>
         </div>
-
         <div id="cheat-controls">
             <button id="auto-move-btn" class="btn-cheat">Сделать лучший ход</button>
         </div>
-
         <div id="replay-controls">
             <button class="replay-btn" onclick="replayStep(-1)">< Назад</button>
             <button class="replay-btn" onclick="replayStep(1)">Вперед ></button>
         </div>
-
         <div id="move-log"></div>
     </div>
-
     <div id="search-overlay" class="modal-overlay">
         <div class="modal-card">
             <h2>Поиск соперника</h2>
@@ -222,7 +204,6 @@
             <button id="cancel-search-btn" class="btn-red">Отменить поиск</button>
         </div>
     </div>
-
     <div id="shop-modal" class="modal-overlay">
         <div class="modal-card" style="max-width: 400px; width: 90%;">
             <span class="close-btn" onclick="closeModal('shop-modal')">&times;</span>
@@ -239,7 +220,6 @@
             <button class="btn-blue" onclick="closeModal('shop-modal')" style="margin-top: 20px;">Закрыть</button>
         </div>
     </div>
-
     <div id="modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('modal')">&times;</span>
@@ -250,7 +230,6 @@
             </div>
         </div>
     </div>
-
     <div id="bot-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Выберите сложность</h2>
@@ -277,7 +256,6 @@
             <button class="btn-red" onclick="closeModal('bot-modal')">Отмена</button>
         </div>
     </div>
-
     <div id="rematch-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Соперник предлагает реванш</h2>
@@ -285,7 +263,6 @@
             <button class="btn-red" onclick="declineRematch()">Отклонить</button>
         </div>
     </div>
-
     <div id="draw-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Соперник предлагает ничью</h2>
@@ -293,7 +270,6 @@
             <button class="btn-red" onclick="declineDraw()">Отклонить</button>
         </div>
     </div>
-
     <div id="resign-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Вы уверены, что хотите сдаться?</h2>
@@ -301,7 +277,6 @@
             <button class="btn-blue" onclick="closeModal('resign-modal')">Отмена</button>
         </div>
     </div>
-
     <div id="leaderboard-modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('leaderboard-modal')">&times;</span>
@@ -310,7 +285,6 @@
             <button class="btn-blue" onclick="closeModal('leaderboard-modal')" style="margin-top: 20px;">Закрыть</button>
         </div>
     </div>
-
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('settings-modal')">&times;</span>
@@ -319,7 +293,6 @@
             <button class="btn-blue" onclick="closeModal('settings-modal')">Закрыть</button>
         </div>
     </div>
-
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
@@ -337,6 +310,9 @@
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         function goToLobby() {
+            if (currentRoom && !isBotGame) {
+                socket.emit('leave_room', { room: currentRoom, user_id: myUserId });
+            }
             closeModal('modal'); closeModal('rematch-modal'); closeModal('draw-modal'); closeModal('resign-modal'); closeModal('search-overlay'); closeModal('shop-modal');
             clearInterval(timerInterval); clearInterval(searchInterval);
             isBotGame = false; isReplayMode = false; currentRoom = ""; selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
@@ -363,13 +339,15 @@
         let drawCooldownMove = -20; 
         let pendingInviteCode = null;
 
-        // Проверка инвайта (ссылки из бота)
+        let inviteParam = "";
         if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-            let param = tg.initDataUnsafe.start_param.toUpperCase();
-            if (param.length === 4) {
-                pendingInviteCode = param;
-                myColor = 'b'; 
-            }
+            inviteParam = tg.initDataUnsafe.start_param;
+        } else {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('startapp')) inviteParam = urlParams.get('startapp');
+        }
+        if (inviteParam && inviteParam.length === 4) {
+            pendingInviteCode = inviteParam.toUpperCase();
         }
 
         function applyAdminStyles(prefix, userId) {
@@ -490,7 +468,6 @@
             } catch (e) { document.getElementById('leaderboard-list').innerHTML = '<div style="text-align: center; padding: 20px; color: #ef5350;">Ошибка загрузки</div>'; }
         });
 
-        // --- МАГАЗИН ---
         const SHOP_CATALOG = [
             { id: 'shop_bg_1.jpg', type: 'bg', name: 'Apostle of Darkness', price: 100 },
             { id: 'shop_bg_2.jpg', type: 'bg', name: 'Naoya Zenin', price: 100 },
@@ -650,6 +627,18 @@
         });
 
         document.getElementById('room-badge').onclick = () => { if (!isBotGame) { navigator.clipboard.writeText(currentRoom); showToast("Код скопирован!"); } };
+        
+        document.getElementById('share-btn').onclick = () => {
+            if (isBotGame || !currentRoom) return;
+            const link = `https://t.me/LoffChess_Bot?start=${currentRoom}`;
+            if (navigator.share) {
+                navigator.share({ title: 'LoChess', text: `Сыграем в шахматы? Комната ${currentRoom}`, url: link });
+            } else {
+                navigator.clipboard.writeText(link);
+                showToast("Ссылка скопирована!");
+            }
+        };
+
         document.getElementById('resign-btn').addEventListener('click', () => { document.getElementById('resign-modal').classList.add('show'); });
 
         window.confirmResign = function() {
@@ -675,11 +664,23 @@
             socket.emit('offer_rematch', { room: currentRoom, user_id: myUserId }); closeModal('modal'); showToast("Предложение реванша отправлено");
         });
 
-        window.acceptRematch = function() { socket.emit('accept_rematch', { room: currentRoom }); closeModal('rematch-modal'); };
+        window.acceptRematch = function() { 
+            if (!currentRoom) { showToast("Вы вышли из комнаты", true); closeModal('rematch-modal'); return; }
+            socket.emit('accept_rematch', { room: currentRoom }); closeModal('rematch-modal'); 
+        };
         window.declineRematch = function() { socket.emit('decline_rematch', { room: currentRoom }); closeModal('rematch-modal'); };
 
-        socket.on('rematch_offered', (data) => { if (data.from_user !== myUserId) document.getElementById('rematch-modal').classList.add('show'); });
-        socket.on('rematch_started', () => { closeModal('modal'); closeModal('rematch-modal'); document.getElementById('chat-messages').innerHTML = ''; showToast("Реванш начался!"); document.getElementById('offer-draw-btn').disabled = false; drawCooldownMove = -20; });
+        socket.on('rematch_offered', (data) => { 
+            if (data.from_user !== myUserId) {
+                if (currentRoom === "" || isBotGame) {
+                    socket.emit('decline_rematch', { room: data.room || "" });
+                } else {
+                    document.getElementById('rematch-modal').classList.add('show');
+                }
+            }
+        });
+        
+        socket.on('rematch_started', () => { closeModal('modal'); closeModal('rematch-modal'); document.getElementById('chat-messages').innerHTML = ''; showToast("Реванш начался!"); document.getElementById('offer-draw-btn').disabled = false; drawCooldownMove = -20; document.getElementById('rematch-btn').style.display = 'block'; });
 
         function resetAutoMoveBtn() {
             isAutoMovePending = false; const btn = document.getElementById('auto-move-btn');
@@ -732,7 +733,7 @@
             }, 1000);
         }
 
-        function renderLog(history) {
+                function renderLog(history) {
             const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
             for (let i = 0; i < history.length; i += 2) {
                 const div = document.createElement('div'); div.className = 'move-item';
@@ -742,7 +743,6 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
-        // --- СТИКЕРЫ ---
         function renderStickers() {
             const panel = document.getElementById('sticker-panel');
             panel.innerHTML = '';
@@ -755,7 +755,7 @@
             }
         }
 
-                function sendSticker(stickerName) {
+        function sendSticker(stickerName) {
             socket.emit('chat_message', { room: currentRoom, message: stickerName, name: myRealName });
             document.getElementById('sticker-panel').style.display = 'none';
         }
