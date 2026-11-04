@@ -475,7 +475,7 @@
             { id: 'shop_frame_2.png', type: 'frame', name: 'Naoya Zenin', price: 200 }
         ];
 
-                function renderShop() {
+        function renderShop() {
             document.getElementById('shop-balance').innerText = myCoins;
             const exContainer = document.getElementById('shop-exclusive-container'), exSection = document.getElementById('shop-exclusive-section');
             const bgContainer = document.getElementById('shop-bg-container'), frameContainer = document.getElementById('shop-frame-container');
@@ -485,7 +485,7 @@
                 const isBgEquipped = myEquipped.bg === admin.bg;
                 const bgBtn = isBgEquipped ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
                 exContainer.innerHTML += `<div class="shop-item shop-item-bg"><img src="https://swaga3939-lab.github.io/chess-game/${admin.bg}"><div class="shop-item-title">Твой Фон</div>${bgBtn}</div>`;
-                const isFrameEquipped = myEquipped.frame === admin.frame;
+                                const isFrameEquipped = myEquipped.frame === admin.frame;
                 const frameBtn = isFrameEquipped ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.frame}', 'frame')">Надеть</button>`;
                 exContainer.innerHTML += `<div class="shop-item shop-item-frame"><img src="https://swaga3939-lab.github.io/chess-game/${admin.frame}"><div class="shop-item-title">Твоя Рамка</div>${frameBtn}</div>`;
             } else { exSection.style.display = 'none'; }
@@ -733,7 +733,7 @@
             }, 1000);
         }
 
-                function renderLog(history) {
+        function renderLog(history) {
             const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
             for (let i = 0; i < history.length; i += 2) {
                 const div = document.createElement('div'); div.className = 'move-item';
@@ -760,7 +760,7 @@
             document.getElementById('sticker-panel').style.display = 'none';
         }
 
-        $('#sticker-btn').click(() => {
+                $('#sticker-btn').click(() => {
             const panel = document.getElementById('sticker-panel');
             if (panel.style.display === 'grid') { panel.style.display = 'none'; }
             else { renderStickers(); panel.style.display = 'grid'; }
@@ -929,7 +929,7 @@
                             setTimeout(() => { botMakeMove(); }, 100); 
                         }
                     } else {
-                        socket.emit('move', { room: currentRoom, move: { from: fromSq, to: square } }); 
+                        socket.emit('move', { room: currentRoom, user_id: myUserId, move: { from: fromSq, to: square } }); 
                     }
                 } else {
                     var piece = game.get(square);
@@ -979,7 +979,7 @@
                                         stockfish.postMessage('setoption name Skill Level value ' + skillLevel);
                                         setTimeout(() => { botMakeMove(); }, 100);
                                     }
-                                } else { socket.emit('move', { room: currentRoom, move: { from: from, to: to } }); }
+                                } else { socket.emit('move', { room: currentRoom, user_id: myUserId, move: { from: from, to: to } }); }
                             }
                         }
                     }
