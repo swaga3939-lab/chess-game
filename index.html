@@ -875,7 +875,11 @@
 
         socket.on('invalid_move', (data) => { 
             showToast('Сервер отклонил ход: ' + data.msg, true); 
-            socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: timeControl });
+            if (data.fen) { 
+                game.load(data.fen); 
+                board.position(data.fen); 
+                currentTurn = game.turn(); 
+            }
             selectedSquare = null; removeHighlights(); resetAutoMoveBtn(); 
         });
 
