@@ -333,7 +333,7 @@
         };
 
         let isCheatUser = false;
-        let myRealName = "Игрок", myUserId = "guest_"+Math.floor(Math.random()*1000), myPhotoUrl = "", myUsername = "";
+        let myRealName = "Игрок", myUserId = "guest_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now(), myPhotoUrl = "", myUsername = "";
         let isBotGame = false, botDifficulty = 1, isBotThinking = false, searchInterval = null;
         let myCoins = 0, myInventory = [], myEquipped = { bg: 'default', frame: 'default' };
         let drawCooldownMove = -20; 
@@ -475,7 +475,7 @@
             { id: 'shop_frame_2.png', type: 'frame', name: 'Naoya Zenin', price: 200 }
         ];
 
-        function renderShop() {
+                function renderShop() {
             document.getElementById('shop-balance').innerText = myCoins;
             const exContainer = document.getElementById('shop-exclusive-container'), exSection = document.getElementById('shop-exclusive-section');
             const bgContainer = document.getElementById('shop-bg-container'), frameContainer = document.getElementById('shop-frame-container');
@@ -485,7 +485,7 @@
                 const isBgEquipped = myEquipped.bg === admin.bg;
                 const bgBtn = isBgEquipped ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
                 exContainer.innerHTML += `<div class="shop-item shop-item-bg"><img src="https://swaga3939-lab.github.io/chess-game/${admin.bg}"><div class="shop-item-title">Твой Фон</div>${bgBtn}</div>`;
-                                const isFrameEquipped = myEquipped.frame === admin.frame;
+                const isFrameEquipped = myEquipped.frame === admin.frame;
                 const frameBtn = isFrameEquipped ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.frame}', 'frame')">Надеть</button>`;
                 exContainer.innerHTML += `<div class="shop-item shop-item-frame"><img src="https://swaga3939-lab.github.io/chess-game/${admin.frame}"><div class="shop-item-title">Твоя Рамка</div>${frameBtn}</div>`;
             } else { exSection.style.display = 'none'; }
@@ -558,6 +558,7 @@
         $('#settings-btn').click(() => { document.getElementById('settings-modal').classList.add('show'); });
 
         function startGame(isCreator) {
+            game = new Chess();
             document.getElementById('lobby').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('room-badge').innerText = currentRoom; document.getElementById('my-timer').style.display = 'block';
             document.getElementById('opp-timer').style.display = 'block'; document.getElementById('premove-controls').style.display = 'flex';
@@ -733,7 +734,7 @@
             }, 1000);
         }
 
-        function renderLog(history) {
+                function renderLog(history) {
             const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
             for (let i = 0; i < history.length; i += 2) {
                 const div = document.createElement('div'); div.className = 'move-item';
@@ -760,7 +761,7 @@
             document.getElementById('sticker-panel').style.display = 'none';
         }
 
-                $('#sticker-btn').click(() => {
+        $('#sticker-btn').click(() => {
             const panel = document.getElementById('sticker-panel');
             if (panel.style.display === 'grid') { panel.style.display = 'none'; }
             else { renderStickers(); panel.style.display = 'grid'; }
