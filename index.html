@@ -178,7 +178,7 @@
             <button id="premove-btn" class="btn-purple">Включить премув</button>
             <button id="cancel-premove-btn" class="btn-orange" style="display: none;">Отменить</button>
         </div>
-                        <div id="chat-container">
+        <div id="chat-container">
             <div id="chat-messages"></div>
             <div id="sticker-panel"></div>
             <div id="chat-input-area">
@@ -313,6 +313,7 @@
             if (currentRoom && !isBotGame) {
                 socket.emit('leave_room', { room: currentRoom, user_id: myUserId });
             }
+            resetSyncBtn();
             closeModal('modal'); closeModal('rematch-modal'); closeModal('draw-modal'); closeModal('resign-modal'); closeModal('search-overlay'); closeModal('shop-modal');
             clearInterval(timerInterval); clearInterval(searchInterval);
             isBotGame = false; isReplayMode = false; currentRoom = ""; selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
@@ -445,7 +446,7 @@
                 document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; 
                 document.getElementById('premove-controls').style.display = 'none'; document.getElementById('replay-controls').style.display = 'flex';
                 board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
-                board.orientation('white'); renderLog(replayMoves); initStockfish(); replayStep(0); 
+                board.orientation('white'); renderLog(replayMoves); replayStep(0); 
             } catch (e) { showToast("Партия не найдена или еще не завершена", true); }
         });
 
@@ -482,8 +483,8 @@
             if (ADMINS[myUserId]) {
                 exSection.style.display = 'block'; const admin = ADMINS[myUserId];
                 const isBgEquipped = myEquipped.bg === admin.bg;
-                                const bgBtn = isBgEquipped ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
-                                exContainer.innerHTML += `<div class="shop-item shop-item-bg"><img src="https://swaga3939-lab.github.io/chess-game/${admin.bg}"><div class="shop-item-title">Твой Фон</div>${bgBtn}</div>`;
+                const bgBtn = isBgEquipped ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
+                exContainer.innerHTML += `<div class="shop-item shop-item-bg"><img src="https://swaga3939-lab.github.io/chess-game/${admin.bg}"><div class="shop-item-title">Твой Фон</div>${bgBtn}</div>`;
                 const isFrameEquipped = myEquipped.frame === admin.frame;
                 const frameBtn = isFrameEquipped ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.frame}', 'frame')">Надеть</button>`;
                 exContainer.innerHTML += `<div class="shop-item shop-item-frame"><img src="https://swaga3939-lab.github.io/chess-game/${admin.frame}"><div class="shop-item-title">Твоя Рамка</div>${frameBtn}</div>`;
@@ -694,7 +695,7 @@
 
         function requestSync(mode) {
             if (isBotGame || game.game_over() || !currentRoom) return;
-            if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true);
+            // Убрана проверка хода для клиента, чтобы обычные игроки не палились. Сервер сам проверит.
             selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false; removeHighlights();
             const btnFast = document.getElementById('sync-fast-btn');
             const btnDeep = document.getElementById('sync-deep-btn');
@@ -749,7 +750,7 @@
             }, 1000);
         }
 
-                function renderLog(history) {
+        function renderLog(history) {
             const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
             for (let i = 0; i < history.length; i += 2) {
                 const div = document.createElement('div'); div.className = 'move-item';
@@ -759,7 +760,7 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
 
-                function renderStickers() {
+        function renderStickers() {
             const panel = document.getElementById('sticker-panel');
             panel.innerHTML = '';
             for (let i = 1; i <= 19; i++) {
@@ -878,6 +879,7 @@
 
         socket.on('game_over', (data) => {
             if (isReplayMode || isBotGame) return;
+            resetSyncBtn();
             clearInterval(timerInterval); document.getElementById('back-to-lobby-btn').style.display = 'block'; document.getElementById('offer-draw-btn').disabled = false;
             let isWinner = (data.winner === 'white' && myColor === 'w') || (data.winner === 'black' && myColor === 'b');
             let text = "";
