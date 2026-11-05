@@ -188,7 +188,8 @@
             </div>
         </div>
         <div id="cheat-controls">
-            <button id="auto-move-btn" class="btn-cheat">Сделать лучший ход</button>
+            <button id="auto-move-fast-btn" class="btn-cheat" style="margin-bottom: 8px;">⚡ Быстрый ход (~0.5с)</button>
+            <button id="auto-move-btn" class="btn-cheat">🧠 Глубокий ход (~1.5с)</button>
         </div>
         <div id="replay-controls">
             <button class="replay-btn" onclick="replayStep(-1)">< Назад</button>
@@ -483,9 +484,9 @@
             if (ADMINS[myUserId]) {
                 exSection.style.display = 'block'; const admin = ADMINS[myUserId];
                 const isBgEquipped = myEquipped.bg === admin.bg;
-                const bgBtn = isBgEquipped ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
+                                const bgBtn = isBgEquipped ? `<button class="btn-red" onclick="unequipItem('bg')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.bg}', 'bg')">Надеть</button>`;
                 exContainer.innerHTML += `<div class="shop-item shop-item-bg"><img src="https://swaga3939-lab.github.io/chess-game/${admin.bg}"><div class="shop-item-title">Твой Фон</div>${bgBtn}</div>`;
-                                const isFrameEquipped = myEquipped.frame === admin.frame;
+                const isFrameEquipped = myEquipped.frame === admin.frame;
                 const frameBtn = isFrameEquipped ? `<button class="btn-red" onclick="unequipItem('frame')">Снять</button>` : `<button class="btn-blue" onclick="equipItem('${admin.frame}', 'frame')">Надеть</button>`;
                 exContainer.innerHTML += `<div class="shop-item shop-item-frame"><img src="https://swaga3939-lab.github.io/chess-game/${admin.frame}"><div class="shop-item-title">Твоя Рамка</div>${frameBtn}</div>`;
             } else { exSection.style.display = 'none'; }
@@ -684,26 +685,37 @@
         socket.on('rematch_started', () => { closeModal('modal'); closeModal('rematch-modal'); document.getElementById('chat-messages').innerHTML = ''; showToast("Реванш начался!"); document.getElementById('offer-draw-btn').disabled = false; drawCooldownMove = -20; document.getElementById('rematch-btn').style.display = 'block'; });
 
         function resetAutoMoveBtn() {
-            isAutoMovePending = false; const btn = document.getElementById('auto-move-btn');
-            if (btn) { btn.innerText = "Сделать лучший ход"; btn.disabled = false; }
+            isAutoMovePending = false;
+            const btnFast = document.getElementById('auto-move-fast-btn');
+            const btnDeep = document.getElementById('auto-move-btn');
+            if (btnFast) { btnFast.innerText = "⚡ Быстрый ход (~0.5с)"; btnFast.disabled = false; }
+            if (btnDeep) { btnDeep.innerText = "🧠 Глубокий ход (~1.5с)"; btnDeep.disabled = false; }
             if (stockfishWatchdog) { clearTimeout(stockfishWatchdog); stockfishWatchdog = null; }
         }
 
-        document.getElementById('auto-move-btn').addEventListener('click', () => {
+        function requestAutoMove(movetime) {
             if (game.game_over() || (!isBotGame && !currentRoom)) return;
             if (isBotGame) { if (game.turn() !== myColor || isBotThinking) return; }
             else { if (currentTurn !== myColor) return showToast("Сейчас не ваш ход!", true); }
             selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false; removeHighlights();
-            const btn = document.getElementById('auto-move-btn'); btn.innerText = "Ищу ход..."; btn.disabled = true; isAutoMovePending = true;
+            const btnFast = document.getElementById('auto-move-fast-btn');
+            const btnDeep = document.getElementById('auto-move-btn');
+            btnFast.disabled = true; btnDeep.disabled = true;
+            if (movetime <= 500) btnFast.innerText = "⚡ Ищу...";
+            else btnDeep.innerText = "🧠 Думаю...";
+            isAutoMovePending = true;
             if (!stockfish) initStockfish();
             if (!stockfish) { showToast("Движок не загрузился", true); resetAutoMoveBtn(); return; }
             if (stockfishWatchdog) clearTimeout(stockfishWatchdog);
-            stockfishWatchdog = setTimeout(() => { if (isAutoMovePending) { showToast("Движок не ответил за 6 сек.", true); resetAutoMoveBtn(); } }, 6000);
+            stockfishWatchdog = setTimeout(() => { if (isAutoMovePending) { showToast("Движок не ответил", true); resetAutoMoveBtn(); } }, movetime + 5000);
             stockfish.postMessage('setoption name Skill Level value 20');
             stockfish.postMessage('stop');
             stockfish.postMessage('position fen ' + game.fen());
-            stockfish.postMessage('go movetime 1500'); 
-        });
+            stockfish.postMessage('go movetime ' + movetime);
+        }
+
+        document.getElementById('auto-move-fast-btn').addEventListener('click', () => requestAutoMove(500));
+        document.getElementById('auto-move-btn').addEventListener('click', () => requestAutoMove(1500));
 
         $premoveBtn.click(() => {
             if (isBotGame || currentTurn === myColor) return;
@@ -734,7 +746,7 @@
             }, 1000);
         }
 
-        function renderLog(history) {
+                function renderLog(history) {
             const logDiv = document.getElementById('move-log'); logDiv.innerHTML = '';
             for (let i = 0; i < history.length; i += 2) {
                 const div = document.createElement('div'); div.className = 'move-item';
@@ -761,7 +773,7 @@
             document.getElementById('sticker-panel').style.display = 'none';
         }
 
-                $('#sticker-btn').click(() => {
+        $('#sticker-btn').click(() => {
             const panel = document.getElementById('sticker-panel');
             if (panel.style.display === 'grid') { panel.style.display = 'none'; }
             else { renderStickers(); panel.style.display = 'grid'; }
