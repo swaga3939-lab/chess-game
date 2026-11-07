@@ -14,18 +14,33 @@
         :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.06); --panel-border: rgba(255, 255, 255, 0.12); --accent-green: #81b64c; --accent-blue: #42a5f5; --input-bg: rgba(0, 0, 0, 0.4); }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background: var(--bg-gradient); color: #f0f0f0; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; padding-bottom: 20px; overflow-x: hidden; }
-        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 350px; }
+        
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 350px; }
         .toast { background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(10px); color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; text-align: center; border: 1px solid #444; box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.error { border-color: #ef5350; background: rgba(60, 20, 20, 0.95); }
-        #lobby { display: flex; flex-direction: column; width: 92%; max-width: 400px; padding: 25px; background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 20px; margin-top: 30px; border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: all 0.3s ease; }
-        #lobby h2 { margin-top: 0; margin-bottom: 15px; font-size: 16px; font-weight: 600; color: #ddd; letter-spacing: 0.5px; }
-        .time-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .time-btn { padding: 12px 5px; border-radius: 12px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); color: #ccc; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s; }
+
+        #lobby { display: flex; flex-direction: column; width: 92%; max-width: 400px; padding: 20px; background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 20px; margin-top: 20px; border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: all 0.3s ease; }
+        #lobby h2 { margin-top: 0; margin-bottom: 10px; font-size: 15px; font-weight: 600; color: #ddd; letter-spacing: 0.5px; text-align: center; }
+        
+        /* Профиль в лобби */
+        #lobby-profile { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: 20px; }
+        #my-rank-info { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        #my-rank-icon { width: 45px; height: 45px; object-fit: contain; }
+        #my-rank-name { font-size: 22px; font-weight: bold; color: #ddd; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        #my-lobby-banner { width: 100%; height: 130px; border-radius: 15px; background-size: cover; background-position: center; border: 1px solid #444; position: relative; display: flex; align-items: center; padding-left: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); background-color: #222; }
+        #my-lobby-avatar-wrapper { width: 80px; height: 80px; }
+        #my-lobby-avatar { width: 60px; height: 60px; border-width: 3px; }
+        #my-lobby-name { font-size: 18px; font-weight: bold; color: #fff; text-shadow: 0 2px 4px #000; }
+        #my-lobby-rating { font-size: 14px; color: var(--accent-green); font-weight: bold; text-shadow: 0 2px 4px #000; }
+
+        .time-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .time-btn { padding: 10px 5px; border-radius: 10px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); color: #ccc; cursor: pointer; font-weight: 500; font-size: 12px; transition: all 0.2s; }
         .time-btn.active { background: var(--accent-green); border-color: var(--accent-green); color: white; box-shadow: 0 4px 12px rgba(129, 182, 76, 0.3); transform: translateY(-1px); }
-        .join-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--input-bg); color: white; font-size: 16px; text-align: center; text-transform: uppercase; margin-bottom: 12px; transition: border 0.2s; outline: none; font-weight: bold; letter-spacing: 2px; }
+        
+        .join-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--input-bg); color: white; font-size: 15px; text-align: center; text-transform: uppercase; margin-bottom: 10px; transition: border 0.2s; outline: none; font-weight: bold; letter-spacing: 2px; }
         .join-input:focus { border-color: var(--accent-green); }
-        button { padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; color: white; width: 100%; margin-bottom: 12px; transition: all 0.2s; user-select: none; -webkit-tap-highlight-color: transparent; }
+        button { padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; color: white; width: 100%; margin-bottom: 10px; transition: all 0.2s; user-select: none; -webkit-tap-highlight-color: transparent; }
         button:active { transform: scale(0.97); }
         .btn-green { background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%); box-shadow: 0 4px 15px rgba(85, 139, 47, 0.4); }
         .btn-blue { background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%); box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4); }
@@ -34,8 +49,11 @@
         .btn-orange { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
         .btn-sync { background: linear-gradient(135deg, #546e7a 0%, #37474f 100%); border: 1px solid #607d8b; box-shadow: 0 4px 15px rgba(55, 71, 79, 0.4); }
         .btn-sync:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
+        
         .coin-icon { width: 16px !important; height: 16px !important; object-fit: contain; vertical-align: middle; margin-left: 4px; margin-bottom: 2px; flex-shrink: 0; display: inline-block; }
         .coin-icon-lg { width: 22px !important; height: 22px !important; object-fit: contain; vertical-align: middle; margin-left: 6px; margin-bottom: 3px; flex-shrink: 0; display: inline-block; }
+
+        /* Игровой экран */
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; }
         #back-to-lobby-btn { width: 92%; max-width: 400px; margin: 5px 0 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 10px; font-size: 14px; color: #ccc; display: none; cursor: pointer; text-align: center; transition: all 0.2s; }
         #back-to-lobby-btn:active { background: rgba(255,255,255,0.2); }
@@ -54,7 +72,6 @@
         .timer.active { background: rgba(255, 255, 255, 0.85); color: #000; border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
         #board-container { position: relative; width: 92vw; max-width: 400px; margin: 0 0 5px 0; border-radius: 12px; overflow: hidden; background-color: #f0d9b5; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
         #board { width: 100%; height: 100%; touch-action: none; }
-        .notation-322f9 { display: block; font-size: 10px; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000; font-weight: bold; } 
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); }
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.25); }
@@ -64,11 +81,15 @@
         .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(156, 39, 176, 0.8); box-sizing: border-box; }
         .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.5) !important; }
         .highlight-last-move { box-shadow: inset 0 0 0 4px rgba(255, 235, 59, 0.6); }
-        #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; }
+        
+        #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; align-items: center;}
         .room-badge { background: rgba(129, 182, 76, 0.15); color: var(--accent-green); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
+        #game-duration { display: none; font-family: 'Courier New', monospace; font-weight: bold; color: #fff; }
+        
         #game-actions { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
         #game-actions button { margin-bottom: 0; padding: 10px; font-size: 14px; }
         #premove-controls { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
+        
         #chat-container { width: 92%; max-width: 400px; height: 200px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; margin-top: 10px; display: none; flex-direction: column; border: 1px solid var(--panel-border); overflow: hidden; }
         #chat-messages { flex: 1; overflow-y: auto; padding: 12px; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
         .chat-msg { padding: 6px 12px; border-radius: 12px; max-width: 85%; word-wrap: break-word; font-size: 13px; line-height: 1.4; }
@@ -83,9 +104,11 @@
         #sticker-btn { background: transparent; border: none; color: #ccc; font-size: 24px; cursor: pointer; padding: 0 5px; margin: 0; display: flex; justify-content: center; align-items: center; width: auto; }
         #sticker-panel { display: none; height: 150px; overflow-y: auto; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: var(--panel-bg); border-top: 1px solid var(--panel-border); }
         .sticker-item { width: 100%; aspect-ratio: 1/1; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 8px; cursor: pointer; padding: 2px; }
+        
         #sync-controls { display: none; width: 92%; max-width: 400px; margin-top: 5px; margin-bottom: 5px; gap: 10px; justify-content: space-between; }
         #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: #333; padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid #444; }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
         .modal-card { position: relative; background: #222; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid #444; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.8) translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -93,12 +116,15 @@
         .modal-card h2 { margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: bold; }
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 26px; color: #aaa; cursor: pointer; line-height: 1; transition: color 0.2s; }
         .close-btn:hover { color: white; }
+        
         #move-log { width: 92%; max-width: 400px; height: 80px; overflow-y: auto; background: var(--panel-bg); border-radius: 12px; padding: 12px; font-family: 'Courier New', monospace; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 20px; border: 1px solid var(--panel-border); margin-top: 10px;}
         .move-item { display: flex; gap: 6px; width: 45%; }
         .move-num { color: #666; font-weight: bold;}
-        #leaderboard-list { text-align: left; margin-bottom: 20px; max-height: 250px; overflow-y: auto; padding-right: 5px;}
-        .lb-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #333; font-size: 15px;}
+        
+        #lobby-leaderboard-list { text-align: left; margin-bottom: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px; width: 100%;}
+        .lb-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 14px;}
         .lb-item:last-child { border-bottom: none; }
+        
         .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .shop-section { text-align: left; margin-bottom: 20px; }
         .shop-section h3 { font-size: 16px; margin-bottom: 10px; color: #ddd; border-bottom: 1px solid #444; padding-bottom: 5px; }
@@ -107,33 +133,67 @@
         .shop-item button { padding: 8px; font-size: 13px; margin: 0; width: 100%; display: flex; justify-content: center; align-items: center; gap: 2px; }
         .shop-item-bg img { width: 100%; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #333; }
         .shop-item-frame img { width: 64px; height: 64px; object-fit: contain; margin-bottom: 8px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+        
+        .elo-up { color: #4caf50; font-weight: bold; animation: pulse-green 1s infinite; text-shadow: 0 0 10px rgba(76, 175, 80, 0.5); }
+        .elo-down { color: #f44336; font-weight: bold; animation: pulse-red 1s infinite; text-shadow: 0 0 10px rgba(244, 67, 54, 0.5); }
+        @keyframes pulse-green { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
     <div id="toast-container"></div>
+    
     <div id="lobby">
+        <!-- БЛОК ПРОФИЛЯ -->
+        <div id="lobby-profile">
+            <div id="my-rank-info">
+                <img id="my-rank-icon" src="https://swaga3939-lab.github.io/chess-game/copper.png">
+                <span id="my-rank-name">Медь</span>
+            </div>
+            <div id="my-lobby-banner">
+                <div class="avatar-wrapper" id="my-lobby-avatar-wrapper">
+                    <div class="avatar" id="my-lobby-avatar"></div>
+                    <div class="avatar-frame" id="my-lobby-frame"></div>
+                </div>
+                <div style="margin-left:15px; display:flex; flex-direction:column;">
+                    <div id="my-lobby-name">Игрок</div>
+                    <div id="my-lobby-rating">400</div>
+                </div>
+            </div>
+        </div>
+
         <h2>Создать игру</h2>
         <div class="time-options">
             <button class="time-btn" data-time="60">Пуля (1м)</button>
             <button class="time-btn" data-time="180">Блиц (3м)</button>
             <button class="time-btn active" data-time="600">Рапид (10м)</button>
+            <button class="time-btn" data-time="0">Контроль на ход (1м)</button>
         </div>
         <button id="create-game-btn" class="btn-green">Создать</button>
         <button id="find-match-btn" class="btn-green" style="margin-top: 5px; background: linear-gradient(135deg, #03a9f4 0%, #0277bd 100%); box-shadow: 0 4px 15px rgba(3, 169, 244, 0.4);">Найти соперника</button>
         <button id="play-bot-btn" class="btn-orange" style="margin-top: 10px;">Играть с ботом</button>
-        <h2 style="margin-top: 25px;">Войти по коду</h2>
+        
+        <h2 style="margin-top: 15px;">Войти по коду</h2>
         <input type="text" id="join-code-input" class="join-input" placeholder="КОД" maxlength="4">
         <button id="join-game-btn" class="btn-blue">Присоединиться</button>
-        <h2 style="margin-top: 25px;">Смотреть и анализировать</h2>
+        
+        <h2 style="margin-top: 15px;">Смотреть и анализировать</h2>
         <input type="text" id="watch-code-input" class="join-input" placeholder="КОД ПАРТИИ" maxlength="4">
         <button id="watch-game-btn" style="background: #444;">Смотреть партию</button>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button id="leaderboard-btn" class="btn-blue" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Топ</button>
+        
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
             <button id="shop-btn" class="btn-green" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px; background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">Магазин</button>
             <button id="settings-btn" class="btn-purple" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Настройки</button>
         </div>
+
+        <!-- ТОП 10 В ЛОББИ -->
+        <h2 style="margin-top: 20px;">Топ-10 игроков</h2>
+        <div id="lobby-leaderboard-list">
+            <div style="text-align: center; color: #aaa;">Загрузка...</div>
+        </div>
     </div>
+    
     <div id="game-screen">
         <div class="player-bar" id="opp-player-bar">
             <div class="player-info">
@@ -143,7 +203,7 @@
                 </div>
                 <div class="name-box">
                     <div class="name" id="opp-name">Ожидание...</div>
-                    <div class="rating" id="opp-rating">400</div>
+                    <div class="rating" id="opp-rating">---</div>
                 </div>
             </div>
             <div class="timer" id="opp-timer">--:--</div>
@@ -151,7 +211,7 @@
         <button id="back-to-lobby-btn">← Выйти в лобби</button>
         <div id="board-container"><div id="board"></div></div>
         
-        <div id="sync-controls" style="display: none; width: 92%; max-width: 400px; margin-top: 5px; margin-bottom: 5px; gap: 10px; justify-content: space-between;">
+        <div id="sync-controls">
             <button id="sync-fast-btn" class="btn-sync" style="flex: 1; padding: 10px 5px; font-size: 13px; margin-bottom: 0; border-radius: 10px;">🔄 Синхронизация</button>
             <button id="sync-deep-btn" class="btn-sync" style="flex: 1; padding: 10px 5px; font-size: 13px; margin-bottom: 0; border-radius: 10px;">🔄 Глубокая</button>
         </div>
@@ -164,13 +224,14 @@
                 </div>
                 <div class="name-box">
                     <div class="name" id="my-name">Вы</div>
-                    <div class="rating" id="my-rating">400</div>
+                    <div class="rating" id="my-rating">---</div>
                 </div>
             </div>
             <div class="timer" id="my-timer">--:--</div>
         </div>
         <div id="status-bar">
             <div id="status-text">...</div>
+            <div id="game-duration">00:00</div>
             <div style="display:flex; gap:5px; align-items:center;">
                 <div class="room-badge" id="room-badge">----</div>
                 <div class="room-badge" id="share-btn" style="background: rgba(33,150,243,0.2); color: #2196F3; border-color: rgba(33,150,243,0.4);">🔗</div>
@@ -199,6 +260,7 @@
         </div>
         <div id="move-log"></div>
     </div>
+
     <div id="search-overlay" class="modal-overlay">
         <div class="modal-card">
             <h2>Поиск соперника</h2>
@@ -210,7 +272,7 @@
         <div class="modal-card" style="max-width: 400px; width: 90%;">
             <span class="close-btn" onclick="closeModal('shop-modal')">&times;</span>
             <h2>Магазин</h2>
-            <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px;">Баланс: <span id="shop-balance">0</span> <span class="coin-icon-lg"></span></div>
+            <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px;">Баланс: <span id="shop-balance">0</span> <img src="https://swaga3939-lab.github.io/chess-game/money_pin.png" class="coin-icon-lg"></div>
             <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
                 <div class="shop-section" id="shop-exclusive-section" style="display: none;">
                     <h3>Эксклюзив</h3>
@@ -222,16 +284,20 @@
             <button class="btn-blue" onclick="closeModal('shop-modal')" style="margin-top: 20px;">Закрыть</button>
         </div>
     </div>
+    
     <div id="modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('modal')">&times;</span>
             <h2 id="modal-text"></h2>
+            <div id="modal-elo-container" style="margin: 15px 0; font-size: 20px; font-family: monospace;"></div>
+            <div id="modal-rank-container" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;"></div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button class="btn-blue" onclick="goToLobby()" style="margin: 0;">В лобби</button>
                 <button id="rematch-btn" class="btn-green" style="margin: 0;">Реванш</button>
             </div>
         </div>
     </div>
+    
     <div id="bot-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Выберите сложность</h2>
@@ -258,6 +324,7 @@
             <button class="btn-red" onclick="closeModal('bot-modal')">Отмена</button>
         </div>
     </div>
+    
     <div id="rematch-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Соперник предлагает реванш</h2>
@@ -279,14 +346,6 @@
             <button class="btn-blue" onclick="closeModal('resign-modal')">Отмена</button>
         </div>
     </div>
-    <div id="leaderboard-modal" class="modal-overlay">
-        <div class="modal-card">
-            <span class="close-btn" onclick="closeModal('leaderboard-modal')">&times;</span>
-            <h2>Лидерборд</h2>
-            <div id="leaderboard-list"></div>
-            <button class="btn-blue" onclick="closeModal('leaderboard-modal')" style="margin-top: 20px;">Закрыть</button>
-        </div>
-    </div>
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-card">
             <span class="close-btn" onclick="closeModal('settings-modal')">&times;</span>
@@ -295,6 +354,7 @@
             <button class="btn-blue" onclick="closeModal('settings-modal')">Закрыть</button>
         </div>
     </div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
@@ -326,6 +386,7 @@
             document.getElementById('lobby').offsetHeight; 
             document.getElementById('lobby').style.animation = 'fadeIn 0.4s';
             fetchMyProfile();
+            fetchLeaderboard();
         }
 
         const ADMINS = {
@@ -334,24 +395,28 @@
             "7053701218": { title: "АНЕМО АРХОНТ", color: "#00bcd4", bg: "bg.jpg", frame: "frame.png" },
             "8395827920": { title: "ЩЕБЬОНКА", color: "#ff9800", bg: "bg3.jpg", frame: "frame3.png" },
             "8475840411": { title: "NEVERMORE", color: "#ab47bc", bg: "bg4.jpg", frame: "frame4.png" },
-            "5087122510": { title: "Скучающий", color: "#b388ff", bg: "bg5.jpg", frame: "frame5.png" }
+            "5087122510": { title: "Скучающий", color: "#b388ff", bg: "bg5.jpg", frame: "frame5.png" },
+            "5827789817": { title: "Залупка", color: "#00e5ff", bg: "bg5.jpg", frame: "frame6.png" }
         };
 
         let myRealName = "Игрок", myUserId = "guest_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now(), myPhotoUrl = "", myUsername = "";
         let isBotGame = false, botDifficulty = 1, isBotThinking = false, searchInterval = null;
-        let myCoins = 0, myInventory = [], myEquipped = { bg: 'default', frame: 'default' };
+        let myCoins = 0, myInventory = [], myEquipped = { bg: 'default', frame: 'default' }, myRating = 400;
         let drawCooldownMove = -20; 
         let pendingInviteCode = null;
+        let gameDuration = 0;
 
         let inviteParam = "";
-        if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-            inviteParam = tg.initDataUnsafe.start_param;
-        } else {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('startapp')) inviteParam = urlParams.get('startapp');
-        }
-        if (inviteParam && inviteParam.length === 4) {
-            pendingInviteCode = inviteParam.toUpperCase();
+        if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) { inviteParam = tg.initDataUnsafe.start_param; }
+        else { const urlParams = new URLSearchParams(window.location.search); if (urlParams.has('startapp')) inviteParam = urlParams.get('startapp'); }
+        if (inviteParam && inviteParam.length === 4) { pendingInviteCode = inviteParam.toUpperCase(); }
+
+        function getRankData(rating) {
+            if (rating <= 200) return { name: 'Медь', img: 'copper.png', color: '#cd7f32' };
+            if (rating <= 400) return { name: 'Серебро', img: 'silver.png', color: '#c0c0c0' };
+            if (rating <= 800) return { name: 'Золото', img: 'gold.png', color: '#ffd700' };
+            if (rating <= 1200) return { name: 'Аметист', img: 'amethyst.png', color: '#9966cc' };
+            return { name: 'Изумруд', img: 'emerald.png', color: '#50c878' };
         }
 
         function applyAdminStyles(prefix, userId) {
@@ -378,11 +443,13 @@
             myUsername = tg.initDataUnsafe.user.username || "";
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
+            
             const myAdminData = applyAdminStyles('my', myUserId);
-            if (myAdminData) {
-                document.getElementById('my-name').innerHTML = `${myRealName}<br><span class="admin-title" style="background: ${myAdminData.color}; box-shadow: 0 2px 5px ${myAdminData.color}80;">${myAdminData.title}</span>`;
-            } else { document.getElementById('my-name').innerText = myRealName; }
+            if (myAdminData) { document.getElementById('my-name').innerHTML = `${myRealName}<br><span class="admin-title" style="background: ${myAdminData.color}; box-shadow: 0 2px 5px ${myAdminData.color}80;">${myAdminData.title}</span>`; }
+            else { document.getElementById('my-name').innerText = myRealName; }
+            
             document.getElementById('my-avatar').style.backgroundImage = myPhotoUrl ? `url('${myPhotoUrl}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${myUserId}')`;
+            document.getElementById('my-lobby-avatar').style.backgroundImage = document.getElementById('my-avatar').style.backgroundImage;
         }
 
         const socket = io("https://loffchess.dpdns.org", { transports: ["websocket"] }); 
@@ -446,7 +513,7 @@
                 document.getElementById('opp-avatar').style.backgroundImage = blackP.photo ? `url('${blackP.photo}')` : `url('https://api.dicebear.com/7.x/bottts/svg?seed=${bName}')`;
                 document.getElementById('status-text').innerText = "Анализ партии";
                 document.getElementById('sync-controls').style.display = 'none'; document.getElementById('chat-container').style.display = 'none';
-                document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; 
+                document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; document.getElementById('game-duration').style.display = 'none';
                 document.getElementById('premove-controls').style.display = 'none'; document.getElementById('replay-controls').style.display = 'flex';
                 board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
                 board.orientation('white'); renderLog(replayMoves); replayStep(0); 
@@ -461,15 +528,18 @@
             board.position(replayGame.fen()); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
         }
 
-        $('#leaderboard-btn').click(async () => {
-            document.getElementById('leaderboard-list').innerHTML = '<div style="text-align: center; padding: 20px; color: #aaa;">Загрузка...</div>';
-            document.getElementById('leaderboard-modal').classList.add('show');
+        async function fetchLeaderboard() {
             try {
-                const res = await fetch(`https://loffchess.dpdns.org/leaderboard`); const players = await res.json();
-                let html = ''; players.forEach((p, i) => { html += `<div class="lb-item"><span>${i+1}. ${p.name}</span> <span style="color:var(--accent-green); font-weight:bold;">${p.rating}</span></div>`; });
-                document.getElementById('leaderboard-list').innerHTML = html;
-            } catch (e) { document.getElementById('leaderboard-list').innerHTML = '<div style="text-align: center; padding: 20px; color: #ef5350;">Ошибка загрузки</div>'; }
-        });
+                const res = await fetch('https://loffchess.dpdns.org/leaderboard');
+                const players = await res.json();
+                let html = '';
+                players.forEach((p, i) => {
+                    let rank = getRankData(p.rating);
+                    html += `<div class="lb-item"><span>${i+1}. <img src="https://swaga3939-lab.github.io/chess-game/${rank.img}" style="width:16px; vertical-align:middle; margin-bottom:2px;"> ${p.name}</span> <span style="color:var(--accent-green); font-weight:bold;">${p.rating}</span></div>`;
+                });
+                document.getElementById('lobby-leaderboard-list').innerHTML = html;
+            } catch(e) { document.getElementById('lobby-leaderboard-list').innerHTML = '<div style="text-align: center; color: #ef5350;">Ошибка загрузки</div>'; }
+        }
 
         const SHOP_CATALOG = [
             { id: 'shop_bg_1.jpg', type: 'bg', name: 'Apostle of Darkness', price: 100 },
@@ -495,7 +565,7 @@
             SHOP_CATALOG.forEach(item => {
                 const isOwned = myInventory.includes(item.id);
                 const isEquipped = (item.type === 'bg' && myEquipped.bg === item.id) || (item.type === 'frame' && myEquipped.frame === item.id);
-                let btnHtml = isEquipped ? `<button class="btn-red" onclick="unequipItem('${item.type}')">Снять</button>` : (isOwned ? `<button class="btn-blue" onclick="equipItem('${item.id}', '${item.type}')">Надеть</button>` : `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} <span class="coin-icon"></span></button>`);
+                let btnHtml = isEquipped ? `<button class="btn-red" onclick="unequipItem('${item.type}')">Снять</button>` : (isOwned ? `<button class="btn-blue" onclick="equipItem('${item.id}', '${item.type}')">Надеть</button>` : `<button class="btn-orange" onclick="buyItem('${item.id}', ${item.price})">${item.price} <img src="https://swaga3939-lab.github.io/chess-game/money_pin.png" class="coin-icon"></button>`);
                 const imgUrl = `https://swaga3939-lab.github.io/chess-game/${item.id}`; const typeClass = item.type === 'bg' ? 'shop-item-bg' : 'shop-item-frame';
                 const itemHtml = `<div class="shop-item ${typeClass}"><img src="${imgUrl}" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${item.id}'"><div class="shop-item-title">${item.name}</div>${btnHtml}</div>`;
                 if (item.type === 'bg') bgContainer.innerHTML += itemHtml; else frameContainer.innerHTML += itemHtml;
@@ -533,22 +603,48 @@
                 const res = await fetch(`https://loffchess.dpdns.org/api/user/${myUserId}?t=${Date.now()}`);
                 const data = await res.json();
                 myCoins = data.coins; myInventory = data.inventory; myEquipped = { bg: data.equipped_bg, frame: data.equipped_frame };
+                myRating = data.rating;
+                
+                const rankData = getRankData(myRating);
+                document.getElementById('my-rank-icon').src = `https://swaga3939-lab.github.io/chess-game/${rankData.img}`;
+                document.getElementById('my-rank-name').innerText = rankData.name;
+                document.getElementById('my-rank-name').style.color = rankData.color;
+                
+                document.getElementById('my-lobby-name').innerText = myRealName;
+                document.getElementById('my-lobby-rating').innerText = myRating;
+                
                 applyMyEquipped();
+                fetchLeaderboard();
             } catch (e) { console.log("Не удалось загрузить профиль", e); }
         }
 
         function applyMyEquipped() {
             const bar = document.getElementById('my-player-bar'), frameEl = document.getElementById('my-frame');
+            const lobbyBar = document.getElementById('my-lobby-banner'), lobbyFrame = document.getElementById('my-lobby-frame');
+            
             if (ADMINS[myUserId] && myEquipped.bg === 'default' && myEquipped.frame === 'default') {
                 const admin = ADMINS[myUserId];
-                bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('${admin.bg}')`;
-                frameEl.style.backgroundImage = `url('${admin.frame}')`; frameEl.classList.add('active-frame'); document.getElementById('my-avatar-wrapper').classList.add('admin');
+                bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${admin.bg}')`;
+                frameEl.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${admin.frame}')`; frameEl.classList.add('active-frame'); document.getElementById('my-avatar-wrapper').classList.add('admin');
+                
+                lobbyBar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${admin.bg}')`;
+                lobbyFrame.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${admin.frame}')`; lobbyFrame.classList.add('active-frame');
             } else {
                 document.getElementById('my-avatar-wrapper').classList.remove('admin');
-                if (myEquipped.bg !== 'default') bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
-                else { bar.style.backgroundImage = 'none'; bar.style.backgroundColor = 'var(--panel-bg)'; }
-                if (myEquipped.frame !== 'default') { frameEl.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${myEquipped.frame}')`; frameEl.classList.add('active-frame'); }
-                else { frameEl.style.backgroundImage = 'none'; frameEl.classList.remove('active-frame'); }
+                if (myEquipped.bg !== 'default') {
+                    bar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
+                    lobbyBar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
+                } else { 
+                    bar.style.backgroundImage = 'none'; bar.style.backgroundColor = 'var(--panel-bg)'; 
+                    lobbyBar.style.backgroundImage = 'none'; lobbyBar.style.backgroundColor = '#222';
+                }
+                if (myEquipped.frame !== 'default') { 
+                    frameEl.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${myEquipped.frame}')`; frameEl.classList.add('active-frame'); 
+                    lobbyFrame.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${myEquipped.frame}')`; lobbyFrame.classList.add('active-frame');
+                } else { 
+                    frameEl.style.backgroundImage = 'none'; frameEl.classList.remove('active-frame'); 
+                    lobbyFrame.style.backgroundImage = 'none'; lobbyFrame.classList.remove('active-frame');
+                }
             }
         }
 
@@ -562,6 +658,7 @@
 
         function startGame(isCreator) {
             game = new Chess();
+            gameDuration = 0;
             document.getElementById('lobby').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex';
             document.getElementById('room-badge').innerText = currentRoom; document.getElementById('my-timer').style.display = 'block';
             document.getElementById('opp-timer').style.display = 'block'; document.getElementById('premove-controls').style.display = 'flex';
@@ -570,6 +667,26 @@
             document.getElementById('offer-draw-btn').disabled = false; drawCooldownMove = -20;
             document.getElementById('sync-controls').style.display = 'flex';
             document.getElementById('replay-controls').style.display = 'none';
+
+            if (timeControl === 0) {
+                document.getElementById('my-timer').style.display = 'none';
+                document.getElementById('opp-timer').style.display = 'none';
+                document.getElementById('game-duration').style.display = 'block';
+                document.getElementById('game-duration').innerText = "⏱ 0:00";
+            } else {
+                document.getElementById('my-timer').style.display = 'block';
+                document.getElementById('opp-timer').style.display = 'block';
+                document.getElementById('game-duration').style.display = 'none';
+            }
+
+            document.getElementById('opp-name').innerText = "Ожидание...";
+            document.getElementById('opp-rating').innerText = "---";
+            document.getElementById('opp-avatar').style.backgroundImage = "none";
+            document.getElementById('opp-frame').style.backgroundImage = "none";
+            document.getElementById('opp-frame').classList.remove('active-frame');
+            document.getElementById('opp-player-bar').style.backgroundImage = "none";
+            document.getElementById('opp-timer').innerText = "--:--";
+
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
             socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : timeControl });
@@ -581,9 +698,10 @@
             document.getElementById('game-actions').style.display = 'none'; document.getElementById('chat-container').style.display = 'none'; 
             document.getElementById('premove-controls').style.display = 'none'; document.getElementById('back-to-lobby-btn').style.display = 'block';
             document.getElementById('sync-controls').style.display = 'none';
+            document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; document.getElementById('game-duration').style.display = 'none';
             let botName = depth === 1 ? 'Новичок' : depth === 5 ? 'Знающий' : depth === 12 ? 'Профи' : 'Гроссмейстер';
             document.getElementById('opp-name').innerText = "Бот (" + botName + ")"; document.getElementById('opp-rating').innerText = "ИИ";
-            document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; document.getElementById('room-badge').innerText = "BOT";
+            document.getElementById('room-badge').innerText = "BOT";
             document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=stockfish')`;
             game = new Chess();
             board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
@@ -612,7 +730,8 @@
                     isBotThinking = false;
                     if (game.game_over()) {
                         let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
-                        document.getElementById('modal-text').innerText = txt; document.getElementById('modal').classList.add('show');
+                        document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = '';
+                        document.getElementById('modal').classList.add('show');
                     } else { document.getElementById('status-text').innerText = "Ваш ход"; }
                 }
             } else {
@@ -636,18 +755,17 @@
         document.getElementById('share-btn').onclick = () => {
             if (isBotGame || !currentRoom) return;
             const link = `https://t.me/LoffChess_Bot?start=${currentRoom}`;
-            if (navigator.share) {
-                navigator.share({ title: 'LoChess', text: `Сыграем в шахматы? Комната ${currentRoom}`, url: link });
-            } else {
-                navigator.clipboard.writeText(link);
-                showToast("Ссылка скопирована!");
-            }
+            if (navigator.share) { navigator.share({ title: 'LoChess', text: `Сыграем в шахматы? Комната ${currentRoom}`, url: link }); }
+            else { navigator.clipboard.writeText(link); showToast("Ссылка скопирована!"); }
         };
 
         document.getElementById('resign-btn').addEventListener('click', () => { document.getElementById('resign-modal').classList.add('show'); });
 
         window.confirmResign = function() {
-            if (isBotGame) { document.getElementById('modal-text').innerText = "Вы сдались. Поражение."; document.getElementById('modal').classList.add('show'); closeModal('resign-modal'); return; }
+            if (isBotGame) { 
+                document.getElementById('modal-text').innerText = "Вы сдались. Поражение."; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = '';
+                document.getElementById('modal').classList.add('show'); closeModal('resign-modal'); return; 
+            }
             socket.emit('resign', { room: currentRoom, user_id: myUserId }); closeModal('resign-modal');
         };
 
@@ -677,15 +795,15 @@
 
         socket.on('rematch_offered', (data) => { 
             if (data.from_user !== myUserId) {
-                if (currentRoom === "" || isBotGame) {
-                    socket.emit('decline_rematch', { room: data.room || "" });
-                } else {
-                    document.getElementById('rematch-modal').classList.add('show');
-                }
+                if (currentRoom === "" || isBotGame) { socket.emit('decline_rematch', { room: data.room || "" }); }
+                else { document.getElementById('rematch-modal').classList.add('show'); }
             }
         });
         
-        socket.on('rematch_started', () => { closeModal('modal'); closeModal('rematch-modal'); document.getElementById('chat-messages').innerHTML = ''; showToast("Реванш начался!"); document.getElementById('offer-draw-btn').disabled = false; drawCooldownMove = -20; document.getElementById('rematch-btn').style.display = 'block'; });
+        socket.on('rematch_started', () => { 
+            closeModal('modal'); closeModal('rematch-modal'); document.getElementById('chat-messages').innerHTML = ''; showToast("Реванш начался!"); document.getElementById('offer-draw-btn').disabled = false; drawCooldownMove = -20; document.getElementById('rematch-btn').style.display = 'block'; 
+            gameDuration = 0;
+        });
 
         function resetSyncBtn() {
             isSyncPending = false;
@@ -713,15 +831,8 @@
         document.getElementById('sync-fast-btn').addEventListener('click', () => requestSync('fast'));
         document.getElementById('sync-deep-btn').addEventListener('click', () => requestSync('deep'));
 
-        socket.on('sync_response', (data) => {
-            resetSyncBtn();
-            if (data && data.status === 'ok') showToast("Синхронизировано");
-        });
-
-        socket.on('sync_error', (data) => {
-            resetSyncBtn();
-            showToast(data && data.msg ? data.msg : "Ошибка синхронизации", true);
-        });
+        socket.on('sync_response', (data) => { resetSyncBtn(); if (data && data.status === 'ok') showToast("Синхронизировано"); });
+        socket.on('sync_error', (data) => { resetSyncBtn(); showToast(data && data.msg ? data.msg : "Ошибка синхронизации", true); });
 
         $premoveBtn.click(() => {
             if (isBotGame || currentTurn === myColor) return;
@@ -734,6 +845,20 @@
         function removeHighlights() { $('#board .square-55d63').removeClass('highlight-dot highlight-capture highlight-selected highlight-premove-dot highlight-premove-capture highlight-premove-selected highlight-last-move'); }
 
         function updateTimers(timeLeft) {
+            if (timeControl === 0) {
+                if (currentTurn === myColor) {
+                    document.getElementById('my-timer').style.display = 'block';
+                    document.getElementById('opp-timer').style.display = 'none';
+                    const s = localTimeLeft[myColor];
+                    document.getElementById('my-timer').innerText = `0:${s < 10 ? '0' : ''}${s}`;
+                } else {
+                    document.getElementById('opp-timer').style.display = 'block';
+                    document.getElementById('my-timer').style.display = 'none';
+                    const s = localTimeLeft[myColor === 'w' ? 'b' : 'w'];
+                    document.getElementById('opp-timer').innerText = `0:${s < 10 ? '0' : ''}${s}`;
+                }
+                return;
+            }
             localTimeLeft = timeLeft;
             const m1 = Math.floor(Math.max(0, localTimeLeft[myColor]) / 60), s1 = Math.floor(Math.max(0, localTimeLeft[myColor]) % 60);
             const m2 = Math.floor(Math.max(0, localTimeLeft[myColor === 'w' ? 'b' : 'w']) / 60), s2 = Math.floor(Math.max(0, localTimeLeft[myColor === 'w' ? 'b' : 'w']) % 60);
@@ -744,6 +869,22 @@
         function startLocalTimer() {
             if (isBotGame) return;
             if (timerInterval) clearInterval(timerInterval);
+            
+            if (timeControl === 0) {
+                timerInterval = setInterval(() => {
+                    if (game.game_over()) { clearInterval(timerInterval); return; }
+                    gameDuration++;
+                    let m = Math.floor(gameDuration / 60), s = gameDuration % 60;
+                    document.getElementById('game-duration').innerText = `⏱ ${m}:${s < 10 ? '0' : ''}${s}`;
+
+                    if (currentTurn && localTimeLeft[currentTurn] > 0) { 
+                        localTimeLeft[currentTurn]--; updateTimers(localTimeLeft); 
+                        if (localTimeLeft[currentTurn] === 0) { clearInterval(timerInterval); socket.emit('timeout', { room: currentRoom, loser_color: currentTurn }); }
+                    }
+                }, 1000);
+                return;
+            }
+
             timerInterval = setInterval(() => {
                 if (currentTurn && localTimeLeft[currentTurn] > 0) { 
                     localTimeLeft[currentTurn]--; updateTimers(localTimeLeft); 
@@ -789,10 +930,7 @@
             if (currentRoom && !isBotGame) {
                 socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: timeControl });
             } else if (pendingInviteCode) {
-                currentRoom = pendingInviteCode;
-                myColor = 'b';
-                startGame(false);
-                pendingInviteCode = null;
+                currentRoom = pendingInviteCode; myColor = 'b'; startGame(false); pendingInviteCode = null;
             }
         });
 
@@ -803,12 +941,14 @@
         });
 
         socket.on('match_error', (data) => { clearInterval(searchInterval); document.getElementById('search-overlay').classList.remove('show'); showToast(data.msg, true); });
-        
         socket.on('join_error', (data) => { showToast(data.msg || "Ошибка входа в комнату", true); goToLobby(); });
 
         socket.on('players_update', (data) => {
             if (isBotGame) return;
-            if (data[myUserId]) { myColor = data[myUserId].color; if (board) board.orientation(myColor === 'w' ? 'white' : 'black'); }
+            if (data[myUserId]) { 
+                myColor = data[myUserId].color; 
+                if (board) board.orientation(myColor === 'w' ? 'white' : 'black'); 
+            }
             const ids = Object.keys(data);
             if (ids.length >= 2) {
                 const oppId = ids.find(id => id !== myUserId);
@@ -831,11 +971,7 @@
         socket.on('draw_declined', () => { showToast("Соперник отклонил ничью"); });
         socket.on('rematch_declined', () => { showToast("Соперник отклонил реванш"); document.getElementById('rematch-btn').style.display = 'none'; });
         
-        socket.on('opponent_left_lobby', () => {
-            showToast("Соперник вышел в лобби");
-            document.getElementById('rematch-btn').style.display = 'none';
-            closeModal('rematch-modal');
-        });
+        socket.on('opponent_left_lobby', () => { showToast("Соперник вышел в лобби"); document.getElementById('rematch-btn').style.display = 'none'; closeModal('rematch-modal'); });
 
         socket.on('game_state', (data) => {
             if (isReplayMode || isBotGame) return;
@@ -843,7 +979,14 @@
             selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
             $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
             lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
-            if (data.time_left) updateTimers(data.time_left);
+            
+            if (timeControl === 0) {
+                localTimeLeft = {w: 60, b: 60};
+                updateTimers(localTimeLeft);
+            } else if (data.time_left) {
+                updateTimers(data.time_left);
+            }
+
             if (data.history) {
                 renderLog(data.history);
                 if (game.history().length >= drawCooldownMove + 20) document.getElementById('offer-draw-btn').disabled = false;
@@ -853,11 +996,8 @@
                 }
             }
             
-            if (data.status === 'playing') {
-                document.getElementById('back-to-lobby-btn').style.display = 'none';
-            } else {
-                document.getElementById('back-to-lobby-btn').style.display = 'block';
-            }
+            if (data.status === 'playing') { document.getElementById('back-to-lobby-btn').style.display = 'none'; }
+            else { document.getElementById('back-to-lobby-btn').style.display = 'block'; }
 
             if (data.chat) {
                 const chatMsgs = document.getElementById('chat-messages'); chatMsgs.innerHTML = '';
@@ -891,16 +1031,29 @@
             else if (data.result === 'resign') text = isWinner ? "Соперник сдался. Вы победили!" : "Вы сдались. Поражение.";
             else if (data.result === 'checkmate') text = isWinner ? "Мат! Вы победили!" : "Вам поставили мат. Поражение.";
             else text = "Победа " + (data.winner === 'white' ? 'Белых' : 'Черных');
-            document.getElementById('modal-text').innerText = text; document.getElementById('modal').classList.add('show');
+            
+            document.getElementById('modal-text').innerText = text; 
+            
+            if (data.my_old !== undefined && data.my_new !== undefined) {
+                const diff = data.my_new - data.my_old;
+                const colorClass = diff >= 0 ? 'elo-up' : 'elo-down';
+                const arrow = diff >= 0 ? '⬆️' : '⬇️';
+                document.getElementById('modal-elo-container').innerHTML = `<span style="color:#aaa;">${data.my_old}</span> ➡️ <span class="${colorClass}">${data.my_new} ${arrow}</span>`;
+                
+                const rankData = getRankData(data.my_new);
+                document.getElementById('modal-rank-container').innerHTML = `<img src="https://swaga3939-lab.github.io/chess-game/${rankData.img}" style="width:30px;"> <span style="color:${rankData.color}; font-weight:bold; font-size:16px;">${rankData.name}</span>`;
+                myRating = data.my_new; // Обновляем локально
+            } else {
+                document.getElementById('modal-elo-container').innerHTML = '';
+                document.getElementById('modal-rank-container').innerHTML = '';
+            }
+            
+            document.getElementById('modal').classList.add('show');
         });
 
         socket.on('invalid_move', (data) => { 
             showToast('Сервер отклонил ход: ' + data.msg, true); 
-            if (data.fen) { 
-                game.load(data.fen); 
-                board.position(data.fen); 
-                currentTurn = game.turn(); 
-            }
+            if (data.fen) { game.load(data.fen); board.position(data.fen); currentTurn = game.turn(); }
             selectedSquare = null; removeHighlights(); resetSyncBtn(); 
         });
 
@@ -952,16 +1105,14 @@
                 if (move) { 
                     board.position(game.fen()); selectedSquare = null; removeHighlights(); 
                     if (isBotGame) {
-                        if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal').classList.add('show'); } 
+                        if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                         else {
                             isBotThinking = true; document.getElementById('status-text').innerText = "Бот думает...";
                             let skillLevel = botDifficulty === 1 ? 0 : botDifficulty === 5 ? 5 : botDifficulty === 12 ? 12 : 20;
                             stockfish.postMessage('setoption name Skill Level value ' + skillLevel);
                             setTimeout(() => { botMakeMove(); }, 100); 
                         }
-                    } else {
-                        socket.emit('move', { room: currentRoom, move: { from: fromSq, to: square } }); 
-                    }
+                    } else { socket.emit('move', { room: currentRoom, move: { from: fromSq, to: square } }); }
                 } else {
                     var piece = game.get(square);
                     if (piece && piece.color === game.turn()) { 
@@ -988,11 +1139,10 @@
                         const bestMove = line.split(' ')[1];
                         if (bestMove && bestMove !== '(none)') {
                             const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
-                            
                             if (isBotThinking) {
                                 game.move({ from: from, to: to, promotion: 'q' });
                                 board.position(game.fen()); isBotThinking = false;
-                                if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы проиграли." : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal').classList.add('show'); } 
+                                if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы проиграли." : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                                 else { document.getElementById('status-text').innerText = "Ваш ход"; }
                             }
                         }
