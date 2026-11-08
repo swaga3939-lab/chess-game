@@ -26,7 +26,7 @@
             background: var(--bg-gradient); 
             color: var(--text-main); 
             display: flex; flex-direction: column; align-items: center; 
-            margin: 0; min-height: 100vh; padding-bottom: 20px; /* Убрал отступ под ёлки */
+            margin: 0; min-height: 100vh; padding-bottom: 20px; 
             overflow-x: hidden; 
             position: relative;
         }
@@ -107,7 +107,7 @@
         .board-b72b1 .piece-417db { 
             pointer-events: none !important; 
             filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); 
-            transition: top 0.15s ease, left 0.15s ease; /* <--- ПРАВИЛЬНАЯ АНИМАЦИЯ */
+            transition: top 0.15s ease-out, left 0.15s ease-out; /* Плавное движение */
         }
         
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); }
@@ -1086,23 +1086,26 @@
         socket.on('game_state', (data) => {
             if (isReplayMode || isBotGame) return;
             if (isSyncPending) resetSyncBtn();
-            selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
-            $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
-            lastServerFen = data.fen; game.load(data.fen); board.position(data.fen, true); currentTurn = game.turn();
             
-            if (timeControl === 0) {
-                localTimeLeft = {w: 60, b: 60};
-                updateTimers(localTimeLeft);
-            } else if (data.time_left) {
-                updateTimers(data.time_left);
+            let fenChanged = (data.fen !== game.fen());
+            
+            if (fenChanged) {
+                selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
+                $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
+                lastServerFen = data.fen; game.load(data.fen); board.position(data.fen, true); currentTurn = game.turn();
             }
-
+            
+            if (data.time_left) updateTimers(data.time_left);
+            
             if (data.history) {
                 renderLog(data.history);
                 if (game.history().length >= drawCooldownMove + 20) document.getElementById('offer-draw-btn').disabled = false;
                 if (game.history().length > 0) {
                     const lastMove = game.history({ verbose: true })[game.history().length - 1];
-                    if (lastMove) { $('#board .square-' + lastMove.from).addClass('highlight-last-move'); $('#board .square-' + lastMove.to).addClass('highlight-last-move'); }
+                    if (lastMove) { 
+                        $('#board .square-' + lastMove.from).addClass('highlight-last-move'); 
+                        $('#board .square-' + lastMove.to).addClass('highlight-last-move'); 
+                    }
                 }
             }
             
@@ -1159,7 +1162,7 @@
                 
                 const rankData = getRankData(data.my_new);
                 document.getElementById('modal-rank-container').innerHTML = `<img src="https://swaga3939-lab.github.io/chess-game/${rankData.img}" style="width:30px;"> <span style="color:${rankData.color}; font-weight:bold; font-size:16px;">${rankData.name}</span>`;
-                myRating = data.my_new; // Обновляем локально
+                myRating = data.my_new;
             } else {
                 document.getElementById('modal-elo-container').innerHTML = '';
                 document.getElementById('modal-rank-container').innerHTML = '';
@@ -1184,7 +1187,7 @@
                 authorSpan.className = 'chat-author';
                 authorSpan.textContent = name;
                 div.appendChild(authorSpan);
-                div.appendChild(document.createTextNode(text)); // Безопасный текст
+                div.appendChild(document.createTextNode(text));
             }
             document.getElementById('chat-messages').appendChild(div);
             document.getElementById('chat-messages').scrollTop = 99999;
