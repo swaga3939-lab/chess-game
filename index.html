@@ -103,11 +103,10 @@
         
         .square-55d63 { position: relative; cursor: pointer !important; }
         
-        /* АНИМАЦИЯ ФИГУР */
+        /* АНИМАЦИЯ ФИГУР (убран конфликтующий CSS transition) */
         .board-b72b1 .piece-417db { 
             pointer-events: none !important; 
             filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); 
-            transition: top 0.15s ease-out, left 0.15s ease-out; /* Плавное движение */
         }
         
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); }
