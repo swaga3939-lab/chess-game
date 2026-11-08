@@ -26,21 +26,9 @@
             background: var(--bg-gradient); 
             color: var(--text-main); 
             display: flex; flex-direction: column; align-items: center; 
-            margin: 0; min-height: 100vh; padding-bottom: 130px; overflow-x: hidden; 
-        }
-        
-        /* Фоновые картинки */
-        #snow-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: url('https://swaga3939-lab.github.io/chess-game/snow.png');
-            background-position: left top; background-size: contain; background-repeat: no-repeat;
-            pointer-events: none; z-index: 9997; /* Поверх меню, под модалками */
-        }
-        #trees-bg {
-            position: fixed; bottom: 0; left: 0; width: 100vw; height: 120px;
-            background-image: url('https://swaga3939-lab.github.io/chess-game/Chr.png');
-            background-position: bottom center; background-size: 100% auto; background-repeat: no-repeat;
-            pointer-events: none; z-index: 9996;
+            margin: 0; min-height: 100vh; padding-bottom: 20px; /* Убрал отступ под ёлки */
+            overflow-x: hidden; 
+            position: relative;
         }
 
         #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 350px; }
@@ -114,7 +102,14 @@
         .black-3c85d { background-color: #5b7cb6 !important; color: #cbd7e6 !important; }
         
         .square-55d63 { position: relative; cursor: pointer !important; }
-        .board-b72b1 .piece-417db { pointer-events: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); }
+        
+        /* АНИМАЦИЯ ФИГУР */
+        .board-b72b1 .piece-417db { 
+            pointer-events: none !important; 
+            filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); 
+            transition: transform 0.2s ease-in-out; /* Плавное движение */
+        }
+        
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); }
         .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(255, 255, 255, 0.4); box-sizing: border-box; }
         .highlight-selected { background-color: rgba(255, 255, 255, 0.6) !important; }
@@ -150,7 +145,7 @@
         #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: rgba(30, 45, 65, 0.8); padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid var(--panel-border); color: #fff;}
         
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 10000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
         .modal-card { position: relative; background: #1a2332; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid var(--panel-border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.8) translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
@@ -190,9 +185,6 @@
     </style>
 </head>
 <body>
-    <div id="snow-bg"></div>
-    <div id="trees-bg"></div>
-
     <div id="toast-container"></div>
     
     <div id="lobby">
@@ -631,7 +623,7 @@
             if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
             if (dir === -1 && replayIndex > 0) replayIndex--;
             replayGame = new Chess(); for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
-            board.position(replayGame.fen()); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
+            board.position(replayGame.fen(), true); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
         }
 
         async function fetchLeaderboard() {
@@ -843,7 +835,7 @@
                 if (moves.length > 0) {
                     let randomMove = moves[Math.floor(Math.random() * moves.length)];
                     game.move(randomMove);
-                    board.position(game.fen());
+                    board.position(game.fen(), true);
                     isBotThinking = false;
                     if (game.game_over()) {
                         let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
@@ -1096,7 +1088,7 @@
             if (isSyncPending) resetSyncBtn();
             selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
             $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
-            lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
+            lastServerFen = data.fen; game.load(data.fen); board.position(data.fen, true); currentTurn = game.turn();
             
             if (timeControl === 0) {
                 localTimeLeft = {w: 60, b: 60};
@@ -1235,7 +1227,7 @@
                 var fromSq = selectedSquare;
                 var move = game.move({ from: fromSq, to: square, promotion: 'q' });
                 if (move) { 
-                    board.position(game.fen()); selectedSquare = null; removeHighlights(); 
+                    board.position(game.fen(), true); selectedSquare = null; removeHighlights(); 
                     if (isBotGame) {
                         if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                         else {
@@ -1273,7 +1265,7 @@
                             const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
                             if (isBotThinking) {
                                 game.move({ from: from, to: to, promotion: 'q' });
-                                board.position(game.fen()); isBotThinking = false;
+                                board.position(game.fen(), true); isBotThinking = false;
                                 if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы проиграли." : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                                 else { document.getElementById('status-text').innerText = "Ваш ход"; }
                             }
