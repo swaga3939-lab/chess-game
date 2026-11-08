@@ -11,39 +11,67 @@
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <style>
-        :root { --bg-gradient: radial-gradient(circle at top, #2a2a2a 0%, #121212 100%); --panel-bg: rgba(255, 255, 255, 0.06); --panel-border: rgba(255, 255, 255, 0.12); --accent-green: #81b64c; --accent-blue: #42a5f5; --input-bg: rgba(0, 0, 0, 0.4); }
+        :root { 
+            --bg-gradient: linear-gradient(180deg, #131a26 0%, #0d111a 100%);
+            --panel-bg: rgba(255, 255, 255, 0.06); 
+            --panel-border: rgba(255, 255, 255, 0.12); 
+            --accent-green: #81b64c; 
+            --accent-blue: #78a9e4; 
+            --input-bg: rgba(0, 0, 0, 0.4); 
+            --text-main: #f0f0f0;
+            --text-muted: #a0aabf;
+        }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background: var(--bg-gradient); color: #f0f0f0; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; padding-bottom: 20px; overflow-x: hidden; }
+        body { 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            display: flex; flex-direction: column; align-items: center; 
+            margin: 0; min-height: 100vh; padding-bottom: 200px; overflow-x: hidden; 
+        }
         
+        /* Фоновые картинки */
+        #snow-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: url('https://swaga3939-lab.github.io/chess-game/snow.png');
+            background-position: left top; background-size: contain; background-repeat: no-repeat;
+            pointer-events: none; z-index: -1;
+        }
+        #trees-bg {
+            position: fixed; bottom: 0; left: 0; width: 100vw; height: 200px;
+            background-image: url('https://swaga3939-lab.github.io/chess-game/Chr.png');
+            background-position: bottom center; background-size: cover; background-repeat: no-repeat;
+            pointer-events: none; z-index: 9998;
+        }
+
         #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 350px; }
-        .toast { background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(10px); color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; text-align: center; border: 1px solid #444; box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .toast { background: rgba(30, 40, 55, 0.95); backdrop-filter: blur(10px); color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; text-align: center; border: 1px solid var(--panel-border); box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.error { border-color: #ef5350; background: rgba(60, 20, 20, 0.95); }
 
-        #lobby { display: flex; flex-direction: column; width: 92%; max-width: 400px; padding: 20px; background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 20px; margin-top: 20px; border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: all 0.3s ease; }
-        #lobby h2 { margin-top: 0; margin-bottom: 10px; font-size: 15px; font-weight: 600; color: #ddd; letter-spacing: 0.5px; text-align: center; }
+        #lobby { display: flex; flex-direction: column; width: 92%; max-width: 400px; padding: 20px; background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 20px; margin-top: 20px; border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: all 0.3s ease; z-index: 10;}
+        #lobby h2 { margin-top: 0; margin-bottom: 10px; font-size: 15px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; text-align: center; }
         
         /* Профиль в лобби */
         #lobby-profile { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: 20px; }
-        #my-rank-info { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        #my-rank-icon { width: 45px; height: 45px; object-fit: contain; }
-        #my-rank-name { font-size: 22px; font-weight: bold; color: #ddd; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        #my-lobby-banner { width: 100%; height: 130px; border-radius: 15px; background-size: cover; background-position: center; border: 1px solid #444; position: relative; display: flex; align-items: center; padding-left: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); background-color: #222; }
+        #my-rank-info { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px; }
+        #my-lobby-banner { width: 100%; height: 130px; border-radius: 15px; background-size: cover; background-position: center; border: 1px solid var(--panel-border); position: relative; display: flex; align-items: center; padding-left: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); background-color: #1a2332; }
         #my-lobby-avatar-wrapper { width: 80px; height: 80px; }
-        #my-lobby-avatar { width: 60px; height: 60px; border-width: 3px; }
+        #my-lobby-avatar { width: 60px; height: 60px; border-width: 3px; border-color: var(--accent-blue); }
         #my-lobby-name { font-size: 18px; font-weight: bold; color: #fff; text-shadow: 0 2px 4px #000; }
-        #my-lobby-rating { font-size: 14px; color: var(--accent-green); font-weight: bold; text-shadow: 0 2px 4px #000; }
+        #my-lobby-rating { font-size: 14px; color: var(--accent-blue); font-weight: bold; text-shadow: 0 2px 4px #000; }
 
         .time-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .time-btn { padding: 10px 5px; border-radius: 10px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.2); color: #ccc; cursor: pointer; font-weight: 500; font-size: 12px; transition: all 0.2s; }
-        .time-btn.active { background: var(--accent-green); border-color: var(--accent-green); color: white; box-shadow: 0 4px 12px rgba(129, 182, 76, 0.3); transform: translateY(-1px); }
+        .time-btn { padding: 10px 5px; border-radius: 12px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); color: var(--text-muted); cursor: pointer; font-weight: 500; font-size: 12px; transition: all 0.2s; }
+        .time-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; box-shadow: 0 4px 12px rgba(120, 169, 228, 0.3); transform: translateY(-1px); }
         
         .join-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--panel-border); background: var(--input-bg); color: white; font-size: 15px; text-align: center; text-transform: uppercase; margin-bottom: 10px; transition: border 0.2s; outline: none; font-weight: bold; letter-spacing: 2px; }
-        .join-input:focus { border-color: var(--accent-green); }
-        button { padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; color: white; width: 100%; margin-bottom: 10px; transition: all 0.2s; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .join-input:focus { border-color: var(--accent-blue); }
+        
+        button { padding: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; color: white; width: 100%; margin-bottom: 10px; transition: all 0.2s; user-select: none; -webkit-tap-highlight-color: transparent; }
         button:active { transform: scale(0.97); }
-        .btn-green { background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%); box-shadow: 0 4px 15px rgba(85, 139, 47, 0.4); }
-        .btn-blue { background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%); box-shadow: 0 4px 15px rgba(21, 101, 192, 0.4); }
+        
+        .btn-blue { background: linear-gradient(135deg, #78a9e4 0%, #5b8bd9 100%); box-shadow: 0 4px 15px rgba(91, 139, 217, 0.4); }
+        .btn-dark { background: rgba(30, 45, 65, 0.8); border: 1px solid var(--panel-border); color: var(--text-muted); }
         .btn-red { background: linear-gradient(135deg, #ef5350 0%, #c62828 100%); }
         .btn-purple { background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%); }
         .btn-orange { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
@@ -54,36 +82,43 @@
         .coin-icon-lg { width: 22px !important; height: 22px !important; object-fit: contain; vertical-align: middle; margin-left: 6px; margin-bottom: 3px; flex-shrink: 0; display: inline-block; }
 
         /* Игровой экран */
-        #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; }
-        #back-to-lobby-btn { width: 92%; max-width: 400px; margin: 5px 0 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--panel-border); border-radius: 10px; font-size: 14px; color: #ccc; display: none; cursor: pointer; text-align: center; transition: all 0.2s; }
-        #back-to-lobby-btn:active { background: rgba(255,255,255,0.2); }
+        #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; z-index: 10;}
+        #back-to-lobby-btn { width: 92%; max-width: 400px; margin: 5px 0 10px 0; padding: 10px; background: rgba(30, 45, 65, 0.6); border: 1px solid var(--panel-border); border-radius: 10px; font-size: 14px; color: var(--text-muted); display: none; cursor: pointer; text-align: center; transition: all 0.2s; }
+        #back-to-lobby-btn:active { background: rgba(30, 45, 65, 0.9); }
+        
         .player-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 10px 15px; background-color: var(--panel-bg); background-size: cover; background-position: center; background-repeat: no-repeat; backdrop-filter: blur(5px); border-radius: 15px; border: 1px solid var(--panel-border); box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-shadow: 0 1px 3px rgba(0,0,0,0.8); transition: background 0.3s ease; }
         .player-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .avatar-wrapper { position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin: 0; }
-        .avatar { width: 28px; height: 28px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1; border: 2px solid var(--accent-green); box-shadow: 0 0 5px rgba(129, 182, 76, 0.4); }
+        .avatar { width: 28px; height: 28px; border-radius: 50%; background-color: #333; background-size: cover; background-position: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1; border: 2px solid var(--accent-blue); box-shadow: 0 0 5px rgba(120, 169, 228, 0.4); }
         .avatar-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; display: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
         .avatar-frame.active-frame { display: block; }
         .avatar-wrapper.admin .avatar { border: none; box-shadow: none; }
         .name-box { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; overflow: hidden; }
         .name { font-weight: 600; font-size: 15px; line-height: 1.2; word-break: break-word; color: #fff; opacity: 0.85; }
-        .rating { font-size: 12px; color: var(--accent-green); font-weight: bold; margin-top: 2px; }
+        .rating { font-size: 12px; color: var(--accent-blue); font-weight: bold; margin-top: 2px; }
         .admin-title { color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; line-height: 1; display: inline-block; margin-top: 4px; text-shadow: none; }
-        .timer { font-size: 22px; font-weight: bold; font-family: 'Courier New', monospace; padding: 6px 14px; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(4px); border-radius: 8px; color: #ccc; transition: all 0.3s; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0; margin-left: 10px; }
+        .timer { font-size: 22px; font-weight: bold; font-family: 'Courier New', monospace; padding: 6px 14px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); border-radius: 8px; color: var(--text-muted); transition: all 0.3s; border: 1px solid var(--panel-border); flex-shrink: 0; margin-left: 10px; }
         .timer.active { background: rgba(255, 255, 255, 0.85); color: #000; border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
-        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 0 0 5px 0; border-radius: 12px; overflow: hidden; background-color: #f0d9b5; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        
+        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 0 0 5px 0; border-radius: 12px; overflow: hidden; background-color: #cbd7e6; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--panel-border);}
         #board { width: 100%; height: 100%; touch-action: none; }
+        
+        /* Цвета доски как на фото */
+        .white-1e1d7 { background-color: #cbd7e6 !important; color: #5b7cb6 !important; }
+        .black-3c85d { background-color: #5b7cb6 !important; color: #cbd7e6 !important; }
+        
         .square-55d63 { position: relative; cursor: pointer !important; }
         .board-b72b1 .piece-417db { pointer-events: none !important; filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); }
-        .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(0, 0, 0, 0.25); }
-        .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(0, 0, 0, 0.25); box-sizing: border-box; }
-        .highlight-selected { background-color: rgba(255, 215, 0, 0.5) !important; }
+        .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); }
+        .highlight-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(255, 255, 255, 0.4); box-sizing: border-box; }
+        .highlight-selected { background-color: rgba(255, 255, 255, 0.6) !important; }
         .highlight-premove-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(156, 39, 176, 0.8); }
         .highlight-premove-capture::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; border-radius: 50%; border: 8px solid rgba(156, 39, 176, 0.8); box-sizing: border-box; }
         .highlight-premove-selected { background-color: rgba(156, 39, 176, 0.5) !important; }
-        .highlight-last-move { box-shadow: inset 0 0 0 4px rgba(255, 235, 59, 0.6); }
+        .highlight-last-move { box-shadow: inset 0 0 0 4px rgba(255, 235, 59, 0.8); }
         
         #status-bar { width: 92%; max-width: 400px; display: flex; justify-content: space-between; padding: 12px 15px; margin-top: 5px; background: var(--panel-bg); border-radius: 12px; border: 1px solid var(--panel-border); font-weight: 500; font-size: 14px; align-items: center;}
-        .room-badge { background: rgba(129, 182, 76, 0.15); color: var(--accent-green); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(129, 182, 76, 0.3); }
+        .room-badge { background: rgba(120, 169, 228, 0.15); color: var(--accent-blue); padding: 4px 12px; border-radius: 6px; font-family: monospace; font-weight: bold; cursor: pointer; border: 1px solid rgba(120, 169, 228, 0.3); }
         #game-duration { display: none; font-family: 'Courier New', monospace; font-weight: bold; color: #fff; }
         
         #game-actions { display: none; width: 92%; max-width: 400px; gap: 10px; margin-top: 10px; }
@@ -93,42 +128,49 @@
         #chat-container { width: 92%; max-width: 400px; height: 200px; background: var(--panel-bg); backdrop-filter: blur(10px); border-radius: 15px; margin-top: 10px; display: none; flex-direction: column; border: 1px solid var(--panel-border); overflow: hidden; }
         #chat-messages { flex: 1; overflow-y: auto; padding: 12px; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
         .chat-msg { padding: 6px 12px; border-radius: 12px; max-width: 85%; word-wrap: break-word; font-size: 13px; line-height: 1.4; }
-        .chat-msg.my { background: rgba(129, 182, 76, 0.25); align-self: flex-end; border-bottom-right-radius: 2px; color: #e0f2c0; }
+        .chat-msg.my { background: rgba(120, 169, 228, 0.25); align-self: flex-end; border-bottom-right-radius: 2px; color: #fff; }
         .chat-msg.opp { background: rgba(255, 255, 255, 0.1); align-self: flex-start; border-bottom-left-radius: 2px; }
         .chat-author { font-size: 10px; color: #999; display: block; margin-bottom: 2px; }
         .chat-sticker { max-width: 140px; max-height: 140px; object-fit: contain; display: block; margin: 5px 0; border-radius: 8px; }
         #chat-input-area { display: flex; padding: 8px; border-top: 1px solid var(--panel-border); background: rgba(0,0,0,0.3); align-items: center; gap: 8px;}
-        #chat-input { flex: 1; background: var(--input-bg); border: 1px solid #333; color: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; outline: none; transition: border 0.2s;}
-        #chat-input:focus { border-color: var(--accent-green); }
-        #chat-send { background: var(--accent-green); border: none; color: white; padding: 0; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; margin: 0;}
+        #chat-input { flex: 1; background: var(--input-bg); border: 1px solid var(--panel-border); color: white; padding: 10px 15px; border-radius: 20px; font-size: 14px; outline: none; transition: border 0.2s;}
+        #chat-input:focus { border-color: var(--accent-blue); }
+        #chat-send { background: var(--accent-blue); border: none; color: white; padding: 0; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; margin: 0;}
         #sticker-btn { background: transparent; border: none; color: #ccc; font-size: 24px; cursor: pointer; padding: 0 5px; margin: 0; display: flex; justify-content: center; align-items: center; width: auto; }
         #sticker-panel { display: none; height: 150px; overflow-y: auto; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: var(--panel-bg); border-top: 1px solid var(--panel-border); }
         .sticker-item { width: 100%; aspect-ratio: 1/1; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 8px; cursor: pointer; padding: 2px; }
         
         #sync-controls { display: none; width: 92%; max-width: 400px; margin-top: 5px; margin-bottom: 5px; gap: 10px; justify-content: space-between; }
         #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
-        .replay-btn { background: #333; padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid #444; }
-
+        .replay-btn { background: rgba(30, 45, 65, 0.8); padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid var(--panel-border); color: #fff;}
+        
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
-        .modal-card { position: relative; background: #222; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid #444; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.8) translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-card { position: relative; background: #1a2332; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid var(--panel-border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.8) translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
-        .modal-card h2 { margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: bold; }
+        .modal-card h2 { margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: bold; color: #fff;}
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 26px; color: #aaa; cursor: pointer; line-height: 1; transition: color 0.2s; }
         .close-btn:hover { color: white; }
         
         #move-log { width: 92%; max-width: 400px; height: 80px; overflow-y: auto; background: var(--panel-bg); border-radius: 12px; padding: 12px; font-family: 'Courier New', monospace; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 20px; border: 1px solid var(--panel-border); margin-top: 10px;}
-        .move-item { display: flex; gap: 6px; width: 45%; }
+        .move-item { display: flex; gap: 6px; width: 45%; color: var(--text-muted);}
         .move-num { color: #666; font-weight: bold;}
         
         #lobby-leaderboard-list { text-align: left; margin-bottom: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px; width: 100%;}
-        .lb-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; font-size: 14px;}
+        .lb-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; color: #ddd;}
         .lb-item:last-child { border-bottom: none; }
         
+        .history-list { text-align: left; max-height: 300px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;}
+        .history-item { padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 8px; cursor: pointer; border: 1px solid var(--panel-border); transition: background 0.2s;}
+        .history-item:hover { background: rgba(255,255,255,0.1); }
+        .history-date { font-size: 11px; color: var(--accent-blue); margin-bottom: 4px;}
+        .history-players { font-size: 14px; font-weight: bold; color: #fff;}
+        .history-result { font-size: 12px; color: #aaa; margin-top: 4px;}
+
         .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .shop-section { text-align: left; margin-bottom: 20px; }
-        .shop-section h3 { font-size: 16px; margin-bottom: 10px; color: #ddd; border-bottom: 1px solid #444; padding-bottom: 5px; }
-        .shop-item { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .shop-section h3 { font-size: 16px; margin-bottom: 10px; color: #ddd; border-bottom: 1px solid var(--panel-border); padding-bottom: 5px; }
+        .shop-item { background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
         .shop-item-title { font-size: 12px; margin-bottom: 5px; color: #ccc; width: 100%; text-align: center; word-wrap: break-word; }
         .shop-item button { padding: 8px; font-size: 13px; margin: 0; width: 100%; display: flex; justify-content: center; align-items: center; gap: 2px; }
         .shop-item-bg img { width: 100%; height: 60px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #333; }
@@ -142,14 +184,20 @@
     </style>
 </head>
 <body>
+    <div id="snow-bg"></div>
+    <div id="trees-bg"></div>
+
     <div id="toast-container"></div>
     
     <div id="lobby">
         <!-- БЛОК ПРОФИЛЯ -->
         <div id="lobby-profile">
             <div id="my-rank-info">
-                <img id="my-rank-icon" src="https://swaga3939-lab.github.io/chess-game/copper.png">
-                <span id="my-rank-name">Медь</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img id="my-rank-icon" src="https://swaga3939-lab.github.io/chess-game/copper.png" style="width: 45px; height: 45px; object-fit: contain;">
+                    <span id="my-rank-name" style="font-size: 22px; font-weight: bold; color: #ddd; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Медь</span>
+                </div>
+                <img src="https://swaga3939-lab.github.io/chess-game/LoffChess0.png" style="height: 45px; object-fit: contain;">
             </div>
             <div id="my-lobby-banner">
                 <div class="avatar-wrapper" id="my-lobby-avatar-wrapper">
@@ -170,9 +218,9 @@
             <button class="time-btn active" data-time="600">Рапид (10м)</button>
             <button class="time-btn" data-time="0">Контроль на ход (1м)</button>
         </div>
-        <button id="create-game-btn" class="btn-green">Создать</button>
-        <button id="find-match-btn" class="btn-green" style="margin-top: 5px; background: linear-gradient(135deg, #03a9f4 0%, #0277bd 100%); box-shadow: 0 4px 15px rgba(3, 169, 244, 0.4);">Найти соперника</button>
-        <button id="play-bot-btn" class="btn-orange" style="margin-top: 10px;">Играть с ботом</button>
+        <button id="create-game-btn" class="btn-blue">Создать</button>
+        <button id="find-match-btn" class="btn-dark" style="margin-top: 5px;">Найти соперника</button>
+        <button id="play-bot-btn" class="btn-dark" style="margin-top: 10px;">Играть с ботом</button>
         
         <h2 style="margin-top: 15px;">Войти по коду</h2>
         <input type="text" id="join-code-input" class="join-input" placeholder="КОД" maxlength="4">
@@ -180,10 +228,11 @@
         
         <h2 style="margin-top: 15px;">Смотреть и анализировать</h2>
         <input type="text" id="watch-code-input" class="join-input" placeholder="КОД ПАРТИИ" maxlength="4">
-        <button id="watch-game-btn" style="background: #444;">Смотреть партию</button>
+        <button id="watch-game-btn" class="btn-dark">Смотреть партию</button>
+        <button id="history-btn" class="btn-dark">История партий</button>
         
         <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button id="shop-btn" class="btn-green" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px; background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">Магазин</button>
+            <button id="shop-btn" class="btn-orange" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Магазин</button>
             <button id="settings-btn" class="btn-purple" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Настройки</button>
         </div>
 
@@ -234,7 +283,7 @@
             <div id="game-duration">00:00</div>
             <div style="display:flex; gap:5px; align-items:center;">
                 <div class="room-badge" id="room-badge">----</div>
-                <div class="room-badge" id="share-btn" style="background: rgba(33,150,243,0.2); color: #2196F3; border-color: rgba(33,150,243,0.4);">🔗</div>
+                <div class="room-badge" id="share-btn" style="background: rgba(120, 169, 228, 0.15); color: var(--accent-blue); border-color: rgba(120, 169, 228, 0.3);">🔗</div>
             </div>
         </div>
         <div id="game-actions">
@@ -261,18 +310,27 @@
         <div id="move-log"></div>
     </div>
 
+    <!-- Модалки -->
     <div id="search-overlay" class="modal-overlay">
         <div class="modal-card">
             <h2>Поиск соперника</h2>
-            <div id="search-timer" style="font-size: 24px; color: var(--accent-green); font-family: monospace; margin-bottom: 20px;">0 сек</div>
+            <div id="search-timer" style="font-size: 24px; color: var(--accent-blue); font-family: monospace; margin-bottom: 20px;">0 сек</div>
             <button id="cancel-search-btn" class="btn-red">Отменить поиск</button>
+        </div>
+    </div>
+    <div id="history-modal" class="modal-overlay">
+        <div class="modal-card">
+            <span class="close-btn" onclick="closeModal('history-modal')">&times;</span>
+            <h2>История партий</h2>
+            <div id="history-list" class="history-list"></div>
+            <button class="btn-dark" onclick="closeModal('history-modal')" style="margin-top: 10px;">Закрыть</button>
         </div>
     </div>
     <div id="shop-modal" class="modal-overlay">
         <div class="modal-card" style="max-width: 400px; width: 90%;">
             <span class="close-btn" onclick="closeModal('shop-modal')">&times;</span>
             <h2>Магазин</h2>
-            <div style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px;">Баланс: <span id="shop-balance">0</span> <img src="https://swaga3939-lab.github.io/chess-game/money_pin.png" class="coin-icon-lg"></div>
+            <div style="color: var(--accent-blue); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 5px;">Баланс: <span id="shop-balance">0</span> <img src="https://swaga3939-lab.github.io/chess-game/money_pin.png" class="coin-icon-lg"></div>
             <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
                 <div class="shop-section" id="shop-exclusive-section" style="display: none;">
                     <h3>Эксклюзив</h3>
@@ -281,7 +339,7 @@
                 <div class="shop-section"><h3>Фоны</h3><div class="shop-grid" id="shop-bg-container"></div></div>
                 <div class="shop-section"><h3>Рамки</h3><div class="shop-grid" id="shop-frame-container"></div></div>
             </div>
-            <button class="btn-blue" onclick="closeModal('shop-modal')" style="margin-top: 20px;">Закрыть</button>
+            <button class="btn-dark" onclick="closeModal('shop-modal')" style="margin-top: 20px;">Закрыть</button>
         </div>
     </div>
     
@@ -292,8 +350,8 @@
             <div id="modal-elo-container" style="margin: 15px 0; font-size: 20px; font-family: monospace;"></div>
             <div id="modal-rank-container" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;"></div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-blue" onclick="goToLobby()" style="margin: 0;">В лобби</button>
-                <button id="rematch-btn" class="btn-green" style="margin: 0;">Реванш</button>
+                <button class="btn-dark" onclick="goToLobby()" style="margin: 0;">В лобби</button>
+                <button id="rematch-btn" class="btn-blue" style="margin: 0;">Реванш</button>
             </div>
         </div>
     </div>
@@ -302,23 +360,23 @@
         <div class="modal-card">
             <h2>Выберите сложность</h2>
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <button class="btn-green" onclick="startBotGame(1, 'w')">Белые</button>
-                <button class="btn-blue" onclick="startBotGame(1, 'b')">Черные</button>
+                <button class="btn-blue" onclick="startBotGame(1, 'w')">Белые</button>
+                <button class="btn-dark" onclick="startBotGame(1, 'b')">Черные</button>
             </div>
             <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Новичок (Туповатый)</p>
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <button class="btn-green" onclick="startBotGame(5, 'w')">Белые</button>
-                <button class="btn-blue" onclick="startBotGame(5, 'b')">Черные</button>
+                <button class="btn-blue" onclick="startBotGame(5, 'w')">Белые</button>
+                <button class="btn-dark" onclick="startBotGame(5, 'b')">Черные</button>
             </div>
             <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Знающий (~800)</p>
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <button class="btn-green" onclick="startBotGame(12, 'w')">Белые</button>
-                <button class="btn-blue" onclick="startBotGame(12, 'b')">Черные</button>
+                <button class="btn-blue" onclick="startBotGame(12, 'w')">Белые</button>
+                <button class="btn-dark" onclick="startBotGame(12, 'b')">Черные</button>
             </div>
             <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">Профи (~1200)</p>
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <button class="btn-green" onclick="startBotGame(20, 'w')">Белые</button>
-                <button class="btn-blue" onclick="startBotGame(20, 'b')">Черные</button>
+                <button class="btn-blue" onclick="startBotGame(20, 'w')">Белые</button>
+                <button class="btn-dark" onclick="startBotGame(20, 'b')">Черные</button>
             </div>
             <p style="font-size:12px; color:#ff4444; margin:0 0 20px 0;">ГРОССМЕЙСТЕР (Босс)</p>
             <button class="btn-red" onclick="closeModal('bot-modal')">Отмена</button>
@@ -328,14 +386,14 @@
     <div id="rematch-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Соперник предлагает реванш</h2>
-            <button class="btn-green" onclick="acceptRematch()" style="margin-bottom: 10px;">Принять</button>
+            <button class="btn-blue" onclick="acceptRematch()" style="margin-bottom: 10px;">Принять</button>
             <button class="btn-red" onclick="declineRematch()">Отклонить</button>
         </div>
     </div>
     <div id="draw-modal" class="modal-overlay">
         <div class="modal-card">
             <h2>Соперник предлагает ничью</h2>
-            <button class="btn-green" onclick="acceptDraw()" style="margin-bottom: 10px;">Принять</button>
+            <button class="btn-blue" onclick="acceptDraw()" style="margin-bottom: 10px;">Принять</button>
             <button class="btn-red" onclick="declineDraw()">Отклонить</button>
         </div>
     </div>
@@ -343,7 +401,7 @@
         <div class="modal-card">
             <h2>Вы уверены, что хотите сдаться?</h2>
             <button class="btn-red" onclick="confirmResign()" style="margin-bottom: 10px;">Сдаться</button>
-            <button class="btn-blue" onclick="closeModal('resign-modal')">Отмена</button>
+            <button class="btn-dark" onclick="closeModal('resign-modal')">Отмена</button>
         </div>
     </div>
     <div id="settings-modal" class="modal-overlay">
@@ -351,7 +409,7 @@
             <span class="close-btn" onclick="closeModal('settings-modal')">&times;</span>
             <h2>Настройки</h2>
             <p style="color: #aaa; font-size: 15px; margin-bottom: 25px;">Скоро здесь можно будет менять доску и фигуры!</p>
-            <button class="btn-blue" onclick="closeModal('settings-modal')">Закрыть</button>
+            <button class="btn-dark" onclick="closeModal('settings-modal')">Закрыть</button>
         </div>
     </div>
 
@@ -376,7 +434,7 @@
                 socket.emit('leave_room', { room: currentRoom, user_id: myUserId });
             }
             resetSyncBtn();
-            closeModal('modal'); closeModal('rematch-modal'); closeModal('draw-modal'); closeModal('resign-modal'); closeModal('search-overlay'); closeModal('shop-modal');
+            closeModal('modal'); closeModal('rematch-modal'); closeModal('draw-modal'); closeModal('resign-modal'); closeModal('search-overlay'); closeModal('shop-modal'); closeModal('history-modal');
             clearInterval(timerInterval); clearInterval(searchInterval);
             isBotGame = false; isReplayMode = false; currentRoom = ""; selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
             removeHighlights(); game = new Chess();
@@ -439,7 +497,7 @@
         }
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            myRealName = tg.initDataUnsafe.user.first_name;
+            myRealName = tg.initDataUnsafe.user.first_name || "Игрок_" + tg.initDataUnsafe.user.id;
             myUsername = tg.initDataUnsafe.user.username || "";
             myUserId = String(tg.initDataUnsafe.user.id); 
             myPhotoUrl = tg.initDataUnsafe.user.photo_url || "";
@@ -520,6 +578,42 @@
             } catch (e) { showToast("Партия не найдена или еще не завершена", true); }
         });
 
+        $('#history-btn').click(async () => {
+            document.getElementById('history-list').innerHTML = '<div style="text-align:center; color:#aaa;">Загрузка...</div>';
+            document.getElementById('history-modal').classList.add('show');
+            try {
+                const res = await fetch('https://loffchess.dpdns.org/api/history');
+                const history = await res.json();
+                let html = '';
+                history.forEach(h => {
+                    html += `<div class="history-item" onclick="loadHistoryGame(${h.id}, '${h.white}', '${h.black}')">
+                        <div class="history-date">${h.date} • Комната: ${h.room}</div>
+                        <div class="history-players">${h.white} vs ${h.black}</div>
+                        <div class="history-result">Результат: ${h.result}</div>
+                    </div>`;
+                });
+                document.getElementById('history-list').innerHTML = html || '<div style="text-align:center; color:#aaa;">История пуста</div>';
+            } catch (e) { document.getElementById('history-list').innerHTML = '<div style="text-align:center; color:#ef5350;">Ошибка загрузки</div>'; }
+        });
+
+        window.loadHistoryGame = async function(gameId, white, black) {
+            try {
+                const res = await fetch(`https://loffchess.dpdns.org/api/history/${gameId}`);
+                const data = await res.json();
+                closeModal('history-modal');
+                isReplayMode = true; replayMoves = data; replayIndex = 0;
+                document.getElementById('lobby').style.display = 'none'; document.getElementById('game-screen').style.display = 'flex';
+                document.getElementById('game-actions').style.display = 'none'; document.getElementById('back-to-lobby-btn').style.display = 'none';
+                document.getElementById('opp-name').innerText = `Черные: ${black}`; document.getElementById('my-name').innerText = `Белые: ${white}`;
+                document.getElementById('status-text').innerText = "Анализ партии";
+                document.getElementById('sync-controls').style.display = 'none'; document.getElementById('chat-container').style.display = 'none';
+                document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; document.getElementById('game-duration').style.display = 'none';
+                document.getElementById('premove-controls').style.display = 'none'; document.getElementById('replay-controls').style.display = 'flex';
+                board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
+                board.orientation('white'); renderLog(replayMoves); replayStep(0);
+            } catch(e) { showToast("Ошибка загрузки реплея", true); }
+        }
+
         function replayStep(dir) {
             if (!isReplayMode) return;
             if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
@@ -535,7 +629,7 @@
                 let html = '';
                 players.forEach((p, i) => {
                     let rank = getRankData(p.rating);
-                    html += `<div class="lb-item"><span>${i+1}. <img src="https://swaga3939-lab.github.io/chess-game/${rank.img}" style="width:16px; vertical-align:middle; margin-bottom:2px;"> ${p.name}</span> <span style="color:var(--accent-green); font-weight:bold;">${p.rating}</span></div>`;
+                    html += `<div class="lb-item"><span>${i+1}. <img src="https://swaga3939-lab.github.io/chess-game/${rank.img}" style="width:16px; vertical-align:middle; margin-bottom:2px;"> ${p.name}</span> <span style="color:var(--accent-blue); font-weight:bold;">${p.rating}</span></div>`;
                 });
                 document.getElementById('lobby-leaderboard-list').innerHTML = html;
             } catch(e) { document.getElementById('lobby-leaderboard-list').innerHTML = '<div style="text-align: center; color: #ef5350;">Ошибка загрузки</div>'; }
@@ -636,7 +730,7 @@
                     lobbyBar.style.backgroundImage = `linear-gradient(rgba(10, 15, 20, 0.4), rgba(10, 15, 20, 0.4)), url('https://swaga3939-lab.github.io/chess-game/${myEquipped.bg}')`;
                 } else { 
                     bar.style.backgroundImage = 'none'; bar.style.backgroundColor = 'var(--panel-bg)'; 
-                    lobbyBar.style.backgroundImage = 'none'; lobbyBar.style.backgroundColor = '#222';
+                    lobbyBar.style.backgroundImage = 'none'; lobbyBar.style.backgroundColor = '#1a2332';
                 }
                 if (myEquipped.frame !== 'default') { 
                     frameEl.style.backgroundImage = `url('https://swaga3939-lab.github.io/chess-game/${myEquipped.frame}')`; frameEl.classList.add('active-frame'); 
@@ -1006,8 +1100,15 @@
                     const name = isObj ? c.name : 'Игрок'; const text = isObj ? c.text : c;
                     const isMe = name === myRealName;
                     const div = document.createElement('div'); div.className = isMe ? 'chat-msg my' : 'chat-msg opp';
-                    if (text.startsWith('sticker_')) div.innerHTML = `<img src="https://swaga3939-lab.github.io/chess-game/${text}" class="chat-sticker">`;
-                    else div.innerHTML = `<span class="chat-author">${name}</span>${text}`;
+                    if (text.startsWith('sticker_')) {
+                        div.innerHTML = `<img src="https://swaga3939-lab.github.io/chess-game/${text}" class="chat-sticker">`;
+                    } else {
+                        const authorSpan = document.createElement('span');
+                        authorSpan.className = 'chat-author';
+                        authorSpan.textContent = name;
+                        div.appendChild(authorSpan);
+                        div.appendChild(document.createTextNode(text));
+                    }
                     chatMsgs.appendChild(div);
                 });
                 chatMsgs.scrollTop = 99999;
@@ -1060,8 +1161,15 @@
         socket.on('chat_message', (data) => {
             const name = data.name || "Игрок"; const text = data.text || ""; const isMe = name === myRealName;
             const div = document.createElement('div'); div.className = isMe ? 'chat-msg my' : 'chat-msg opp';
-            if (text.startsWith('sticker_')) div.innerHTML = `<img src="https://swaga3939-lab.github.io/chess-game/${text}" class="chat-sticker">`;
-            else div.innerHTML = `<span class="chat-author">${name}</span>${text}`;
+            if (text.startsWith('sticker_')) {
+                div.innerHTML = `<img src="https://swaga3939-lab.github.io/chess-game/${text}" class="chat-sticker">`;
+            } else {
+                const authorSpan = document.createElement('span');
+                authorSpan.className = 'chat-author';
+                authorSpan.textContent = name;
+                div.appendChild(authorSpan);
+                div.appendChild(document.createTextNode(text)); // Безопасный текст
+            }
             document.getElementById('chat-messages').appendChild(div);
             document.getElementById('chat-messages').scrollTop = 99999;
         });
