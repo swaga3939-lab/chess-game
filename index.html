@@ -107,7 +107,7 @@
         .board-b72b1 .piece-417db { 
             pointer-events: none !important; 
             filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); 
-            transition: transform 0.2s ease-in-out; /* Плавное движение */
+            transition: top 0.15s ease, left 0.15s ease; /* <--- ПРАВИЛЬНАЯ АНИМАЦИЯ */
         }
         
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); }
