@@ -103,11 +103,10 @@
         
         .square-55d63 { position: relative; cursor: pointer !important; }
         
-        /* АНИМАЦИЯ ФИГУР (включен CSS transition для плавности) */
+        /* АНИМАЦИЯ ФИГУР (нативная, через chessboard.js + jQuery.animate) */
         .board-b72b1 .piece-417db { 
             pointer-events: none !important; 
             filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); 
-            transition: top 0.2s ease-out, left 0.2s ease-out; 
         }
         
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); }
@@ -623,7 +622,7 @@
             if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
             if (dir === -1 && replayIndex > 0) replayIndex--;
             replayGame = new Chess(); for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
-            board.position(replayGame.fen()); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
+            board.position(replayGame.fen(), true); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
         }
 
         async function fetchLeaderboard() {
@@ -835,7 +834,7 @@
                 if (moves.length > 0) {
                     let randomMove = moves[Math.floor(Math.random() * moves.length)];
                     game.move(randomMove);
-                    board.position(game.fen());
+                    board.position(game.fen(), true);
                     isBotThinking = false;
                     if (game.game_over()) {
                         let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
@@ -1092,7 +1091,7 @@
             if (fenChanged) {
                 selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
                 $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
-                lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
+                lastServerFen = data.fen; game.load(data.fen); board.position(data.fen, true); currentTurn = game.turn();
             }
             
             if (data.time_left) updateTimers(data.time_left);
@@ -1173,7 +1172,7 @@
 
         socket.on('invalid_move', (data) => { 
             showToast('Сервер отклонил ход: ' + data.msg, true); 
-            if (data.fen) { game.load(data.fen); board.position(data.fen); currentTurn = game.turn(); }
+            if (data.fen) { game.load(data.fen); board.position(data.fen, true); currentTurn = game.turn(); }
             selectedSquare = null; removeHighlights(); resetSyncBtn(); 
         });
 
@@ -1230,7 +1229,7 @@
                 var fromSq = selectedSquare;
                 var move = game.move({ from: fromSq, to: square, promotion: 'q' });
                 if (move) { 
-                    board.position(game.fen()); selectedSquare = null; removeHighlights(); 
+                    board.position(game.fen(), true); selectedSquare = null; removeHighlights(); 
                     if (isBotGame) {
                         if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                         else {
@@ -1268,7 +1267,7 @@
                             const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
                             if (isBotThinking) {
                                 game.move({ from: from, to: to, promotion: 'q' });
-                                board.position(game.fen()); isBotThinking = false;
+                                board.position(game.fen(), true); isBotThinking = false;
                                 if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы проиграли." : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                                 else { document.getElementById('status-text').innerText = "Ваш ход"; }
                             }
