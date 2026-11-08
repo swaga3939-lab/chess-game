@@ -26,7 +26,7 @@
             background: var(--bg-gradient); 
             color: var(--text-main); 
             display: flex; flex-direction: column; align-items: center; 
-            margin: 0; min-height: 100vh; padding-bottom: 200px; overflow-x: hidden; 
+            margin: 0; min-height: 100vh; padding-bottom: 130px; overflow-x: hidden; 
         }
         
         /* Фоновые картинки */
@@ -34,16 +34,16 @@
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-image: url('https://swaga3939-lab.github.io/chess-game/snow.png');
             background-position: left top; background-size: contain; background-repeat: no-repeat;
-            pointer-events: none; z-index: -1;
+            pointer-events: none; z-index: 9997; /* Поверх меню, под модалками */
         }
         #trees-bg {
-            position: fixed; bottom: 0; left: 0; width: 100vw; height: 200px;
+            position: fixed; bottom: 0; left: 0; width: 100vw; height: 120px;
             background-image: url('https://swaga3939-lab.github.io/chess-game/Chr.png');
-            background-position: bottom center; background-size: cover; background-repeat: no-repeat;
-            pointer-events: none; z-index: 9998;
+            background-position: bottom center; background-size: 100% auto; background-repeat: no-repeat;
+            pointer-events: none; z-index: 9996;
         }
 
-        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 350px; }
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 350px; }
         .toast { background: rgba(30, 40, 55, 0.95); backdrop-filter: blur(10px); color: white; padding: 12px 20px; border-radius: 12px; font-size: 14px; text-align: center; border: 1px solid var(--panel-border); box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.error { border-color: #ef5350; background: rgba(60, 20, 20, 0.95); }
@@ -100,10 +100,16 @@
         .timer { font-size: 22px; font-weight: bold; font-family: 'Courier New', monospace; padding: 6px 14px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); border-radius: 8px; color: var(--text-muted); transition: all 0.3s; border: 1px solid var(--panel-border); flex-shrink: 0; margin-left: 10px; }
         .timer.active { background: rgba(255, 255, 255, 0.85); color: #000; border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
         
-        #board-container { position: relative; width: 92vw; max-width: 400px; margin: 0 0 5px 0; border-radius: 12px; overflow: hidden; background-color: #cbd7e6; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--panel-border);}
+        /* Обертка для доски и координат */
+        #board-wrapper { display: flex; flex-direction: column; align-items: center; width: 92vw; max-width: 400px; position: relative; margin: 0 0 5px 0; }
+        #board-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background-color: #cbd7e6; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--panel-border);}
         #board { width: 100%; height: 100%; touch-action: none; }
         
-        /* Цвета доски как на фото */
+        /* Цифры (слева) и Буквы (снизу) */
+        #rank-labels { position: absolute; left: -15px; top: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-around; font-size: 12px; font-weight: bold; color: var(--text-muted); padding-bottom: 20px; }
+        #file-labels { display: flex; justify-content: space-around; width: 100%; margin-top: 5px; font-size: 12px; font-weight: bold; color: var(--text-muted); padding-left: 15px; }
+        
+        /* Цвета доски */
         .white-1e1d7 { background-color: #cbd7e6 !important; color: #5b7cb6 !important; }
         .black-3c85d { background-color: #5b7cb6 !important; color: #cbd7e6 !important; }
         
@@ -144,7 +150,7 @@
         #replay-controls { display: none; width: 92%; max-width: 400px; justify-content: space-between; gap: 10px; margin-top: 10px; }
         .replay-btn { background: rgba(30, 45, 65, 0.8); padding: 12px; border-radius: 10px; font-size: 18px; width: 48%; border: 1px solid var(--panel-border); color: #fff;}
         
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.show { display: flex; opacity: 1; }
         .modal-card { position: relative; background: #1a2332; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid var(--panel-border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: scale(0.8) translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
@@ -258,7 +264,13 @@
             <div class="timer" id="opp-timer">--:--</div>
         </div>
         <button id="back-to-lobby-btn">← Выйти в лобби</button>
-        <div id="board-container"><div id="board"></div></div>
+        
+        <!-- ОБЕРТКА ДЛЯ ДОСКИ С КООРДИНАТАМИ -->
+        <div id="board-wrapper">
+            <div id="rank-labels"></div>
+            <div id="board-container"><div id="board"></div></div>
+            <div id="file-labels"></div>
+        </div>
         
         <div id="sync-controls">
             <button id="sync-fast-btn" class="btn-sync" style="flex: 1; padding: 10px 5px; font-size: 13px; margin-bottom: 0; border-radius: 10px;">🔄 Синхронизация</button>
@@ -573,8 +585,8 @@
                 document.getElementById('sync-controls').style.display = 'none'; document.getElementById('chat-container').style.display = 'none';
                 document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; document.getElementById('game-duration').style.display = 'none';
                 document.getElementById('premove-controls').style.display = 'none'; document.getElementById('replay-controls').style.display = 'flex';
-                board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
-                board.orientation('white'); renderLog(replayMoves); replayStep(0); 
+                board = Chessboard('board', { draggable: false, position: 'start', showNotation: false, pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
+                board.orientation('white'); updateBoardLabels('white'); renderLog(replayMoves); replayStep(0); 
             } catch (e) { showToast("Партия не найдена или еще не завершена", true); }
         });
 
@@ -609,8 +621,8 @@
                 document.getElementById('sync-controls').style.display = 'none'; document.getElementById('chat-container').style.display = 'none';
                 document.getElementById('my-timer').style.display = 'none'; document.getElementById('opp-timer').style.display = 'none'; document.getElementById('game-duration').style.display = 'none';
                 document.getElementById('premove-controls').style.display = 'none'; document.getElementById('replay-controls').style.display = 'flex';
-                board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
-                board.orientation('white'); renderLog(replayMoves); replayStep(0);
+                board = Chessboard('board', { draggable: false, position: 'start', showNotation: false, pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
+                board.orientation('white'); updateBoardLabels('white'); renderLog(replayMoves); replayStep(0);
             } catch(e) { showToast("Ошибка загрузки реплея", true); }
         }
 
@@ -750,6 +762,14 @@
         fetchMyProfile();
         $('#settings-btn').click(() => { document.getElementById('settings-modal').classList.add('show'); });
 
+        function updateBoardLabels(orientation) {
+            let ranks = ['8','7','6','5','4','3','2','1'];
+            let files = ['a','b','c','d','e','f','g','h'];
+            if (orientation === 'black') { ranks.reverse(); files.reverse(); }
+            document.getElementById('rank-labels').innerHTML = ranks.map(r => `<span>${r}</span>`).join('');
+            document.getElementById('file-labels').innerHTML = files.map(f => `<span>${f}</span>`).join('');
+        }
+
         function startGame(isCreator) {
             game = new Chess();
             gameDuration = 0;
@@ -781,8 +801,10 @@
             document.getElementById('opp-player-bar').style.backgroundImage = "none";
             document.getElementById('opp-timer').innerText = "--:--";
 
-            board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
+            board = Chessboard('board', { draggable: false, position: 'start', showNotation: false, pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(myColor === 'w' ? 'white' : 'black');
+            updateBoardLabels(myColor === 'w' ? 'white' : 'black');
+            
             socket.emit('join', { room: currentRoom, name: myRealName, username: myUsername, user_id: myUserId, photo_url: myPhotoUrl, time_control: isCreator ? timeControl : timeControl });
         }
 
@@ -798,8 +820,9 @@
             document.getElementById('room-badge').innerText = "BOT";
             document.getElementById('opp-avatar').style.backgroundImage = `url('https://api.dicebear.com/7.x/bottts/svg?seed=stockfish')`;
             game = new Chess();
-            board = Chessboard('board', { draggable: false, position: 'start', pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
+            board = Chessboard('board', { draggable: false, position: 'start', showNotation: false, pieceTheme: (p) => `https://images.chesscomfiles.com/chess-themes/pieces/neo/150/${p.toLowerCase()}.png` });
             board.orientation(color === 'w' ? 'white' : 'black');
+            updateBoardLabels(color === 'w' ? 'white' : 'black');
             if (!stockfish) initStockfish();
             
             let skillLevel = depth === 1 ? 0 : depth === 5 ? 5 : depth === 12 ? 12 : 20;
@@ -1042,6 +1065,7 @@
             if (data[myUserId]) { 
                 myColor = data[myUserId].color; 
                 if (board) board.orientation(myColor === 'w' ? 'white' : 'black'); 
+                updateBoardLabels(myColor === 'w' ? 'white' : 'black');
             }
             const ids = Object.keys(data);
             if (ids.length >= 2) {
