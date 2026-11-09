@@ -87,7 +87,7 @@
         .timer.active { background: rgba(255, 255, 255, 0.85); color: #000; border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
         
         #board-wrapper { display: flex; flex-direction: column; align-items: center; width: 92vw; max-width: 400px; position: relative; margin: 0 0 5px 0; }
-        #board-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background-color: #cbd7e6; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--panel-border); transform: translateZ(0);}
+        #board-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background-color: #cbd7e6; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--panel-border);}
         #board { width: 100%; height: 100%; touch-action: none; }
         
         #rank-labels { position: absolute; left: -15px; top: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-around; font-size: 12px; font-weight: bold; color: var(--text-muted); padding-bottom: 20px; }
@@ -98,10 +98,10 @@
         
         .square-55d63 { position: relative; cursor: pointer !important; }
         
+        /* АНИМАЦИЯ ФИГУР — КАК В 9-Й ВЕРСИИ (никаких transition, никаких will-change) */
         .board-b72b1 .piece-417db { 
             pointer-events: none !important; 
             filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); 
-            will-change: transform;
         }
         
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); }
@@ -512,64 +512,6 @@
         let lastServerFen = "start", isReplayMode = false, replayGame = null, replayMoves = [], replayIndex = 0;
         let stockfish = null, isSyncPending = false, syncWatchdog = null;
 
-        // === FLIP-АНИМАЦИЯ ===
-        function flipAnimateBoard(oldFen, newFen) {
-            if (!board) return;
-            if (!oldFen || !newFen || oldFen === newFen) { board.position(newFen); return; }
-            
-            const snapshot = {};
-            $('#board [data-square]').each(function() {
-                const sq = $(this).attr('data-square');
-                const $p = $(this).children().first();
-                if ($p.length) {
-                    const r = $p[0].getBoundingClientRect();
-                    snapshot[sq] = { top: r.top, left: r.left };
-                }
-            });
-            
-            let moves = [];
-            try {
-                const oldGame = new Chess(oldFen);
-                const newGame = new Chess(newFen);
-                const allSq = [];
-                for (let r = 1; r <= 8; r++) for (const f of ['a','b','c','d','e','f','g','h']) allSq.push(f + r);
-                
-                const disappeared = [], appeared = [];
-                for (const sq of allSq) {
-                    const oP = oldGame.get(sq), nP = newGame.get(sq);
-                    const oK = oP ? (oP.color + oP.type) : null;
-                    const nK = nP ? (nP.color + nP.type) : null;
-                    if (oK && !nK) disappeared.push({ square: sq, key: oK });
-                    else if (!oK && nK) appeared.push({ square: sq, key: nK });
-                    else if (oK && nK && oK !== nK) { disappeared.push({ square: sq, key: oK }); appeared.push({ square: sq, key: nK }); }
-                }
-                for (const d of disappeared) {
-                    const idx = appeared.findIndex(a => a.key === d.key);
-                    if (idx >= 0) { moves.push({ from: d.square, to: appeared[idx].square }); appeared.splice(idx, 1); }
-                }
-            } catch (e) { moves = []; }
-            
-            board.position(newFen);
-            
-            if (moves.length === 0) return;
-            requestAnimationFrame(() => {
-                moves.forEach(m => {
-                    const old = snapshot[m.from];
-                    if (!old) return;
-                    const $newPiece = $('#board [data-square="' + m.to + '"]').children().first();
-                    if (!$newPiece.length) return;
-                    const nr = $newPiece[0].getBoundingClientRect();
-                    const dx = old.left - nr.left, dy = old.top - nr.top;
-                    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-                    $newPiece.css({ transform: 'translate(' + dx + 'px, ' + dy + 'px)', transition: 'none' });
-                    void $newPiece[0].offsetHeight;
-                    requestAnimationFrame(() => {
-                        $newPiece.css({ transition: 'transform 0.25s ease-out', transform: 'translate(0,0)' });
-                    });
-                });
-            });
-        }
-
         const $premoveBtn = $('#premove-btn'), $cancelPremoveBtn = $('#cancel-premove-btn');
 
         $('.time-btn').click(function() {
@@ -670,9 +612,8 @@
             if (!isReplayMode) return;
             if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
             if (dir === -1 && replayIndex > 0) replayIndex--;
-            const oldFenR = replayGame ? replayGame.fen() : "start";
             replayGame = new Chess(); for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
-            flipAnimateBoard(oldFenR, replayGame.fen()); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
+            board.position(replayGame.fen()); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
         }
 
         async function fetchLeaderboard() {
@@ -883,9 +824,8 @@
                 let moves = game.moves({ verbose: true });
                 if (moves.length > 0) {
                     let randomMove = moves[Math.floor(Math.random() * moves.length)];
-                    const oldFen = game.fen();
                     game.move(randomMove);
-                    flipAnimateBoard(oldFen, game.fen());
+                    board.position(game.fen());
                     isBotThinking = false;
                     if (game.game_over()) {
                         let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
@@ -1142,8 +1082,7 @@
             if (fenChanged) {
                 selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
                 $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
-                const oldFen = game.fen();
-                lastServerFen = data.fen; game.load(data.fen); flipAnimateBoard(oldFen, data.fen); currentTurn = game.turn();
+                lastServerFen = data.fen; game.load(data.fen); board.position(data.fen); currentTurn = game.turn();
             }
             
             if (data.time_left) updateTimers(data.time_left);
@@ -1224,7 +1163,7 @@
 
         socket.on('invalid_move', (data) => { 
             showToast('Сервер отклонил ход: ' + data.msg, true); 
-            if (data.fen) { const of = game.fen(); game.load(data.fen); flipAnimateBoard(of, data.fen); currentTurn = game.turn(); }
+            if (data.fen) { game.load(data.fen); board.position(data.fen); currentTurn = game.turn(); }
             selectedSquare = null; removeHighlights(); resetSyncBtn(); 
         });
 
@@ -1279,10 +1218,9 @@
             } else {
                 if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
                 var fromSq = selectedSquare;
-                var oldFenClick = game.fen();
                 var move = game.move({ from: fromSq, to: square, promotion: 'q' });
                 if (move) { 
-                    flipAnimateBoard(oldFenClick, game.fen()); selectedSquare = null; removeHighlights(); 
+                    board.position(game.fen()); selectedSquare = null; removeHighlights(); 
                     if (isBotGame) {
                         if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                         else {
@@ -1319,9 +1257,8 @@
                         if (bestMove && bestMove !== '(none)') {
                             const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
                             if (isBotThinking) {
-                                const oldFenS = game.fen();
                                 game.move({ from: from, to: to, promotion: 'q' });
-                                flipAnimateBoard(oldFenS, game.fen()); isBotThinking = false;
+                                board.position(game.fen()); isBotThinking = false;
                                 if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы проиграли." : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                                 else { document.getElementById('status-text').innerText = "Ваш ход"; }
                             }
