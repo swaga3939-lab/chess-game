@@ -39,7 +39,6 @@
         #lobby { display: flex; flex-direction: column; width: 92%; max-width: 400px; padding: 20px; background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 20px; margin-top: 20px; border: 1px solid var(--panel-border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: all 0.3s ease; z-index: 10;}
         #lobby h2 { margin-top: 0; margin-bottom: 10px; font-size: 15px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; text-align: center; }
         
-        /* Профиль в лобби */
         #lobby-profile { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: 20px; }
         #my-rank-info { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px; }
         #my-lobby-banner { width: 100%; height: 130px; border-radius: 15px; background-size: cover; background-position: center; border: 1px solid var(--panel-border); position: relative; display: flex; align-items: center; padding-left: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); background-color: #1a2332; }
@@ -69,7 +68,6 @@
         .coin-icon { width: 16px !important; height: 16px !important; object-fit: contain; vertical-align: middle; margin-left: 4px; margin-bottom: 2px; flex-shrink: 0; display: inline-block; }
         .coin-icon-lg { width: 22px !important; height: 22px !important; object-fit: contain; vertical-align: middle; margin-left: 6px; margin-bottom: 3px; flex-shrink: 0; display: inline-block; }
 
-        /* Игровой экран */
         #game-screen { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; position: relative; z-index: 10;}
         #back-to-lobby-btn { width: 92%; max-width: 400px; margin: 5px 0 10px 0; padding: 10px; background: rgba(30, 45, 65, 0.6); border: 1px solid var(--panel-border); border-radius: 10px; font-size: 14px; color: var(--text-muted); display: none; cursor: pointer; text-align: center; transition: all 0.2s; }
         #back-to-lobby-btn:active { background: rgba(30, 45, 65, 0.9); }
@@ -88,25 +86,22 @@
         .timer { font-size: 22px; font-weight: bold; font-family: 'Courier New', monospace; padding: 6px 14px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); border-radius: 8px; color: var(--text-muted); transition: all 0.3s; border: 1px solid var(--panel-border); flex-shrink: 0; margin-left: 10px; }
         .timer.active { background: rgba(255, 255, 255, 0.85); color: #000; border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.4); }
         
-        /* Обертка для доски и координат */
         #board-wrapper { display: flex; flex-direction: column; align-items: center; width: 92vw; max-width: 400px; position: relative; margin: 0 0 5px 0; }
-        #board-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background-color: #cbd7e6; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--panel-border);}
+        #board-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background-color: #cbd7e6; aspect-ratio: 1 / 1; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--panel-border); transform: translateZ(0);}
         #board { width: 100%; height: 100%; touch-action: none; }
         
-        /* Цифры (слева) и Буквы (снизу) */
         #rank-labels { position: absolute; left: -15px; top: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-around; font-size: 12px; font-weight: bold; color: var(--text-muted); padding-bottom: 20px; }
         #file-labels { display: flex; justify-content: space-around; width: 100%; margin-top: 5px; font-size: 12px; font-weight: bold; color: var(--text-muted); padding-left: 15px; }
         
-        /* Цвета доски */
         .white-1e1d7 { background-color: #cbd7e6 !important; color: #5b7cb6 !important; }
         .black-3c85d { background-color: #5b7cb6 !important; color: #cbd7e6 !important; }
         
         .square-55d63 { position: relative; cursor: pointer !important; }
         
-        /* АНИМАЦИЯ ФИГУР (нативная, через chessboard.js + jQuery.animate) */
         .board-b72b1 .piece-417db { 
             pointer-events: none !important; 
             filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.4)); 
+            will-change: transform;
         }
         
         .highlight-dot::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30%; height: 30%; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); }
@@ -187,7 +182,6 @@
     <div id="toast-container"></div>
     
     <div id="lobby">
-        <!-- БЛОК ПРОФИЛЯ -->
         <div id="lobby-profile">
             <div id="my-rank-info">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -233,7 +227,6 @@
             <button id="settings-btn" class="btn-purple" style="flex: 1; margin-bottom: 0; font-size: 13px; padding: 10px 5px;">Настройки</button>
         </div>
 
-        <!-- ТОП 10 В ЛОББИ -->
         <h2 style="margin-top: 20px;">Топ-10 игроков</h2>
         <div id="lobby-leaderboard-list">
             <div style="text-align: center; color: #aaa;">Загрузка...</div>
@@ -256,7 +249,6 @@
         </div>
         <button id="back-to-lobby-btn">← Выйти в лобби</button>
         
-        <!-- ОБЕРТКА ДЛЯ ДОСКИ С КООРДИНАТАМИ -->
         <div id="board-wrapper">
             <div id="rank-labels"></div>
             <div id="board-container"><div id="board"></div></div>
@@ -313,7 +305,6 @@
         <div id="move-log"></div>
     </div>
 
-    <!-- Модалки -->
     <div id="search-overlay" class="modal-overlay">
         <div class="modal-card">
             <h2>Поиск соперника</h2>
@@ -521,6 +512,64 @@
         let lastServerFen = "start", isReplayMode = false, replayGame = null, replayMoves = [], replayIndex = 0;
         let stockfish = null, isSyncPending = false, syncWatchdog = null;
 
+        // === FLIP-АНИМАЦИЯ ===
+        function flipAnimateBoard(oldFen, newFen) {
+            if (!board) return;
+            if (!oldFen || !newFen || oldFen === newFen) { board.position(newFen); return; }
+            
+            const snapshot = {};
+            $('#board [data-square]').each(function() {
+                const sq = $(this).attr('data-square');
+                const $p = $(this).children().first();
+                if ($p.length) {
+                    const r = $p[0].getBoundingClientRect();
+                    snapshot[sq] = { top: r.top, left: r.left };
+                }
+            });
+            
+            let moves = [];
+            try {
+                const oldGame = new Chess(oldFen);
+                const newGame = new Chess(newFen);
+                const allSq = [];
+                for (let r = 1; r <= 8; r++) for (const f of ['a','b','c','d','e','f','g','h']) allSq.push(f + r);
+                
+                const disappeared = [], appeared = [];
+                for (const sq of allSq) {
+                    const oP = oldGame.get(sq), nP = newGame.get(sq);
+                    const oK = oP ? (oP.color + oP.type) : null;
+                    const nK = nP ? (nP.color + nP.type) : null;
+                    if (oK && !nK) disappeared.push({ square: sq, key: oK });
+                    else if (!oK && nK) appeared.push({ square: sq, key: nK });
+                    else if (oK && nK && oK !== nK) { disappeared.push({ square: sq, key: oK }); appeared.push({ square: sq, key: nK }); }
+                }
+                for (const d of disappeared) {
+                    const idx = appeared.findIndex(a => a.key === d.key);
+                    if (idx >= 0) { moves.push({ from: d.square, to: appeared[idx].square }); appeared.splice(idx, 1); }
+                }
+            } catch (e) { moves = []; }
+            
+            board.position(newFen);
+            
+            if (moves.length === 0) return;
+            requestAnimationFrame(() => {
+                moves.forEach(m => {
+                    const old = snapshot[m.from];
+                    if (!old) return;
+                    const $newPiece = $('#board [data-square="' + m.to + '"]').children().first();
+                    if (!$newPiece.length) return;
+                    const nr = $newPiece[0].getBoundingClientRect();
+                    const dx = old.left - nr.left, dy = old.top - nr.top;
+                    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+                    $newPiece.css({ transform: 'translate(' + dx + 'px, ' + dy + 'px)', transition: 'none' });
+                    void $newPiece[0].offsetHeight;
+                    requestAnimationFrame(() => {
+                        $newPiece.css({ transition: 'transform 0.25s ease-out', transform: 'translate(0,0)' });
+                    });
+                });
+            });
+        }
+
         const $premoveBtn = $('#premove-btn'), $cancelPremoveBtn = $('#cancel-premove-btn');
 
         $('.time-btn').click(function() {
@@ -621,8 +670,9 @@
             if (!isReplayMode) return;
             if (dir === 1 && replayIndex < replayMoves.length) replayIndex++;
             if (dir === -1 && replayIndex > 0) replayIndex--;
+            const oldFenR = replayGame ? replayGame.fen() : "start";
             replayGame = new Chess(); for (let i = 0; i < replayIndex; i++) replayGame.move(replayMoves[i]);
-            board.position(replayGame.fen(), true); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
+            flipAnimateBoard(oldFenR, replayGame.fen()); document.getElementById('status-text').innerText = `Ход ${replayIndex} из ${replayMoves.length}`;
         }
 
         async function fetchLeaderboard() {
@@ -833,8 +883,9 @@
                 let moves = game.moves({ verbose: true });
                 if (moves.length > 0) {
                     let randomMove = moves[Math.floor(Math.random() * moves.length)];
+                    const oldFen = game.fen();
                     game.move(randomMove);
-                    board.position(game.fen(), true);
+                    flipAnimateBoard(oldFen, game.fen());
                     isBotThinking = false;
                     if (game.game_over()) {
                         let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!";
@@ -1091,7 +1142,8 @@
             if (fenChanged) {
                 selectedSquare = null; premoveFrom = null; premoveTo = null; isPremoveMode = false;
                 $premoveBtn.text("Включить премув").css("background", ""); $cancelPremoveBtn.hide(); removeHighlights();
-                lastServerFen = data.fen; game.load(data.fen); board.position(data.fen, true); currentTurn = game.turn();
+                const oldFen = game.fen();
+                lastServerFen = data.fen; game.load(data.fen); flipAnimateBoard(oldFen, data.fen); currentTurn = game.turn();
             }
             
             if (data.time_left) updateTimers(data.time_left);
@@ -1172,7 +1224,7 @@
 
         socket.on('invalid_move', (data) => { 
             showToast('Сервер отклонил ход: ' + data.msg, true); 
-            if (data.fen) { game.load(data.fen); board.position(data.fen, true); currentTurn = game.turn(); }
+            if (data.fen) { const of = game.fen(); game.load(data.fen); flipAnimateBoard(of, data.fen); currentTurn = game.turn(); }
             selectedSquare = null; removeHighlights(); resetSyncBtn(); 
         });
 
@@ -1227,9 +1279,10 @@
             } else {
                 if (selectedSquare === square) { selectedSquare = null; removeHighlights(); return; }
                 var fromSq = selectedSquare;
+                var oldFenClick = game.fen();
                 var move = game.move({ from: fromSq, to: square, promotion: 'q' });
                 if (move) { 
-                    board.position(game.fen(), true); selectedSquare = null; removeHighlights(); 
+                    flipAnimateBoard(oldFenClick, game.fen()); selectedSquare = null; removeHighlights(); 
                     if (isBotGame) {
                         if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы победили!" : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                         else {
@@ -1266,8 +1319,9 @@
                         if (bestMove && bestMove !== '(none)') {
                             const from = bestMove.substring(0, 2), to = bestMove.substring(2, 4);
                             if (isBotThinking) {
+                                const oldFenS = game.fen();
                                 game.move({ from: from, to: to, promotion: 'q' });
-                                board.position(game.fen(), true); isBotThinking = false;
+                                flipAnimateBoard(oldFenS, game.fen()); isBotThinking = false;
                                 if (game.game_over()) { let txt = game.in_checkmate() ? "Мат! Вы проиграли." : "Ничья!"; document.getElementById('modal-text').innerText = txt; document.getElementById('modal-elo-container').innerHTML = ''; document.getElementById('modal-rank-container').innerHTML = ''; document.getElementById('modal').classList.add('show'); } 
                                 else { document.getElementById('status-text').innerText = "Ваш ход"; }
                             }
